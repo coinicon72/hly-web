@@ -3,16 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@devexpress/dx-react-core": "^1.1.2",
+    "@devexpress/dx-react-grid": "^1.1.2",
+    "@devexpress/dx-react-grid-material-ui": "^1.1.2",
     "@material-ui/icons": "^1.0.0-beta.42",
     "axios": "^0.18.0",
+    "lodash": "^4.17.5",
     "material-ui": "^1.0.0-beta.41",
     "mdi-material-ui": "^3.2.0",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
+    "react-height": "^3.0.0",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.4",
-    "rmwc": "^1.5.3",
+    "redux": "^3.7.2",
     "typeface-roboto": "^0.0.54"
   },
   "scripts": {

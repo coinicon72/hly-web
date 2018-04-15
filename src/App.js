@@ -30,29 +30,29 @@ import OrderPage from "./order"
 import ProductPage from "./product"
 
 const mailFolderListItems = (<div>
-                   <Link to="/client">
- <ListItem button>
-    <ListItemIcon>
-      <ClipboardAccount />
-    </ListItemIcon>
-    <ListItemText primary="客户" />
-  </ListItem>
+  <Link to="/client">
+    <ListItem button>
+      <ListItemIcon>
+        <ClipboardAccount />
+      </ListItemIcon>
+      <ListItemText primary="客户" />
+    </ListItem>
   </Link>
- <Link to="/order">
-<ListItem button>
-    <ListItemIcon>
-      <ClipboardText />
-    </ListItemIcon>
-    <ListItemText primary="订单" />
-  </ListItem>
+  <Link to="/order">
+    <ListItem button>
+      <ListItemIcon>
+        <ClipboardText />
+      </ListItemIcon>
+      <ListItemText primary="订单" />
+    </ListItem>
   </Link>
- <Link to="/product">
-  <ListItem button>
-    <ListItemIcon>
-      <GroupWork />
-    </ListItemIcon>
-    <ListItemText primary="产品" />
-  </ListItem>
+  <Link to="/product">
+    <ListItem button>
+      <ListItemIcon>
+        <GroupWork />
+      </ListItemIcon>
+      <ListItemText primary="产品" />
+    </ListItem>
   </Link>
 </div>
 );
@@ -60,35 +60,35 @@ const mailFolderListItems = (<div>
 const otherMailFolderListItems = (
   <div>
     <Link to="/basic_data/client_type">
-    <ListItem button>
-      <ListItemIcon>
-        <FlagVariant />
-      </ListItemIcon>
-      <ListItemText primary="客户类型" />
-    </ListItem>
+      <ListItem button>
+        <ListItemIcon>
+          <FlagVariant />
+        </ListItemIcon>
+        <ListItemText primary="客户类型" />
+      </ListItem>
     </Link>
     <Link to="/basic_data/material_type">
-  <ListItem button>
-      <ListItemIcon>
-        <FlagVariant />
-      </ListItemIcon>
-      <ListItemText primary="材料分类" />
-    </ListItem>
+      <ListItem button>
+        <ListItemIcon>
+          <FlagVariant />
+        </ListItemIcon>
+        <ListItemText primary="材料分类" />
+      </ListItem>
     </Link>
-   <Link to="/basic_data/material">
-   <ListItem button>
-      <ListItemIcon>
-        <HexagonMultiple />
-      </ListItemIcon>
-      <ListItemText primary="材料" />
-    </ListItem>
+    <Link to="/basic_data/material">
+      <ListItem button>
+        <ListItemIcon>
+          <HexagonMultiple />
+        </ListItemIcon>
+        <ListItemText primary="材料" />
+      </ListItem>
     </Link>
   </div>
 );
 
 const drawerWidth = 240;
 
-class App extends Component<{classes:any}, any> {
+class App extends Component<{ classes: any }, any> {
   state = {
     open: true,
     anchor: 'left',
@@ -105,7 +105,7 @@ class App extends Component<{classes:any}, any> {
   };
 
   render() {
-    const {classes} = this.props
+    const { classes } = this.props
     const { anchor, open } = this.state;
 
     const drawer = (
@@ -132,25 +132,25 @@ class App extends Component<{classes:any}, any> {
     return (
       <BrowserRouter>
         <div className={classes.root}>
-        <div className={classes.appFrame}>
-        <AppBar className={classNames(classes.appBar, {
+          <div className={classes.appFrame}>
+            <AppBar className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
               [classes[`appBarShift-${anchor}`]]: open,
             })}>
-        <Toolbar disableGutters={!open}>
-          <IconButton color="inherit" className={classes.menuButton, open && classes.hide} aria-label="open drawer" onClick={this.handleDrawerOpen}>
+              <Toolbar disableGutters={!open}>
+                <IconButton color="inherit" className={classes.menuButton, open && classes.hide} aria-label="open drawer" onClick={this.handleDrawerOpen}>
             <MenuIcon />
           </IconButton>
-          <Typography variant="title" color="inherit" noWrap className={classes.flex}>
-          Wasted too much time to figure out a cool title
+              <Typography variant="title" color="inherit" noWrap className={classes.flex}>
+                Wasted too much time to figure out a cool title
           </Typography>
-          <IconButton color="inherit"><AccountCircle /></IconButton>
+              <IconButton color="inherit"><AccountCircle /></IconButton>
         </Toolbar>
       </AppBar>
 
-      {drawer}
+          {drawer}
 
-      <main
+          <main
             className={classNames(classes.content, classes[`content-${anchor}`], {
               [classes.contentShift]: open,
               [classes[`contentShift-${anchor}`]]: open,
@@ -159,19 +159,19 @@ class App extends Component<{classes:any}, any> {
             {/* <div className={classes.drawerHeader} /> */}
 
             <Switch>
-            <Route exact path="/" component={HomePage} />
+              <Route exact path="/" component={HomePage} />
               <Route path="/client" component={ClientPage} />
               <Route path="/order" component={OrderPage} />
               <Route path="/product" component={ProductPage} />
               <Route path="/basic_data/client_type" component={ClientTypePage} />
               <Route path="/basic_data/material_type" component={MaterialTypePage} />
               <Route path="/basic_data/material" component={MaterialPage} />
-              </Switch>
+            </Switch>
 
           </main>
-</div>
+        </div>
               </div>
-      </BrowserRouter>
+      </BrowserRouter >
     );
   }
 }
@@ -239,7 +239,7 @@ const styles = theme => ({
     }),
 
     marginTop: '64px',
-    overflowY: 'auto',
+    // overflowY: 'auto',
   },
   'content-left': {
     marginLeft: -drawerWidth,

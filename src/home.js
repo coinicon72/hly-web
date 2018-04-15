@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from 'react';
+import React from 'react';
 
 export const HomePage = () => {
   return <p>Home Page</p>
