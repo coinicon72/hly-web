@@ -1,16 +1,19 @@
 // @flow
 
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import compose from 'recompose/compose';
 import { withStyles } from 'material-ui/styles';
+import withWidth from 'material-ui/utils/withWidth';
 
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import Button from 'material-ui/Button';
+import Hidden from 'material-ui/Hidden';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import Drawer from 'material-ui/Drawer';
 import Divider from 'material-ui/Divider';
@@ -28,6 +31,8 @@ import MaterialPage from "./material"
 import ClientPage from "./client"
 import OrderPage from "./order"
 import ProductPage from "./product"
+
+// import DAC from "./dimension_aware_component"
 
 const mailFolderListItems = (<div>
   <Link to="/client">
@@ -86,59 +91,64 @@ const otherMailFolderListItems = (
   </div>
 );
 
-const drawerWidth = 240;
+const API_BASE_URL = "http://localhost:8080/api/data/";
 
-class App extends Component<{ classes: any }, any> {
+class App extends React.PureComponent<{ classes: any }, any> {
   state = {
-    open: true,
+    openDrawer: false,
     anchor: 'left',
 
     basicDataMenu: false,
   };
 
-  handleDrawerOpen = () => {
-    this.setState({ open: true });
-  };
+  // constructor(props) {
+  //   super(props);
+  // }
 
-  handleDrawerClose = () => {
-    this.setState({ open: false });
+  // componentDidMount() {
+  //   this.setState({openDrawer: this.props.width == 'xs' ? false : true});
+  // }
+
+  handleDrawerToggle = () => {
+    this.setState({ openDrawer: !this.state.openDrawer });
   };
+  
+  // handleDrawerOpen = () => {
+  //   this.setState({ openDrawer: true });
+  // };
+
+  // handleDrawerClose = () => {
+  //   this.setState({ openDrawer: false });
+  // };
 
   render() {
-    const { classes } = this.props
-    const { anchor, open } = this.state;
+    const { classes, width } = this.props
+    const { anchor, openDrawer } = this.state;
+
+    // console.debug(this.props.width)
+    // const defaultCloseDrawer = (width == 'xs' || width == 'sm');
 
     const drawer = (
-      <Drawer
-        variant="persistent"
-        anchor={anchor}
-        open={open}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-      >
+      <div>
         <div className={classes.drawerHeader}>
-          <IconButton onClick={this.handleDrawerClose}>
+          {/* <IconButton onClick={this.handleDrawerToggle}>
             <ChevronLeft />
-          </IconButton>
+          </IconButton> */}
         </div>
         <Divider />
         <List>{mailFolderListItems}</List>
         <Divider />
         <List>{otherMailFolderListItems}</List>
-      </Drawer>
+      </div>
     );
 
     return (
       <BrowserRouter>
         <div className={classes.root}>
           <div className={classes.appFrame}>
-            <AppBar className={classNames(classes.appBar, {
-              [classes.appBarShift]: open,
-              [classes[`appBarShift-${anchor}`]]: open,
-            })}>
-              <Toolbar disableGutters={!open}>
-                <IconButton color="inherit" className={classes.menuButton, open && classes.hide} aria-label="open drawer" onClick={this.handleDrawerOpen}>
+            <AppBar className={classes.appBar}>
+              <Toolbar>
+                <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
             <MenuIcon />
           </IconButton>
               <Typography variant="title" color="inherit" noWrap className={classes.flex}>
@@ -147,14 +157,35 @@ class App extends Component<{ classes: any }, any> {
               <IconButton color="inherit"><AccountCircle /></IconButton>
         </Toolbar>
       </AppBar>
-
+      <Hidden mdUp>
+      <Drawer
+        variant="temporary"
+        anchor={anchor}
+        open={openDrawer}
+        onClose={this.handleDrawerToggle}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
+      >
           {drawer}
-
+          </Drawer>
+    </Hidden>
+          <Hidden smDown implementation="css">
+          <Drawer
+            variant="permanent"
+            open
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
           <main
-            className={classNames(classes.content, classes[`content-${anchor}`], {
-              [classes.contentShift]: open,
-              [classes[`contentShift-${anchor}`]]: open,
-            })}
+            className={classes.content}
           >
             {/* <div className={classes.drawerHeader} /> */}
 
@@ -163,7 +194,10 @@ class App extends Component<{ classes: any }, any> {
               <Route path="/client" component={ClientPage} />
               <Route path="/order" component={OrderPage} />
               <Route path="/product" component={ProductPage} />
-              <Route path="/basic_data/client_type" component={ClientTypePage} />
+              <Route path="/basic_data/client_type" render={() => <ClientTypePage apiBaseUrl={API_BASE_URL} dataRepo="clientTypes" columns={[
+                { name: 'id', title: '编号' },
+                { name: 'name', title: '名称' },
+            ]} />} />
               <Route path="/basic_data/material_type" component={MaterialTypePage} />
               <Route path="/basic_data/material" component={MaterialPage} />
             </Switch>
@@ -176,10 +210,13 @@ class App extends Component<{ classes: any }, any> {
   }
 }
 
+const drawerWidth = 240;
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
   },
+
   appFrame: {
     height: '100%',
     zIndex: 1,
@@ -190,10 +227,19 @@ const styles = theme => ({
   },
   appBar: {
     position: 'absolute',
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
+    marginLeft: drawerWidth,
+    [theme.breakpoints.up('md')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+    },
+    // transition: theme.transitions.create(['margin', 'width'], {
+    //   easing: theme.transitions.easing.sharp,
+    //   duration: theme.transitions.duration.leavingScreen,
+    // }),
+  },
+  navIconHide: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    },
   },
   flex: {
     flex: 1,
@@ -219,8 +265,11 @@ const styles = theme => ({
     display: 'none',
   },
   drawerPaper: {
-    position: 'relative',
+    // position: 'relative',
     width: drawerWidth,
+    [theme.breakpoints.up('md')]: {
+      position: 'relative',
+    },
   },
   drawerHeader: {
     display: 'flex',
@@ -264,4 +313,4 @@ const styles = theme => ({
 App.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-export default withStyles(styles, { withTheme: true })(App);
+export default compose(withStyles(styles, { withTheme: true }), withWidth()) (App);

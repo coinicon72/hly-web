@@ -105,22 +105,23 @@ const Command = ({ id, onExecute }) => {
     );
 };
 
-const API_BASE_URL = "http://localhost:8080/api/data/"
-const DATA_REPO = 'clientTypes';
-const DATA_REPO_API_URL = API_BASE_URL + DATA_REPO;
+// const API_BASE_URL = "/api/data/"
 
 class Page extends React.PureComponent {
     constructor(props) {
         super(props);
+        
+        this.dataRepo = props.dataRepo; //'clientTypes';
+        this.dataRepoApiUrl = props.apiBaseUrl + this.dataRepo;
 
         this.state = {
             // toolbarHeight: 0,
 
             //
-            columns: [
-                { name: 'id', title: '编号' },
-                { name: 'name', title: '名称' },
-            ],
+            // columns: [
+            //     { name: 'id', title: '编号' },
+            //     { name: 'name', title: '名称' },
+            // ],
             rows: [],
 
             //
@@ -177,7 +178,7 @@ class Page extends React.PureComponent {
                 let idx = deletingRows[0];
                 let r = rows[idx]
 
-                axios.delete(DATA_REPO_API_URL + "/" + r['id'])
+                axios.delete(this.dataRepoApiUrl + "/" + r['id'])
                     .then(r => {
                         rows.splice(idx, 1);
                         deletingRows.splice(0, 1);
@@ -199,7 +200,7 @@ class Page extends React.PureComponent {
         if (added) {
             added.forEach(r => {
                 delete r.id;
-                axios.post(DATA_REPO_API_URL, r)
+                axios.post(this.dataRepoApiUrl, r)
                     .then(r => r.data)
                     .then(r => {
                         rows = [...rows, r];
@@ -214,7 +215,7 @@ class Page extends React.PureComponent {
                 let r = rows[i]
 
                 if (r) {
-                    axios.patch(DATA_REPO_API_URL + "/" + r['id'], changed[i])
+                    axios.patch(this.dataRepoApiUrl + "/" + r['id'], changed[i])
                         .then(resp => resp.data)
                         .then(j => {
                             rows = rows.map((row, idx) => changed[idx] ? { ...row, ...j } : row);
@@ -230,7 +231,7 @@ class Page extends React.PureComponent {
         if (deleted) {
             // deleted.forEach(idx => {
             //     let r = rows[idx]
-            //     axios.delete(DATA_REPO_API_URL + "/" + r['id'])
+            //     axios.delete(this.dataRepoApiUrl + "/" + r['id'])
             //         .then(r => {
             //             // this.setState({rows: this.state.rows.push(r)})
             //         })
@@ -267,10 +268,10 @@ class Page extends React.PureComponent {
         window.addEventListener("resize", this.updateDimensions.bind(this));
 
         //
-        axios.get(DATA_REPO_API_URL)//,
+        axios.get(this.dataRepoApiUrl)//,
             //     { mode: 'no-cors', headers: { 'Access-Control-Allow-Origin': '*', }, crossdomain: true, })
             // fetch("http://localhost:8080/api/data/clientTypes")//, {method: 'GET', mode: 'no-cors' })
-            .then(r => r.data._embedded[DATA_REPO])
+            .then(r => r.data._embedded[this.dataRepo])
             .then(j => this.setState({ rows: j }))
             .catch(e => this.showSanckbar(e.message));
     }
@@ -283,8 +284,8 @@ class Page extends React.PureComponent {
     }
 
     render() {
-        const { classes } = this.props;
-        const { rows, columns, selection } = this.state;
+        const { classes, columns } = this.props;
+        const { rows, selection, editingStateColumnExtensions, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
 
         return (
             // <ReactHeight onHeightReady={height => console.log(height)}>
@@ -330,22 +331,22 @@ class Page extends React.PureComponent {
                     {/* </ReactHeight> */}
 
                     <EditingState
-                        columnExtensions={this.state.editingStateColumnExtensions}
+                        columnExtensions={editingStateColumnExtensions}
 
-                        editingRowIds={this.state.editingRowIds}
+                        editingRowIds={editingRowIds}
                         onEditingRowIdsChange={this.changeEditingRowIds}
 
-                        rowChanges={this.state.rowChanges}
+                        rowChanges={rowChanges}
                         onRowChangesChange={this.changeRowChanges}
 
-                        addedRows={this.state.addedRows}
+                        addedRows={addedRows}
                         onAddedRowsChange={this.changeAddedRows}
 
                         // defaultEditingRowIds={[]}
                         onCommitChanges={this.commitChanges}
                     />
 
-                    <VirtualTable height={this.state.tableHeight} />
+                    <VirtualTable height={tableHeight} />
 
                     {/* <TableColumnResizing /> */}
                     {/* defaultColumnWidths={defaultColumnWidths} /> */}
@@ -366,18 +367,18 @@ class Page extends React.PureComponent {
                         horizontal: 'center',
                     }}
                     autoHideDuration={3000}
-                    open={this.state.snackbarOpen}
+                    open={snackbarOpen}
                     onClose={() => this.setState({ snackbarOpen: false })}
                     SnackbarContentProps={{
                         'aria-describedby': 'message-id',
                     }}
-                    message={<span id="message-id">{this.state.snackbarContent}</span>}
+                    message={<span id="message-id">{snackbarContent}</span>}
                 />
 
 
                 {/* deletion confirm */}
                 <Dialog
-                    open={!!this.state.deletingRows.length}
+                    open={!!deletingRows.length}
                     onClose={this.cancelDelete}
                     classes={{ paper: classes.dialog }}
                 >
@@ -386,8 +387,8 @@ class Page extends React.PureComponent {
                         <DialogContentText>确定删除如下数据吗？</DialogContentText>
                         <Paper>
                             <Grid
-                                rows={rows.filter((row, i) => this.state.deletingRows.indexOf(i) > -1)}
-                                columns={this.state.columns}
+                                rows={rows.filter((row, i) => deletingRows.indexOf(i) > -1)}
+                                columns={columns}
                             >
                                 <Table
                                 // columnExtensions={tableColumnExtensions}
