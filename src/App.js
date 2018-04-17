@@ -106,6 +106,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
       basicDataMenu: false,
     };
+
+    this.handleDrawerToggle = this.handleDrawerToggle.bind(this);
   }
 
   // componentDidMount() {
@@ -114,7 +116,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
   handleDrawerToggle() {
     this.setState({ openDrawer: !this.state.openDrawer });
-  };
+  }
 
   // handleDrawerOpen = () => {
   //   this.setState({ openDrawer: true });
