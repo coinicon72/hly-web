@@ -24,6 +24,7 @@ import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, Emai
 
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
+import DataTableBase from "./data_table_base"
 import { HomePage } from "./home"
 import ClientTypePage from "./client_type"
 import MaterialTypePage from "./material_type"
@@ -33,6 +34,9 @@ import OrderPage from "./order"
 import ProductPage from "./product"
 
 // import DAC from "./dimension_aware_component"
+import { API_BASE_URL } from "./config"
+
+
 
 const mailFolderListItems = (<div>
   <Link to="/client">
@@ -91,28 +95,27 @@ const otherMailFolderListItems = (
   </div>
 );
 
-const API_BASE_URL = "http://localhost:8080/api/data/";
-
 class App extends React.PureComponent<{ classes: any }, any> {
-  state = {
-    openDrawer: false,
-    anchor: 'left',
 
-    basicDataMenu: false,
-  };
+  constructor(props) {
+    super(props);
 
-  // constructor(props) {
-  //   super(props);
-  // }
+    this.state = {
+      openDrawer: false,
+      anchor: 'left',
+
+      basicDataMenu: false,
+    };
+  }
 
   // componentDidMount() {
   //   this.setState({openDrawer: this.props.width == 'xs' ? false : true});
   // }
 
-  handleDrawerToggle = () => {
+  handleDrawerToggle() {
     this.setState({ openDrawer: !this.state.openDrawer });
   };
-  
+
   // handleDrawerOpen = () => {
   //   this.setState({ openDrawer: true });
   // };
@@ -149,62 +152,63 @@ class App extends React.PureComponent<{ classes: any }, any> {
             <AppBar className={classes.appBar}>
               <Toolbar>
                 <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
-            <MenuIcon />
-          </IconButton>
-              <Typography variant="title" color="inherit" noWrap className={classes.flex}>
-                Wasted too much time to figure out a cool title
+                  <MenuIcon />
+                </IconButton>
+                <Typography variant="title" color="inherit" noWrap className={classes.flex}>
+                  Wasted too much time to figure out a cool title
           </Typography>
-              <IconButton color="inherit"><AccountCircle /></IconButton>
-        </Toolbar>
-      </AppBar>
-      <Hidden mdUp>
-      <Drawer
-        variant="temporary"
-        anchor={anchor}
-        open={openDrawer}
-        onClose={this.handleDrawerToggle}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
-        }}
-      >
-          {drawer}
-          </Drawer>
-    </Hidden>
-          <Hidden smDown implementation="css">
-          <Drawer
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Hidden>
-          <main
-            className={classes.content}
-          >
-            {/* <div className={classes.drawerHeader} /> */}
+                <IconButton color="inherit"><AccountCircle /></IconButton>
+              </Toolbar>
+            </AppBar>
+            <Hidden mdUp>
+              <Drawer
+                variant="temporary"
+                anchor={anchor}
+                open={openDrawer}
+                onClose={this.handleDrawerToggle}
+                classes={{
+                  paper: classes.drawerPaper,
+                }}
+                ModalProps={{
+                  keepMounted: true, // Better open performance on mobile.
+                }}
+              >
+                {drawer}
+              </Drawer>
+            </Hidden>
+            <Hidden smDown implementation="css">
+              <Drawer
+                variant="permanent"
+                open
+                classes={{
+                  paper: classes.drawerPaper,
+                }}
+              >
+                {drawer}
+              </Drawer>
+            </Hidden>
+            <main
+              className={classes.content}
+            >
+              {/* <div className={classes.drawerHeader} /> */}
 
-            <Switch>
-              <Route exact path="/" component={HomePage} />
-              <Route path="/client" component={ClientPage} />
-              <Route path="/order" component={OrderPage} />
-              <Route path="/product" component={ProductPage} />
-              <Route path="/basic_data/client_type" render={() => <ClientTypePage apiBaseUrl={API_BASE_URL} dataRepo="clientTypes" columns={[
-                { name: 'id', title: '编号' },
-                { name: 'name', title: '名称' },
-            ]} />} />
-              <Route path="/basic_data/material_type" component={MaterialTypePage} />
-              <Route path="/basic_data/material" component={MaterialPage} />
-            </Switch>
+              <Switch>
+                <Route exact path="/" component={HomePage} />
+                <Route path="/client" component={ClientPage} />
+                <Route path="/order" component={OrderPage} />
+                <Route path="/product" component={ProductPage} />
+                <Route path="/basic_data/client_type" component={ClientTypePage} />
+                {/* <Route path="/basic_data/client_type" render={() => <ClientTypePage apiBaseUrl={API_BASE_URL} dataRepo="clientTypes" columns={[
+                  { name: 'id', title: '编号' },
+                  { name: 'name', title: '名称' },
+                ]} />} /> */}
+                <Route path="/basic_data/material_type" component={MaterialTypePage} />
+                <Route path="/basic_data/material" component={MaterialPage} />
+              </Switch>
 
-          </main>
+            </main>
+          </div>
         </div>
-              </div>
       </BrowserRouter >
     );
   }
@@ -214,7 +218,8 @@ const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
-    flexGrow: 1,
+    // flexGrow: 1,
+    width: '100%',
   },
 
   appFrame: {
@@ -288,7 +293,8 @@ const styles = theme => ({
     }),
 
     marginTop: '64px',
-    // overflowY: 'auto',
+    overflowY: 'auto',
+    width: '100%'
   },
   'content-left': {
     marginLeft: -drawerWidth,
@@ -313,4 +319,4 @@ const styles = theme => ({
 App.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-export default compose(withStyles(styles, { withTheme: true }), withWidth()) (App);
+export default compose(withStyles(styles, { withTheme: true }), withWidth())(App);

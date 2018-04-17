@@ -5,6 +5,8 @@ const webpack = require('webpack');
 
 module.exports = {
   // entry: ["./src/index.js"],
+  mode: 'production',
+
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "js/[name].js"
@@ -27,7 +29,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
+          loader: "babel-loader",
+          query: {
+            presets:[ 'es2015', 'react', 'stage-2' ]
+          }
         }
       },
       {
@@ -53,7 +58,11 @@ module.exports = {
             loader: "html-loader"
           }
         ]
-      }
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        loader: 'file?name=public/fonts/[name].[ext]'
+    }
     ]
   }
 };

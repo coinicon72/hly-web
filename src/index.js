@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
-import 'typeface-roboto'
+// import 'typeface-roboto'
 // import '../node_modules/material-components-web/dist/material-components-web.min.css'
 
 import './App.css';
