@@ -10,7 +10,7 @@ import registerServiceWorker from './registerServiceWorker';
 // import '../node_modules/material-components-web/dist/material-components-web.min.css'
 
 import './App.css';
-import './main.css'
+// import './main.css'
 
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();

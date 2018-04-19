@@ -2,6 +2,7 @@
   "name": "hly-web",
   "version": "0.1.0",
   "private": true,
+  "sideEffects": false,
   "dependencies": {
     "@devexpress/dx-react-core": "^1.1.2",
     "@devexpress/dx-react-grid": "^1.1.2",

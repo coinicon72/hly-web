@@ -5,8 +5,3 @@ html, body, #root {
     
     overflow: hidden;
 }
-
-a {
-    text-decoration: none;
-    color: #2196f3;
-}

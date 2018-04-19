@@ -4,6 +4,10 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import {withRouter} from 'react-router'
+
+import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar } from 'material-ui';
+
 import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
@@ -77,8 +81,19 @@ class ProductPage extends React.PureComponent {
         return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
     }
 
+    onRowDoubleClicked = (row) => {
+        if (row)
+            this.props.history.push('/product/' + row.id);
+        // alert(JSON.stringify(row))
+    }
+
     render() {
         return (
+            <React.Fragment>
+            <Toolbar>
+                <Typography variant="title" color="inherit">产品</Typography>
+            </Toolbar> 
+
             <DataTableBase columns={COLUMNS}
                 editCell={this.editCell}
                 changeAddedRowsCallback={this.changeAddedRowsCallback}
@@ -87,9 +102,11 @@ class ProductPage extends React.PureComponent {
                 doAdd={this.doAdd}
                 doUpdate={this.doUpdate}
                 doDelete={this.doDelete}
+                clickHandler={this.onRowDoubleClicked}
             />
+            </React.Fragment>
         )
     }
 }
 
-export default ProductPage;
+export default withRouter(ProductPage);

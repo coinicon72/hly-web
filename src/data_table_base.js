@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from 'material-ui/styles';
 
-import { Paper, Typography, Button, IconButton, Snackbar, Input, Select } from 'material-ui';
+import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar } from 'material-ui';
 // import Icon from 'material-ui/Icon';
 
 import Dialog, {
@@ -40,7 +40,7 @@ import {
     TableHeaderRow,
     TableSelection,
     PagingPanel,
-    Toolbar,
+    // Toolbar,
     TableEditRow,
     TableEditColumn,
     TableColumnResizing,
@@ -109,6 +109,29 @@ const Command = ({ id, onExecute }) => {
 
 
 // const API_BASE_URL = "/api/data/"
+// const TableRow = ({ row, ...restProps }) => (
+//     <Table.Row
+//         {...restProps}
+//         // eslint-disable-next-line no-alert
+//         // onClick={() => alert(JSON.stringify(row))}
+//         // onDoubleClick={() => alert("double click")}
+//         style={{
+//             cursor: 'pointer',
+//         }}
+//     />
+// );
+
+function tableRowWithClickHandler(handler) {
+    return ({ row, ...restProps }) => (
+        <Table.Row
+            {...restProps}
+            // eslint-disable-next-line no-alert
+            // onClick={() => alert(JSON.stringify(row))}
+            onDoubleClick={() => handler(row)}
+            style={{ cursor: 'pointer', }}
+        />
+    )
+}
 
 class DataTableBase extends React.PureComponent {
     constructor(props) {
@@ -265,14 +288,6 @@ class DataTableBase extends React.PureComponent {
         // here, only add deleted row into deletingrows
         // no need to process deleting here, shows a dialog to let user confirm this action
         if (deleted) {
-            // deleted.forEach(idx => {
-            //     let r = rows[idx]
-            //     axios.delete(this.dataRepoApiUrl + "/" + r['id'])
-            //         .then(r => {
-            //             // this.setState({rows: this.state.rows.push(r)})
-            //         })
-            //         .catch(e => this.showSanckbar(e.message));
-            // })
             this.setState({ deletingRows: deleted || this.state.deletingRows });
         }
 
@@ -292,7 +307,7 @@ class DataTableBase extends React.PureComponent {
         let update_height = window.innerHeight// Math.round(update_width/4.4);
         this.setState({ width: update_width, height: update_height });
 
-        this.setState({ tableHeight: update_height - 64 - 65 })
+        this.setState({ tableHeight: update_height - 64 - 64 })
         // }
     }
 
@@ -304,7 +319,7 @@ class DataTableBase extends React.PureComponent {
         window.addEventListener("resize", this.updateDimensions.bind(this));
 
         //
-        console.debug("componentDidMount: " + this);
+        // console.debug("componentDidMount: " + this);
 
         //
         this.doLoad && this.doLoad()
@@ -323,6 +338,8 @@ class DataTableBase extends React.PureComponent {
         const { classes, columns, editCell, editingColumnExtensions, changeAddedRows } = this.props;
         const { rows, selection, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
 
+        const TableRow = tableRowWithClickHandler(this.props.clickHandler)
+
         return (
             // <ReactHeight onHeightReady={height => console.log(height)}>
             // <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
@@ -332,14 +349,14 @@ class DataTableBase extends React.PureComponent {
                     rows={rows}
                     columns={columns}
                 >
-                    <Toolbar>
+                    {/* <Toolbar>
                         <div>
                             <Typography color="inherit" noWrap>
                                 {selection.length}
                             </Typography>
                             <IconButton color="inherit"><Refresh /></IconButton>
                         </div>
-                    </Toolbar>
+                    </Toolbar> */}
 
                     {/* <SelectionState
                         selection={selection}
@@ -382,7 +399,7 @@ class DataTableBase extends React.PureComponent {
                         onCommitChanges={this.commitChanges}
                     />
 
-                    <VirtualTable height={tableHeight} messages={{ noData: "没有数据" }} />
+                    <VirtualTable height={tableHeight} rowComponent={TableRow} messages={{ noData: "没有数据" }} />
 
                     {/* <TableColumnResizing /> */}
                     {/* defaultColumnWidths={defaultColumnWidths} /> */}

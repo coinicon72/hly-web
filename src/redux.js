@@ -16,26 +16,26 @@ const history = createHistory()
 const middleware = routerMiddleware(history)
 
 const initialState = {
-    page: "home",
-  }
+  page: "home",
+}
 
-//   function appReducer(state = initialState, action) {
-//     switch (action.type) {
-//       case SET_VISIBILITY_FILTER:
-//         return Object.assign({}, state, {
-//           visibilityFilter: action.filter
-//         })
-//       default:
-//         return state
-//     }
-//   }
+function appReducer(state = initialState, action) {
+  switch (action.type) {
+    // case SET_VISIBILITY_FILTER:
+    //   return Object.assign({}, state, {
+    //     visibilityFilter: action.filter
+    //   })
+    default:
+      return state
+  }
+}
 
 // Add the reducer to your store on the `router` key
 // Also apply our middleware for navigating
-// const store = createStore(
-//   combineReducers({
-//     ...reducers,
-//     router: routerReducer
-//   }),
-//   applyMiddleware(middleware)
-// )
+export const store = createStore(
+  combineReducers({
+    main: appReducer,
+    router: routerReducer
+  }),
+  applyMiddleware(middleware)
+)

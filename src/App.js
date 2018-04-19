@@ -32,6 +32,8 @@ import MaterialPage from "./material"
 import ClientPage from "./client"
 import OrderPage from "./order"
 import ProductPage from "./product"
+import ProductDetailsPage from "./product_details"
+import AddFormulaPage from "./add_formula"
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
@@ -198,6 +200,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route exact path="/" component={HomePage} />
                 <Route path="/client" component={ClientPage} />
                 <Route path="/order" component={OrderPage} />
+                <Route path="/product/:id" component={ProductDetailsPage} />
+                <Route path="/formula/add/:id" component={AddFormulaPage} />
                 <Route path="/product" component={ProductPage} />
                 <Route path="/basic_data/client_type" component={ClientTypePage} />
                 {/* <Route path="/basic_data/client_type" render={() => <ClientTypePage apiBaseUrl={API_BASE_URL} dataRepo="clientTypes" columns={[
