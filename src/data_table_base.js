@@ -458,7 +458,8 @@ class DataTableBase extends React.PureComponent {
                         <Button onClick={this.cancelDelete} color="primary">取消</Button>
                         <Button onClick={this.deleteRows} color="secondary">删除</Button>
                     </DialogActions>
-                </Dialog>            </Paper>
+                </Dialog>
+            </Paper>
             // </div>
             // </ReactHeight>
         );
