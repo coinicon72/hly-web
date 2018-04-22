@@ -4,11 +4,14 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import CommonStyles from "./common_styles";
+
 import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import {API_BASE_URL} from "./config"
+import { API_BASE_URL } from "./config"
+import { withStyles } from 'material-ui';
 
 
 // =============================================
@@ -71,18 +74,30 @@ class ClientTypePage extends React.PureComponent {
     }
 
     render() {
+        const { classes, width } = this.props
+
         return (
-            <DataTableBase columns={COLUMNS}
-                editCell={this.editCell}
-                changeAddedRowsCallback={this.changeAddedRowsCallback}
-                editingColumnExtensions={this.editingColumnExtensions}
-                doLoad={this.doLoad}
-                doAdd={this.doAdd}
-                doUpdate={this.doUpdate}
-                doDelete={this.doDelete}
-            />
+            <div className={classes.contentRoot}>
+                <DataTableBase columns={COLUMNS}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    editingColumnExtensions={this.editingColumnExtensions}
+                    doLoad={this.doLoad}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
+                />
+            </div>
         )
     }
 }
 
-export default ClientTypePage;
+
+const styles = theme => ({
+    ...CommonStyles(theme),
+    ... {
+    },
+})
+
+
+export default withStyles(styles)(ClientTypePage);

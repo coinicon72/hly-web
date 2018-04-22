@@ -4,11 +4,14 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import CommonStyles from "./common_styles";
+
 import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
 import {API_BASE_URL} from "./config"
+import { withStyles } from 'material-ui';
 
 
 // =============================================
@@ -71,7 +74,11 @@ class MaterialTypePage extends React.PureComponent {
     }
 
     render() {
+        const { classes, width } = this.props
+
         return (
+            <div className={classes.contentRoot}>
+
             <DataTableBase columns={COLUMNS}
                 editCell={this.editCell}
                 changeAddedRowsCallback={this.changeAddedRowsCallback}
@@ -81,8 +88,17 @@ class MaterialTypePage extends React.PureComponent {
                 doUpdate={this.doUpdate}
                 doDelete={this.doDelete}
             />
+            </div>
         )
     }
 }
 
-export default MaterialTypePage;
+
+const styles = theme => ({
+    ...CommonStyles(theme),
+    ... {
+    },
+})
+
+
+export default withStyles(styles)(MaterialTypePage);

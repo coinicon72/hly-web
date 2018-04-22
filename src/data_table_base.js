@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from 'material-ui/styles';
 
-import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar } from 'material-ui';
+import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar, Tooltip } from 'material-ui';
 // import Icon from 'material-ui/Icon';
 
 import Dialog, {
@@ -55,39 +55,46 @@ import { LookupEditCell } from "./data_table_util";
 
 // import { generateRows } from './data_generator'
 const AddButton = ({ onExecute }) => (
-    // <div style={{ textAlign: 'center' }}>
-    <IconButton
-        color="primary"
-        onClick={onExecute}
-        title="新增一条数据"
-    >
-        <AddCircleOutline style={{ fontSize: 28 }} />
-    </IconButton>
-    // </div>
+    <Tooltip title="新增一条数据">
+        <IconButton
+            color="primary"
+            onClick={onExecute}
+        >
+            <AddCircleOutline style={{ fontSize: 28 }} />
+        </IconButton>
+    </Tooltip>
 );
 
 const EditButton = ({ onExecute }) => (
-    <IconButton onClick={onExecute} title="编辑">
-        <Edit />
-    </IconButton>
+    <Tooltip title="编辑">
+        <IconButton onClick={onExecute}>
+            <Edit />
+        </IconButton>
+    </Tooltip>
 );
 
 const DeleteButton = ({ onExecute }) => (
-    <IconButton onClick={onExecute} title="删除">
-        <Delete />
-    </IconButton>
+    <Tooltip title="删除">
+        <IconButton onClick={onExecute}>
+            <Delete />
+        </IconButton>
+    </Tooltip>
 );
 
 const CommitButton = ({ onExecute }) => (
-    <IconButton onClick={onExecute} title="保存所有操作">
-        <Save />
-    </IconButton>
+    <Tooltip title="保存所有操作">
+        <IconButton onClick={onExecute}>
+            <Save />
+        </IconButton>
+    </Tooltip>
 );
 
 const CancelButton = ({ onExecute }) => (
-    <IconButton color="secondary" onClick={onExecute} title="取消">
-        <Cancel />
-    </IconButton>
+    <Tooltip title="取消">
+        <IconButton color="secondary" onClick={onExecute}>
+            <Cancel />
+        </IconButton>
+    </Tooltip>
 );
 
 const commandComponents = {
@@ -127,7 +134,7 @@ function tableRowWithClickHandler(handler) {
             {...restProps}
             // eslint-disable-next-line no-alert
             // onClick={() => alert(JSON.stringify(row))}
-            onDoubleClick={() => handler(row)}
+            onDoubleClick={() => handler && handler(row)}
             style={{ cursor: 'pointer', }}
         />
     )
@@ -219,7 +226,7 @@ class DataTableBase extends React.PureComponent {
                         deletingRows.splice(0, 1);
                         this.setState({ rows, deletingRows });
                     })
-                    .catch(e => this.showSanckbar(e.message));
+                    .catch(e => this.showSnackbar(e.message));
             }
             // })
         };
@@ -230,7 +237,7 @@ class DataTableBase extends React.PureComponent {
         this.doDelete = props.doDelete
     }
 
-    showSanckbar(msg: String) {
+    showSnackbar(msg: String) {
         this.setState({ snackbarOpen: true, snackbarContent: msg });
     }
 
@@ -265,12 +272,13 @@ class DataTableBase extends React.PureComponent {
                         rows = [...rows, r];
                         this.setState({ rows });
                     })
-                    .catch(e => this.showSanckbar(e.message));
+                    .catch(e => this.showSnackbar(e.message));
             });
         }
 
         if (changed && this.doUpdate) {
-            for (let i in changed) {
+            // for (let i in changed) {
+            Object.keys(changed).forEach(i => {
                 let r = rows[i]
 
                 if (r) {
@@ -280,9 +288,9 @@ class DataTableBase extends React.PureComponent {
                             rows = rows.map((row, idx) => changed[idx] ? { ...row, ...j } : row);
                             this.setState({ rows });
                         })
-                        .catch(e => this.showSanckbar(e.message));
+                        .catch(e => this.showSnackbar(e.message));
                 }
-            }
+            })
         }
 
         // here, only add deleted row into deletingrows
@@ -324,7 +332,7 @@ class DataTableBase extends React.PureComponent {
         //
         this.doLoad && this.doLoad()
             .then(j => this.setState({ rows: j }))
-            .catch(e => this.showSanckbar(e.message));
+            .catch(e => this.showSnackbar(e.message));
     }
 
     /**
@@ -405,6 +413,8 @@ class DataTableBase extends React.PureComponent {
                     {/* defaultColumnWidths={defaultColumnWidths} /> */}
                     <TableHeaderRow showSortingControls />
                     {editCell ? <TableEditRow cellComponent={editCell} /> : <TableEditRow />}
+
+                    <TableFilterRow />
 
                     <TableEditColumn
                         showAddCommand

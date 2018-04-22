@@ -33,7 +33,7 @@ import ClientPage from "./client"
 import OrderPage from "./order"
 import ProductPage from "./product"
 import ProductDetailsPage from "./product_details"
-import AddFormulaPage from "./add_formula"
+import FormulaDetailsPage from "./formula_details"
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
@@ -158,9 +158,25 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
                   <MenuIcon />
                 </IconButton>
-                <Typography variant="title" color="inherit" noWrap className={classes.flex}>
-                  Wasted too much time to figure out a cool title
-          </Typography>
+
+                {/* <Typography variant="title" color="inherit" noWrap className={classes.flex}> */}
+                  {/* Wasted too much time to figure out a cool title */}
+                  <Switch>
+          {/* <Route exact path="/" component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} /> */}
+                <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
+                <Route path="/order" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
+                <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
+                {/* <Route path="/formula/add/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} /> */}
+                <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
+                <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
+                <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
+                <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
+                <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
+                <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
+                </Switch>
+
+          {/* </Typography> */}
+
                 <IconButton color="inherit"><AccountCircle /></IconButton>
               </Toolbar>
             </AppBar>
@@ -201,7 +217,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/client" component={ClientPage} />
                 <Route path="/order" component={OrderPage} />
                 <Route path="/product/:id" component={ProductDetailsPage} />
-                <Route path="/formula/add/:id" component={AddFormulaPage} />
+                {/* <Route path="/formula/:mode/:pid" component={AddFormulaPage} /> */}
+                {/* <Route path="/formula/view/:pid/:fid" component={AddFormulaPage} /> */}
+                {/* <Route path="/formula/edit/:pid/:fid" component={AddFormulaPage} /> */}
+                <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
                 <Route path="/product" component={ProductPage} />
                 <Route path="/basic_data/client_type" component={ClientTypePage} />
                 {/* <Route path="/basic_data/client_type" render={() => <ClientTypePage apiBaseUrl={API_BASE_URL} dataRepo="clientTypes" columns={[
@@ -226,6 +245,14 @@ const styles = theme => ({
   root: {
     // flexGrow: 1,
     width: '100%',
+  },
+
+  appTitle: {
+    color: "inherit",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    flex: 1,
   },
 
   appFrame: {

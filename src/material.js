@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import CommonStyles from "./common_styles";
+
 import axios from 'axios'
 
 import Typography from 'material-ui/Typography';
@@ -13,6 +15,7 @@ import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
 import { API_BASE_URL } from "./config";
+import { withStyles } from 'material-ui';
 
 
 // =============================================
@@ -94,7 +97,7 @@ class MaterialPage extends React.PureComponent {
 
         return axios.post(this.dataRepoApiUrl, r)
             .then(resp => resp.data)
-            .then(j => ({ ...j, type: r.type }))
+            .then(j => ({ ...j, type: r.type.name }))
     }
 
     doUpdate = (r, c) => {
@@ -111,7 +114,10 @@ class MaterialPage extends React.PureComponent {
     }
 
     render() {
+        const { classes, width } = this.props
+
         return this.state.loaded ? (
+            <div className={classes.contentRoot}>
             <DataTableBase columns={[
                 { name: 'id', title: '序号' },
                 { name: 'code', title: '编号' },
@@ -130,8 +136,17 @@ class MaterialPage extends React.PureComponent {
                 doUpdate={this.doUpdate}
                 doDelete={this.doDelete}
             />
+            </div>
         ) : <Typography color="inherit" noWrap variant="headline">Loading</Typography>
     }
 }
 
-export default MaterialPage;
+
+const styles = theme => ({
+    ...CommonStyles(theme),
+    ... {
+    },
+})
+
+
+export default withStyles(styles) (MaterialPage);

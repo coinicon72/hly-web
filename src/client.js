@@ -1,6 +1,19 @@
 // @flow
 
+// basic
 import React from 'react';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import compose from 'recompose/compose';
+
+// styles
+import { withStyles } from 'material-ui';
+
+import CommonStyles from "./common_styles";
+
+// router
+import { withRouter } from 'react-router'
+import { Link } from 'react-router-dom'
 
 import axios from 'axios'
 
@@ -127,7 +140,10 @@ class ClientPage extends React.PureComponent {
     }
 
     render() {
+        const { classes, width } = this.props
+
         return this.state.loaded ? (
+            <div className={classes.contentRoot}>
             <DataTableBase columns={COLUMNS}
                 editCell={this.editCell}
                 changeAddedRowsCallback={this.changeAddedRowsCallback}
@@ -138,8 +154,17 @@ class ClientPage extends React.PureComponent {
                 doUpdate={this.doUpdate}
                 doDelete={this.doDelete}
             />
+            </div>
         ) : <Typography color="inherit" noWrap variant="headline">Loading</Typography>
     }
 }
 
-export default ClientPage;
+
+const styles = theme => ({
+    ...CommonStyles(theme),
+    ... {
+    },
+})
+
+
+export default withStyles(styles) (ClientPage) ;

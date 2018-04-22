@@ -4,7 +4,11 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import {withRouter} from 'react-router'
+import compose from 'recompose/compose';
+import { withRouter } from 'react-router'
+import { withStyles } from 'material-ui';
+
+import CommonStyles from "./common_styles";
 
 import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar } from 'material-ui';
 
@@ -12,7 +16,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import {API_BASE_URL} from "./config"
+import { API_BASE_URL } from "./config"
 
 
 // =============================================
@@ -88,25 +92,40 @@ class ProductPage extends React.PureComponent {
     }
 
     render() {
-        return (
-            <React.Fragment>
-            <Toolbar>
-                <Typography variant="title" color="inherit">产品</Typography>
-            </Toolbar> 
+        const { classes, width } = this.props
 
-            <DataTableBase columns={COLUMNS}
-                editCell={this.editCell}
-                changeAddedRowsCallback={this.changeAddedRowsCallback}
-                editingColumnExtensions={this.editingColumnExtensions}
-                doLoad={this.doLoad}
-                doAdd={this.doAdd}
-                doUpdate={this.doUpdate}
-                doDelete={this.doDelete}
-                clickHandler={this.onRowDoubleClicked}
-            />
-            </React.Fragment>
+        return (
+            <div className={classes.contentRoot}>
+                <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography>
+
+                <DataTableBase columns={COLUMNS}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    editingColumnExtensions={this.editingColumnExtensions}
+                    doLoad={this.doLoad}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
+                    clickHandler={this.onRowDoubleClicked}
+                />
+            </div>
         )
     }
 }
 
-export default withRouter(ProductPage);
+
+const styles = theme => ({
+    ...CommonStyles(theme),
+    ... {
+        subTitle: {
+            fontSize: 18,
+            opacity: .75,
+            margin: 0,
+            // marginLeft: 0,
+            marginBottom: theme.spacing.unit * 1,
+        },
+    },
+})
+
+
+export default compose(withStyles(styles), withRouter)(ProductPage);
