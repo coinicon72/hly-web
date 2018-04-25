@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 
 import { withStyles } from 'material-ui/styles';
 
+import CommonStyles from "./common_styles";
+
 import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar, Tooltip } from 'material-ui';
 // import Icon from 'material-ui/Icon';
 
@@ -65,6 +67,22 @@ const AddButton = ({ onExecute }) => (
     </Tooltip>
 );
 
+function CustomAddButton(handler) {
+    return ({ onExecute }) => {
+        if (handler) onExecute = handler
+        return (
+            <Tooltip title="新增一条数据">
+                <IconButton
+                    color="primary"
+                    onClick={onExecute}
+                >
+                    <AddCircleOutline style={{ fontSize: 28 }} />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+}
+
 const EditButton = ({ onExecute }) => (
     <Tooltip title="编辑">
         <IconButton onClick={onExecute}>
@@ -72,6 +90,19 @@ const EditButton = ({ onExecute }) => (
         </IconButton>
     </Tooltip>
 );
+
+function CustomEditButton(handler) {
+    return ({ onExecute }) => {
+        if (handler) onExecute = handler
+        return (
+            <Tooltip title="编辑">
+                <IconButton onClick={onExecute}>
+                    <Edit />
+                </IconButton>
+            </Tooltip>
+        )
+    }
+}
 
 const DeleteButton = ({ onExecute }) => (
     <Tooltip title="删除">
@@ -97,22 +128,30 @@ const CancelButton = ({ onExecute }) => (
     </Tooltip>
 );
 
-const commandComponents = {
-    add: AddButton,
-    edit: EditButton,
-    delete: DeleteButton,
-    commit: CommitButton,
-    cancel: CancelButton,
-};
+// function customAddHandler() {
+//     console.log("customAddHandler")
+// }
 
-const Command = ({ id, onExecute }) => {
-    const CommandButton = commandComponents[id];
-    return (
-        <CommandButton
-            onExecute={onExecute}
-        />
-    );
-};
+// function customEditHandler(a, b, c, ...params) {
+//     console.log("customEditHandler")
+// }
+
+// const commandComponents = {
+//     add: AddButton, //CustomAddButton(customAddHandler),
+//     edit: EditButton,
+//     delete: DeleteButton,
+//     commit: CommitButton,
+//     cancel: CancelButton,
+// };
+
+// const Command = ({ id, onExecute }) => {
+//     const CommandButton = commandComponents[id];
+//     return (
+//         <CommandButton
+//             onExecute={onExecute}
+//         />
+//     );
+// };
 
 
 // const API_BASE_URL = "/api/data/"
@@ -147,6 +186,26 @@ class DataTableBase extends React.PureComponent {
         this.dataRepo = props.dataRepo; //'clientTypes';
         this.dataRepoApiUrl = props.apiBaseUrl + this.dataRepo;
 
+        //
+        this.commandComponents = {
+            add: CustomAddButton(props.addHandler),
+            edit: EditButton,// CustomEditButton(customEditHandler),
+            delete: DeleteButton,
+            commit: CommitButton,
+            cancel: CancelButton,
+        };
+
+        this.Command = ({ id, onExecute }) => {
+            const CommandButton = this.commandComponents[id];
+            return (
+                <CommandButton
+                    onExecute={onExecute}
+                />
+            );
+        };
+
+
+        //
         this.state = {
             // toolbarHeight: 0,
 
@@ -418,9 +477,9 @@ class DataTableBase extends React.PureComponent {
 
                     <TableEditColumn
                         showAddCommand
-                        showEditCommand
-                        showDeleteCommand
-                        commandComponent={Command}
+                        showEditCommand={this.props.showEditCommand === false ? false : true}
+                        showDeleteCommand={this.props.showDeleteCommand === false ? false : true}
+                        commandComponent={this.Command}
                     />
                     {/* <TableSelection showSelectAll /> */}
                     {/* <PagingPanel /> */}
@@ -476,21 +535,19 @@ class DataTableBase extends React.PureComponent {
     }
 }
 
-
 const styles = theme => ({
-    lookupEditCell: {
-        paddingTop: theme.spacing.unit * 0.875,
-        paddingRight: theme.spacing.unit,
-        paddingLeft: theme.spacing.unit,
+    ...CommonStyles(theme),
+    ... {
+        lookupEditCell: {
+            paddingTop: theme.spacing.unit * 0.875,
+            paddingRight: theme.spacing.unit,
+            paddingLeft: theme.spacing.unit,
+        },
+
+        inputRoot: {
+            width: '100%',
+        },
     },
-    dialog: {
-        width: 'calc(100% - 16px)',
-    },
-    inputRoot: {
-        width: '100%',
-    },
-});
+})
 
 export default withStyles(styles)(DataTableBase);
-
-// export default () => <h2>test data table base</h2>

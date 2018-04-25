@@ -23,11 +23,14 @@ const styles = theme => ({
     paper: {
         padding: theme.spacing.unit * 3,
     },
-    
-    dialog: {
-        maxWidth: 'calc(100% - 32px)',
+
+    compactPaper: {
+        padding: 0,
     },
 
+    dialog: {
+        maxWidth: 'calc(100% - 16em)',
+    },
 })
 
 export default styles;

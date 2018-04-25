@@ -426,249 +426,253 @@ class AddFourmulaPage extends React.PureComponent {
             <React.Fragment>
                 <div className={classes.contentRoot}>
 
-                    <div>
-                        <Toolbar className={classes.toolbar}>
-                            <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
-                            <Typography variant="title" className={classes.title}>{title}</Typography>
-                            {/* <Typography variant="title">添加配方</Typography> */}
-                            {this.state.mode === MODE_VIEW ? null :
-                                <Button onClick={() => this.saveFormula()} disabled={this.state.mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存配方<mdi.ContentSave /></Button>}
-                        </Toolbar>
+                    <Toolbar className={classes.toolbar}>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <Typography variant="title" className={classes.title}>{title}</Typography>
+                        {/* <Typography variant="title">添加配方</Typography> */}
+                        {this.state.mode === MODE_VIEW ? null :
+                            <Button onClick={() => this.saveFormula()} disabled={this.state.mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存配方<mdi.ContentSave /></Button>}
+                    </Toolbar>
 
-                        {/* <Divider style={{ margin: 16 }} /> */}
+                    {/* <Divider style={{ margin: 16 }} /> */}
 
-                        <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
+                    <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
-                        <Paper className={classes.paper}>
+                    <Paper className={classes.paper}>
 
-                            <mu.Grid container direction='column' alignItems="stretch">
-                                <mu.Grid>
-                                    <FormControl required disabled={this.state.autoGenRevision} error={!!this.state.errors.revision} aria-describedby="revision-error-text"
-                                    // className={classes.textFieldWithoutMargin}
-                                    >
-                                        <InputLabel htmlFor="revision" shrink={shrinkLabel}>修订版本</InputLabel>
-                                        <Input id="revision" type="number" inputProps={{ min: 1 }}
-                                            value={basicInfo.revision}
-                                            onChange={e => this.handleBasicInfoChange(e)}
+                        <mu.Grid container direction='column' alignItems="stretch">
+                            <mu.Grid>
+                                <FormControl required disabled={this.state.autoGenRevision} error={!!this.state.errors.revision} aria-describedby="revision-error-text"
+                                // className={classes.textFieldWithoutMargin}
+                                >
+                                    <InputLabel htmlFor="revision" shrink={shrinkLabel}>修订版本</InputLabel>
+                                    <Input id="revision" type="number" inputProps={{ min: 1 }}
+                                        value={basicInfo.revision}
+                                        onChange={e => this.handleBasicInfoChange(e)}
+                                    />
+                                    <FormHelperText id="revision-error-text">{this.state.errors.revision}</FormHelperText>
+                                </FormControl>
+
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={this.state.autoGenRevision}
+                                            onChange={(e) => this.setState({ autoGenRevision: e.target.checked })}
+                                            color="primary"
                                         />
-                                        <FormHelperText id="revision-error-text">{this.state.errors.revision}</FormHelperText>
-                                    </FormControl>
-
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={this.state.autoGenRevision}
-                                                onChange={(e) => this.setState({ autoGenRevision: e.target.checked })}
-                                                color="primary"
-                                            />
-                                        }
-                                        label="自动生成修订版本号"
-                                        style={{ marginLeft: 16 }}
-                                    />
-                                </mu.Grid>
-                                <mu.Grid>
-                                    <TextField type="date" required disabled id="createRate" label="修订日期"
-                                        // defaultValue={basicInfo.createDate}
-                                        value={ds}
-                                        // className={classes.textFieldWithoutMargin}
-                                        margin="normal"
-                                        onChange={e => this.handleBasicInfoChange(e)}
-                                    />
-                                </mu.Grid>
-                                <mu.Grid>
-                                    <TextField id="changeLog" label="修订日志"
-                                        defaultValue=""
-                                        value={basicInfo.changeLog}
-                                        className={classes.textFieldWithoutWidth}
-                                        onChange={e => this.handleBasicInfoChange(e)}
-                                        multiline
-                                        fullWidth
-                                        rowsMax="4"
-                                        margin="normal"
-                                        InputLabelProps={{
-                                            shrink: shrinkLabel,
-                                        }}
-                                    />
-                                </mu.Grid>
-                                <mu.Grid>
-                                    <TextField id="comment" label="备注"
-                                        defaultValue=""
-                                        value={basicInfo.comment}
-                                        className={classes.textFieldWithoutWidth}
-                                        onChange={e => this.handleBasicInfoChange(e)}
-                                        multiline
-                                        fullWidth
-                                        rowsMax="4"
-                                        margin="normal"
-                                        InputLabelProps={{
-                                            shrink: shrinkLabel,
-                                        }}
-                                    />
-                                </mu.Grid>
+                                    }
+                                    label="自动生成修订版本号"
+                                    style={{ marginLeft: 16 }}
+                                />
                             </mu.Grid>
-                        </Paper>
-
-                        <Typography variant="title" className={classes.subTitle}>生产条件</Typography>
-
-                        <Paper className={classes.paper}>
-                            <TextField type="number" required id="mixTime" error={!!errors['mixTime']}
-                                label="混合时间"
-                                value={produceCond.mixTime}
-                                className={classes.textField}
-                                onChange={e => this.handleProdCondChange(e)}
-                                margin="normal"
-                                inputProps={{ min: 0 }}
-                                InputLabelProps={{
-                                    shrink: shrinkLabel,
-                                }}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end" style={{ width: '3em' }}>分钟</InputAdornment>
-                                }}
-                            />
-
-                            <TextField type="number" required id="mesh" error={!!errors['mesh']}
-                                label="筛网目数"
-                                value={produceCond['mesh']}
-                                className={classes.textField} inputProps={{ min: 0 }}
-                                onChange={e => this.handleProdCondChange(e)}
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: shrinkLabel,
-                                }}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">目</InputAdornment>
-                                }}
-                            />
-
-                            <div>
-                                <TextField type="number" required id="inputTemperature" error={!!errors['inputTemperature']}
-                                    label="进料挤温" defaultValue=""
-                                    value={produceCond.inputTemperature}
-                                    className={classes.textField} inputProps={{ min: 0 }}
-                                    onChange={e => this.handleProdCondChange(e)}
+                            <mu.Grid>
+                                <TextField type="date" required disabled id="createDate" label="修订日期"
+                                    // defaultValue={basicInfo.createDate}
+                                    value={ds}
+                                    // className={classes.textFieldWithoutMargin}
+                                    margin="normal"
+                                    onChange={e => this.handleBasicInfoChange(e)}
+                                />
+                            </mu.Grid>
+                            <mu.Grid>
+                                <TextField id="changeLog" label="修订日志"
+                                    defaultValue=""
+                                    value={basicInfo.changeLog}
+                                    className={classes.textFieldWithoutWidth}
+                                    onChange={e => this.handleBasicInfoChange(e)}
+                                    multiline
+                                    fullWidth
+                                    rowsMax="4"
                                     margin="normal"
                                     InputLabelProps={{
                                         shrink: shrinkLabel,
                                     }}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
-                                    }}
                                 />
-
-                                <TextField type="number" required id="outputTemperature" error={!!errors['outputTemperature']}
-                                    label="出料挤温" defaultValue=""
-                                    value={produceCond.outputTemperature}
-                                    className={classes.textField} inputProps={{ min: 0 }}
-                                    onChange={e => this.handleProdCondChange(e)}
+                            </mu.Grid>
+                            <mu.Grid>
+                                <TextField id="comment" label="备注"
+                                    defaultValue=""
+                                    value={basicInfo.comment}
+                                    className={classes.textFieldWithoutWidth}
+                                    onChange={e => this.handleBasicInfoChange(e)}
+                                    multiline
+                                    fullWidth
+                                    rowsMax="4"
                                     margin="normal"
                                     InputLabelProps={{
                                         shrink: shrinkLabel,
                                     }}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
-                                    }}
                                 />
-                            </div>
+                            </mu.Grid>
+                        </mu.Grid>
+                    </Paper>
 
-                            <TextField type="number" required id="mainMillerRpm" error={!!errors['mainMillerRpm']} label="主磨转数" defaultValue=""
-                                value={produceCond.mainMillerRpm}
-                                className={classes.textField} inputProps={{ min: 0 }}
-                                onChange={e => this.handleProdCondChange(e)}
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: shrinkLabel,
-                                }}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">RPM</InputAdornment>
-                                }}
-                            />
+                    <Typography variant="title" className={classes.subTitle}>生产条件</Typography>
 
-                            <TextField type="number" required id="secondMillerRpm" error={!!errors['secondMillerRpm']} label="副磨转数" defaultValue=""
-                                value={produceCond.secondMillerRpm}
-                                className={classes.textField} inputProps={{ min: 0 }}
-                                onChange={e => this.handleProdCondChange(e)}
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: shrinkLabel,
-                                }}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">RPM</InputAdornment>
-                                }}
-                            />
+                    <Paper className={classes.paper}>
+                        <TextField type="number" required id="mixTime" error={!!errors['mixTime']}
+                            label="混合时间"
+                            value={produceCond.mixTime}
+                            className={classes.textField}
+                            onChange={e => this.handleProdCondChange(e)}
+                            margin="normal"
+                            inputProps={{ min: 0 }}
+                            InputLabelProps={{
+                                shrink: shrinkLabel,
+                            }}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end" style={{ width: '3em' }}>分钟</InputAdornment>
+                            }}
+                        />
 
-                            <TextField type="number" required id="screwRpm" error={!!errors['screwRpm']} label="螺杆转数" defaultValue=""
-                                value={produceCond.screwRpm}
-                                className={classes.textField} inputProps={{ min: 0 }}
-                                onChange={e => this.handleProdCondChange(e)}
-                                margin="normal"
-                                InputLabelProps={{
-                                    shrink: shrinkLabel,
-                                }}
-                                InputProps={{
-                                    endAdornment: <InputAdornment position="end">RPM</InputAdornment>
-                                }}
-                            />
-
-                        </Paper>
+                        <TextField type="number" required id="mesh" error={!!errors['mesh']}
+                            label="筛网目数"
+                            value={produceCond['mesh']}
+                            className={classes.textField} inputProps={{ min: 0 }}
+                            onChange={e => this.handleProdCondChange(e)}
+                            margin="normal"
+                            InputLabelProps={{
+                                shrink: shrinkLabel,
+                            }}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">目</InputAdornment>
+                            }}
+                        />
 
                         <div>
-                            <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex' }}>材料</Typography>
-                            {errors['formulaItems'] ? <Typography className={classes.subTitle} style={{ display: 'inline-flex', color: '#f44336' }}>{errors['formulaItems']}</Typography> : null}
+                            <TextField type="number" required id="inputTemperature" error={!!errors['inputTemperature']}
+                                label="进料挤温" defaultValue=""
+                                value={produceCond.inputTemperature}
+                                className={classes.textField} inputProps={{ min: 0 }}
+                                onChange={e => this.handleProdCondChange(e)}
+                                margin="normal"
+                                InputLabelProps={{
+                                    shrink: shrinkLabel,
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
+                                }}
+                            />
+
+                            <TextField type="number" required id="outputTemperature" error={!!errors['outputTemperature']}
+                                label="出料挤温" defaultValue=""
+                                value={produceCond.outputTemperature}
+                                className={classes.textField} inputProps={{ min: 0 }}
+                                onChange={e => this.handleProdCondChange(e)}
+                                margin="normal"
+                                InputLabelProps={{
+                                    shrink: shrinkLabel,
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
+                                }}
+                            />
                         </div>
-                        <Paper className={classes.paper}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell className={classes.tableHead}>材料序号</TableCell>
-                                        <TableCell className={classes.tableHead}>材料编号</TableCell>
-                                        <TableCell className={classes.tableHead}>材料名称</TableCell>
-                                        <TableCell className={classes.tableHead}>类型</TableCell>
-                                        <TableCell className={classes.tableHead} numeric>数量</TableCell>
-                                        <TableCell></TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {formulaItems.map(m => {
-                                        return (
-                                            <TableRow key={m.id}>
-                                                <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>{m.id}</TableCell>
-                                                <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
-                                                <TableCell style={{ width: '25%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
-                                                <TableCell style={{ width: '20%' }}>{m.type.name}</TableCell>
 
-                                                <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>
-                                                    <TextField type="number" required id={`quantity_${m.id}`}
-                                                        value={m.quantity}
-                                                        fullWidth
-                                                        error={!!errors[`item_${m.id}`]}
-                                                        margin="normal" inputProps={{ min: 0 }}
-                                                        InputProps={{
-                                                            endAdornment: <InputAdornment position="end">kg</InputAdornment>
-                                                        }}
-                                                        onChange={e => this.handleQuantityChange(e)}
-                                                    />
-                                                </TableCell>
+                        <TextField type="number" required id="mainMillerRpm" error={!!errors['mainMillerRpm']} label="主磨转数" defaultValue=""
+                            value={produceCond.mainMillerRpm}
+                            className={classes.textField} inputProps={{ min: 0 }}
+                            onChange={e => this.handleProdCondChange(e)}
+                            margin="normal"
+                            InputLabelProps={{
+                                shrink: shrinkLabel,
+                            }}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">RPM</InputAdornment>
+                            }}
+                        />
 
-                                                <TableCell style={{ whiteSpace: 'nowrap' }}>
-                                                    {/* <IconButton onClick={() => this.onEdit(m.id)} title="编辑">
+                        <TextField type="number" required id="secondMillerRpm" error={!!errors['secondMillerRpm']} label="副磨转数" defaultValue=""
+                            value={produceCond.secondMillerRpm}
+                            className={classes.textField} inputProps={{ min: 0 }}
+                            onChange={e => this.handleProdCondChange(e)}
+                            margin="normal"
+                            InputLabelProps={{
+                                shrink: shrinkLabel,
+                            }}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">RPM</InputAdornment>
+                            }}
+                        />
+
+                        <TextField type="number" required id="screwRpm" error={!!errors['screwRpm']} label="螺杆转数" defaultValue=""
+                            value={produceCond.screwRpm}
+                            className={classes.textField} inputProps={{ min: 0 }}
+                            onChange={e => this.handleProdCondChange(e)}
+                            margin="normal"
+                            InputLabelProps={{
+                                shrink: shrinkLabel,
+                            }}
+                            InputProps={{
+                                endAdornment: <InputAdornment position="end">RPM</InputAdornment>
+                            }}
+                        />
+
+                    </Paper>
+
+                    <div>
+                        <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex' }}>材料</Typography>
+                        {errors['formulaItems'] ? <Typography className={classes.subTitle} style={{ display: 'inline-flex', color: '#f44336' }}>{errors['formulaItems']}</Typography> : null}
+                    </div>
+
+                    <Paper className={classes.compactPaper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell className={classes.tableHead}>材料序号</TableCell>
+                                    <TableCell className={classes.tableHead}>材料编号</TableCell>
+                                    <TableCell className={classes.tableHead}>材料名称</TableCell>
+                                    <TableCell className={classes.tableHead}>类型</TableCell>
+                                    <TableCell className={classes.tableHead} numeric>数量</TableCell>
+                                    <TableCell style={{padding: 0}}>
+                                    {this.state.mode === MODE_VIEW ? null : <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
+                            <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
+                        </div>}
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {formulaItems.map(m => {
+                                    return (
+                                        <TableRow key={m.id}>
+                                            <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>{m.id}</TableCell>
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
+                                            <TableCell style={{ width: '25%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
+                                            <TableCell style={{ width: '20%' }}>{m.type.name}</TableCell>
+
+                                            <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                                <TextField type="number" required id={`quantity_${m.id}`}
+                                                    value={m.quantity}
+                                                    fullWidth
+                                                    error={!!errors[`item_${m.id}`]}
+                                                    margin="normal" inputProps={{ min: 0 }}
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">kg</InputAdornment>
+                                                    }}
+                                                    onChange={e => this.handleQuantityChange(e)}
+                                                />
+                                            </TableCell>
+
+                                            <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
+                                                {/* <IconButton onClick={() => this.onEdit(m.id)} title="编辑">
                                                 <mui.Edit />
                                             </IconButton> */}
-                                                    {this.state.mode === MODE_VIEW ? null : <IconButton onClick={() => this.onDelete(m.id)} title="删除">
-                                                        <mui.Delete />
-                                                    </IconButton>}
+                                                {this.state.mode === MODE_VIEW ? null : <IconButton onClick={() => this.onDelete(m.id)} title="删除">
+                                                    <mui.Delete />
+                                                </IconButton>}
 
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                            <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                                <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
-                                    <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
-                            </div>
-                        </Paper>
-                    </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                        {this.state.mode === MODE_VIEW ? null : <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
+                            <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
+                        </div>}
+                    </Paper>
                 </div>
 
 

@@ -31,6 +31,7 @@ import MaterialTypePage from "./material_type"
 import MaterialPage from "./material"
 import ClientPage from "./client"
 import OrderPage from "./order"
+import OrderDetailsPage from "./order_details"
 import ProductPage from "./product"
 import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
@@ -164,6 +165,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                   <Switch>
           {/* <Route exact path="/" component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} /> */}
                 <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
+                <Route path="/order/:id" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
                 <Route path="/order" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
                 <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
                 {/* <Route path="/formula/add/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} /> */}
@@ -215,6 +217,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
               <Switch>
                 <Route exact path="/" component={HomePage} />
                 <Route path="/client" component={ClientPage} />
+                <Route path="/order/:id" component={OrderDetailsPage} />
                 <Route path="/order" component={OrderPage} />
                 <Route path="/product/:id" component={ProductDetailsPage} />
                 {/* <Route path="/formula/:mode/:pid" component={AddFormulaPage} /> */}

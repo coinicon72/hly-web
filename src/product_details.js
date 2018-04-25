@@ -115,7 +115,12 @@ class ProductDetailsPage extends React.PureComponent {
             // <Provider store={store}>
             <React.Fragment>
 
-                <div style={{ padding: 16 }}>
+                <div className={classes.contentRoot}>
+
+                    <Toolbar className={classes.toolbar}>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <Typography variant="title" className={classes.title}>产品详情</Typography>
+                    </Toolbar>
 
                     <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
@@ -140,14 +145,17 @@ class ProductDetailsPage extends React.PureComponent {
 
                     <Typography variant="title" className={classes.subTitle}>配方</Typography>
 
-                    <Paper className={classes.paper}>
+                    <Paper className={classes.compactPaper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell numeric style={{ whiteSpace: 'nowrap' }}>修订版本</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>修订日期</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>修订日志</TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell style={{padding: 0}}>
+                                        <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
+                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
+                                </TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -157,7 +165,7 @@ class ProductDetailsPage extends React.PureComponent {
                                             <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{n.revision}</TableCell>
                                             <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>{n.createDate}</TableCell>
                                             <TableCell style={{ width: '75%', whiteSpace: 'nowrap' }}>{n.changeLog}</TableCell>
-                                            <TableCell style={{ whiteSpace: 'nowrap' }}>
+                                            <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 <Tooltip title="配方明细">
                                                     {/* <IconButton onClick={() => this.onDetails(n.id)}> */}
                                                     <IconButton component={Link} to={`/formula/view/${product.id}/${n.id}`}>
@@ -212,6 +220,16 @@ class ProductDetailsPage extends React.PureComponent {
 const styles = theme => ({
     ...CommonStyles(theme),
     ... {
+        toolbar: {
+            padding: 0,
+        },
+
+        title: {
+            opacity: .75,
+            margin: 0,
+            flex: 1,
+        },
+        
         detailsTitle: {
             fontSize: 16,
             opacity: .75,
