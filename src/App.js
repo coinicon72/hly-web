@@ -19,6 +19,10 @@ import Drawer from 'material-ui/Drawer';
 import Divider from 'material-ui/Divider';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 
+// icons
+import * as mdi from 'mdi-material-ui';
+import * as mui from '@material-ui/icons';
+
 import { GroupWork } from '@material-ui/icons'
 import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant } from 'mdi-material-ui';
 
@@ -35,13 +39,14 @@ import OrderDetailsPage from "./order_details"
 import ProductPage from "./product"
 import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
+import BomPage from "./bom"
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
 
 
 
-const mailFolderListItems = (<div>
+const salesItems = (<div>
   <Link to="/client">
     <ListItem button>
       <ListItemIcon>
@@ -69,7 +74,7 @@ const mailFolderListItems = (<div>
 </div>
 );
 
-const otherMailFolderListItems = (
+const basicDataItems = (
   <div>
     <Link to="/basic_data/client_type">
       <ListItem button>
@@ -93,6 +98,19 @@ const otherMailFolderListItems = (
           <HexagonMultiple />
         </ListItemIcon>
         <ListItemText primary="材料" />
+      </ListItem>
+    </Link>
+  </div>
+);
+
+const manufactionItems = (
+  <div>
+    <Link to="/bom">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.FileMultiple />
+        </ListItemIcon>
+        <ListItemText primary="BOM 物料清单" />
       </ListItem>
     </Link>
   </div>
@@ -144,9 +162,11 @@ class App extends React.PureComponent<{ classes: any }, any> {
           </IconButton> */}
         </div>
         <Divider />
-        <List>{mailFolderListItems}</List>
+        <List>{salesItems}</List>
         <Divider />
-        <List>{otherMailFolderListItems}</List>
+        <List>{basicDataItems}</List>
+        <Divider />
+        <List>{manufactionItems}</List>
       </div>
     );
 
@@ -174,6 +194,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
                 <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
                 <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
+                <Route path="/bom" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
                 <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
                 </Switch>
 
@@ -215,7 +236,6 @@ class App extends React.PureComponent<{ classes: any }, any> {
               {/* <div className={classes.drawerHeader} /> */}
 
               <Switch>
-                <Route exact path="/" component={HomePage} />
                 <Route path="/client" component={ClientPage} />
                 <Route path="/order/:id" component={OrderDetailsPage} />
                 <Route path="/order" component={OrderPage} />
@@ -232,6 +252,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 ]} />} /> */}
                 <Route path="/basic_data/material_type" component={MaterialTypePage} />
                 <Route path="/basic_data/material" component={MaterialPage} />
+                <Route path="/basic_data/material" component={MaterialPage} />
+                <Route path="/bom" component={BomPage} />
+                <Route component={HomePage} />
               </Switch>
 
             </main>
@@ -320,6 +343,7 @@ const styles = theme => ({
     ...theme.mixins.toolbar,
   },
   content: {
+    // display: 'flex',
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: 0,

@@ -27,7 +27,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build_org": "babel src -d lib",
-    "start:webpack": "webpack-dev-server --hot --mode=development",
+    "start:webpack": "webpack-dev-server --hot --mode development",
     "build": "webpack",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",

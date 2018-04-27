@@ -1,5 +1,7 @@
 const styles = theme => ({
     contentRoot: {
+        // flex: 1,
+        minHeight: `calc(100% - ${theme.spacing.unit * 3 * 2}px)`,
         padding: theme.spacing.unit * 3,
         backgroundColor: '#f4f4f4',
     },

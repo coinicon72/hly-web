@@ -31,7 +31,7 @@ module.exports = {
     }),
     // new CleanWebpackPlugin(['dist']),
     // new HtmlWebpackPlugin({
-    //   title: 'Hot Module Replacement'
+    //   template: './public/index.html'
     // }),
     // new webpack.NamedModulesPlugin(),
     // new webpack.HotModuleReplacementPlugin(),
