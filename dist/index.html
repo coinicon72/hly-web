@@ -28,17 +28,17 @@
       <div style="height: 64px; display: flex; flex-direction: row; border-bottom:#ddd 1px solid">
         <div style="width: 240px"></div>
         <div style="display: flex; align-items: center; flex: 1; background-color: blue">
-          <div style="background: white; opacity: .3; height: 60%; width: 30%; margin-left: 2em;"></div>
+          <div style="background: white; opacity: .35; height: 60%; width: 30%; margin-left: 2em;"></div>
         </div>
       </div>
       <div style="flex: 1; display: flex; flex-direction: row; align-items: stretch">
         <div style="width: 240px;; border-right:#ddd 1px solid">
           <ul style="list-style: none; margin-top: 3em" >
-            <li><div style="background: black; opacity: .1; height: 32px; width: 80%; margin: 2em 0;"></div></li>
-            <li><div style="background: black; opacity: .1; height: 32px; width: 80%; margin: 2em 0;"></div></li>
-            <li><div style="background: black; opacity: .1; height: 32px; width: 80%; margin: 2em 0;"></div></li>
-            <li><div style="background: black; opacity: .1; height: 32px; width: 80%; margin: 2em 0;"></div></li>
-            <li><div style="background: black; opacity: .1; height: 32px; width: 80%; margin: 2em 0;"></div></li>
+            <li><div style="background: black; opacity: .05; height: 32px; width: 80%; margin: 2em 0;"></div></li>
+            <li><div style="background: black; opacity: .05; height: 32px; width: 80%; margin: 2em 0;"></div></li>
+            <li><div style="background: black; opacity: .05; height: 32px; width: 80%; margin: 2em 0;"></div></li>
+            <li><div style="background: black; opacity: .05; height: 32px; width: 80%; margin: 2em 0;"></div></li>
+            <li><div style="background: black; opacity: .05; height: 32px; width: 80%; margin: 2em 0;"></div></li>
           </ul>
         </div>
         <div style="flex: 1;"></div>
@@ -46,15 +46,16 @@
     </div>
     <div style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color:rgba(0,0,0,.5)" >
 
-      <div style="color: white">
+      <!-- <div style="color: white">
         <h2>加载中 ...</h2>
         <p id="progress"></p>
-      </div>
+      </div> -->
+      <img src="loading.gif" />
 
     </div>
   </div>
 </body>
-<script>
+<!-- <script>
   function reqListener() {
     console.log('download done');
     eval(this.responseText)
@@ -75,6 +76,6 @@
 
   oReq.open("GET", "bundle.js");
   oReq.send();
-</script>
+</script> -->
 
 </html>

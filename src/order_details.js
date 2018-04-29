@@ -301,8 +301,8 @@ class OrderDetailsPage extends React.PureComponent {
             orderItems.forEach(p => {
                 let fi = {
                     ...p,
-                    order: {id: order.id},
-                    product: {id: p.id.product}
+                    order: { id: order.id },
+                    product: { id: p.id.product }
                 }
 
                 axios.post(`${API_BASE_URL}orderItems`, fi)
@@ -328,7 +328,8 @@ class OrderDetailsPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { id } = this.props.match.params;
+        let { id } = this.props.match.params;
+        if (!id) id = 0
 
         if (id == 0) {
             this.state.mode = MODE_ADD
@@ -346,7 +347,7 @@ class OrderDetailsPage extends React.PureComponent {
                     if (j._embedded && j._embedded.client)
                         this.setState({ client: j._embedded.client });
 
-                        return `${API_BASE_URL}/orders/${id}/items`
+                    return `${API_BASE_URL}/orders/${id}/items`
                 })
                 .then(url => axios.get(url))
                 .then(resp => resp.data._embedded.orderItems)
@@ -513,10 +514,10 @@ class OrderDetailsPage extends React.PureComponent {
                         </mu.Grid>
                     </Paper>
 
-<div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>条目</Typography>
-                    <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{order.value}</Typography>
-</div>
+                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>条目</Typography>
+                        <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{order.value}</Typography>
+                    </div>
                     <Paper className={classes.compactPaper}>
                         <Table>
                             <TableHead>
@@ -631,7 +632,7 @@ class OrderDetailsPage extends React.PureComponent {
 
                                 <TableHeaderRow showSortingControls />
                                 <TableFilterRow />
-                                <TableSelection showSelectAll />
+                                <TableSelection showSelectAll selectByRowClick={true} />
                             </Grid>
                         </Paper>
                     </DialogContent>

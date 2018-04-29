@@ -237,7 +237,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
               <Switch>
                 <Route path="/client" component={ClientPage} />
-                <Route path="/order/:id" component={OrderDetailsPage} />
+                <Route path="/order/:id?" component={OrderDetailsPage} />
                 <Route path="/order" component={OrderPage} />
                 <Route path="/product/:id" component={ProductDetailsPage} />
                 {/* <Route path="/formula/:mode/:pid" component={AddFormulaPage} /> */}
@@ -253,7 +253,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/basic_data/material_type" component={MaterialTypePage} />
                 <Route path="/basic_data/material" component={MaterialPage} />
                 <Route path="/basic_data/material" component={MaterialPage} />
-                <Route path="/bom" component={BomPage} />
+                <Route path="/bom/:id?" component={BomPage} />
                 <Route component={HomePage} />
               </Switch>
 

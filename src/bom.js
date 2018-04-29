@@ -74,6 +74,7 @@ import { store } from "./redux"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
+const MODE_VIEW = 2;
 
 const savingSteps = ['选择合同', '保存基本信息', "保存明细", "完成"];
 
@@ -83,19 +84,21 @@ class BomPage extends React.PureComponent {
         super(props);
 
         this.state = {
+            mode: MODE_VIEW,
+
             order: null,
             orderItems: [], // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
-            client: null,
+            // client: null,
 
-            products: [],
-            clients: [],
+            orders: [],
 
             //
-            showSelectProduct: false,
+            showSelectOrder: false,
             columns: [
-                { name: 'id', title: '序号' },
-                { name: 'code', title: '编号' },
-                { name: "color", title: "颜色" },
+                { name: 'no', title: '订单编号' },
+                { name: "client", title: "客户", getCellValue: row => row._embedded && row._embedded.client ? row._embedded.client.name : null },
+                { name: "orderDate", title: "下单日期" },
+                { name: "deliveryDate", title: "交货日期" },
                 { name: "comment", title: "备注" },
             ],
             selection: [],
@@ -112,13 +115,19 @@ class BomPage extends React.PureComponent {
             snackbarContent: "",
         }
 
-        // this.onDetails = ((id) => {
-        //     alert(`details ${id}`)
-        // }).bind(this)
+        this.selectOrder = (async () => {
+            if (this.state.orders.length == 0) {
+                await axios.get(`${API_BASE_URL}/orders`)
+                    .then(resp => resp.data._embedded.orders)
+                    .then(j => {
+                        this.setState({ orders: j });
+                    })
+                    .catch(e => this.showSnackbar(e.message));
+            }
 
-        // this.onEdit = ((id) => {
-        //     alert(`edit ${id}`)
-        // }).bind(this)
+            this.setState({ showSelectOrder: true })
+        }).bind(this)
+
 
         this.handleOrderInfoChange = (e => {
             this.state.order[e.target.id] = e.target.value;
@@ -140,40 +149,39 @@ class BomPage extends React.PureComponent {
 
 
         this.onAddProduct = (() => {
-            this.setState({ showSelectProduct: true })
+            this.setState({ showSelectOrder: true })
         }).bind(this)
 
 
         this.cancelSelect = (() => {
-            this.setState({ showSelectProduct: false })
+            this.setState({ showSelectOrder: false })
         }).bind(this)
 
 
-        this.changeSelection = selection => this.setState({ selection });
+        this.changeSelection = selection => {
+            let keys = Object.keys(selection)
+            if (keys.length > 1) {
+                let lastNo = selection[keys[keys.length - 1]]
+                selection = [lastNo]
+            }
+
+            this.setState({ selection });
+        }
 
 
-        this.addProducts = (() => {
-            const { orderItems, products, selection } = this.state;
-            Object.keys(selection).forEach(idx => {
-                let no = selection[idx];
-                let p = products[no];
-
-                if (!orderItems.find(v => v.id.product === p.id))
-                    orderItems.push({ id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 })
-            })
+        this.onSelectedOrder = (() => {
+            const { orders, selection } = this.state;
+            if (selection.length == 0) return;
 
             //
-            this.setState({ orderItems: orderItems, showSelectProduct: false, selection: [] })
-        }).bind(this)
+            let order = orders[selection[0]]
 
-
-        this.onDelete = ((id) => {
-            const { orderItems } = this.state;
-            let idx = orderItems.findIndex(v => v.id === id)
-            if (idx >= 0) {
-                orderItems.splice(idx, 1);
-                this.forceUpdate();
-            }
+            axios.get(`${API_BASE_URL}/orders/${order.id}/items`)
+                .then(resp => resp.data._embedded.orderItems)
+                .then(j => {
+                    this.setState({ order: order, orderItems: j, showSelectOrder: false, selection: [] })
+                })
+                .catch(e => this.showSnackbar(e.message));
         }).bind(this)
 
 
@@ -185,28 +193,6 @@ class BomPage extends React.PureComponent {
             this.updateOrderValue()
 
             this.forceUpdate();
-        }).bind(this)
-
-
-        this.handlePriceChange = (e => {
-            let id = e.target.id.split("_")[1]
-            let item = this.state.orderItems.find(i => i.id.product == id)
-            item.price = Number.parseFloat(e.target.value)
-
-            this.updateOrderValue()
-
-            this.forceUpdate();
-        }).bind(this)
-
-
-        this.updateOrderValue = (e => {
-            let value = 0
-            this.state.orderItems.forEach(i => {
-                value += i.quantity * i.price
-            })
-
-            this.state.order.value = value;
-            this.forceUpdate()
         }).bind(this)
 
 
@@ -328,63 +314,50 @@ class BomPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { id } = this.props.match.params;
+        let { id } = this.props.match.params;
+        if (!id) id = 0
 
         if (id == 0) {
             this.state.mode = MODE_ADD
 
-            this.setState({ order: { tax: false } })
+            // this.state.order = null
         }
         else //if (id > 0) 
         {
-            this.state.mode = MODE_EDIT
+            this.state.mode = MODE_VIEW
 
+            // load clients
             axios.get(`${API_BASE_URL}/orders/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
-                    this.setState({ order: j });
-                    if (j._embedded && j._embedded.client)
-                        this.setState({ client: j._embedded.client });
-
-                    return `${API_BASE_URL}/orders/${id}/items`
+                    this.state.order = j
+                    return j._links.items.href
                 })
                 .then(url => axios.get(url))
                 .then(resp => resp.data._embedded.orderItems)
                 .then(j => {
-                    // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
-                    // let fs = []
-                    // j.forEach(it => fs.push({ 'quantity': it.quantity, ...it._embedded.material }))
-                    // this.setState({ orderItems: fs });
-                    this.setState({ orderItems: j })
+                    this.setState({orderItems: j })
                 })
                 .catch(e => this.showSnackbar(e.message));
         }
 
-        // load clients
-        axios.get(`${API_BASE_URL}/clients`)
-            .then(resp => resp.data._embedded.clients)
-            .then(j => {
-                this.setState({ clients: j });
-            })
-            .catch(e => this.showSnackbar(e.message));
-
-        // load products
-        axios.get(`${API_BASE_URL}/products`)
-            .then(resp => resp.data._embedded.products)
-            .then(j => {
-                this.setState({ products: j });
-            })
-            .catch(e => this.showSnackbar(e.message));
+        // // load products
+        // axios.get(`${API_BASE_URL}/products`)
+        //     .then(resp => resp.data._embedded.products)
+        //     .then(j => {
+        //         this.setState({ products: j });
+        //     })
+        //     .catch(e => this.showSnackbar(e.message));
     }
 
     render() {
         const { classes, width } = this.props
         const { id } = this.props.match.params;
-        const { mode, order, client, orderItems, products, clients } = this.state;
-        const { showSelectProduct, columns, selection } = this.state;
+        const { mode, order, orderItems, orders } = this.state;
+        const { showSelectOrder, columns, selection } = this.state;
         const { errors, snackbarOpen, snackbarContent } = this.state;
 
-        let shrinkLabel = mode === MODE_EDIT ? true : undefined;
+        // let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
         const { savingOrder, activeStep } = this.state;
 
@@ -397,14 +370,14 @@ class BomPage extends React.PureComponent {
                     <Toolbar className={classes.toolbar}>
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>生成BOM单</Typography>
-                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存订单<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_VIEW || !order} color='secondary' style={{ fontSize: 18 }} >保存BOM单<mdi.ContentSave /></Button>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
 
                     {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
                     <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex'}}></Typography> */}
-                    <Button onClick={() => { }} color='primary' style={{ fontSize: 18, marginBottom: 8 }} ><mdi.ClipboardText />选择订单</Button>
+                    <Button onClick={this.selectOrder} color='primary' style={{ fontSize: 18, marginBottom: 8 }} ><mdi.ClipboardText />选择订单</Button>
                     {/* </div> */}
 
                     {order ? (
@@ -413,9 +386,8 @@ class BomPage extends React.PureComponent {
                                 <mu.Grid container direction='column' alignItems="stretch">
                                     <mu.Grid style={{ marginBottom: 16 }}>
                                         <React.Fragment>
-                                            <Chip label={client.name} className={classes.chip} />
-                                            <Chip label={client.fullName} className={classes.chip} />
-                                            <Chip label={client.settlementPolicy} className={classes.chip} />
+                                            <Chip label={order._embedded.client.name} className={classes.chip} />
+                                            <Chip label={order._embedded.client.fullName} className={classes.chip} />
                                         </React.Fragment>
                                     </mu.Grid>
                                     <mu.Grid>
@@ -449,7 +421,7 @@ class BomPage extends React.PureComponent {
                                         />
                                     </mu.Grid>
                                     <mu.Grid>
-                                        <TextField id="comment" label="备注"
+                                        <TextField id="comment" disabled label="备注"
                                             value={order.comment}
                                             className={classes.textFieldWithoutWidth}
                                             multiline
@@ -457,18 +429,18 @@ class BomPage extends React.PureComponent {
                                             rowsMax="4"
                                             margin="normal"
                                             InputLabelProps={{
-                                                shrink: shrinkLabel,
+                                                shrink: true,
                                             }}
                                         />
                                     </mu.Grid>
                                 </mu.Grid>
                             </Paper>
 
-                            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>BOM</Typography>
 
-                                <BomSheet />
-                                <BomSheet />
+                                {orderItems && orderItems.map(i => <BomSheet key={i.id.product} orderItem={i} />)}
+
                             </div>
                         </React.Fragment>
                     ) : null}
@@ -490,18 +462,18 @@ class BomPage extends React.PureComponent {
                 />
 
 
-                {/* dialog for add materials */}
+                {/* dialog for select order */}
                 <Dialog
-                    open={showSelectProduct}
+                    open={showSelectOrder}
                     onClose={this.cancelSelect}
                     // className={classes.dialog}
                     classes={{ paper: classes.dialog }}
                 >
-                    <DialogTitle>添加产品</DialogTitle>
+                    <DialogTitle>选择订单</DialogTitle>
                     <DialogContent>
                         <Paper>
                             <Grid
-                                rows={products}
+                                rows={orders}
                                 columns={columns}
                             >
                                 <SelectionState
@@ -511,24 +483,24 @@ class BomPage extends React.PureComponent {
                                 <IntegratedSelection />
 
                                 <SortingState
-                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
+                                    defaultSorting={[{ columnName: 'no', direction: 'asc' }]}
                                 />
                                 <IntegratedSorting />
 
                                 <FilteringState defaultFilters={[]} />
                                 <IntegratedFiltering />
 
-                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+                                <VirtualTable height={500} messages={{ noData: "没有数据" }} />
 
                                 <TableHeaderRow showSortingControls />
                                 <TableFilterRow />
-                                <TableSelection showSelectAll />
+                                <TableSelection showSelectAll={false} selectByRowClick={true} />
                             </Grid>
                         </Paper>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.cancelSelect} color="primary">取消</Button>
-                        <Button onClick={this.addProducts} color="secondary">添加</Button>
+                        <Button disabled={selection.length > 0 ? false : true} onClick={this.onSelectedOrder} color="secondary">添加</Button>
                     </DialogActions>
                 </Dialog>
 
@@ -565,69 +537,239 @@ class BomPage extends React.PureComponent {
 }
 
 class BomSheet extends React.PureComponent {
+
     constructor(props) {
         super(props)
 
         this.state = {
-            formula: {},
-            formulaItems: []
+            product: {},
+            formula: null,
+
+            formulas: [],
+            formulaItems: [],
+
+            showSelectFormula: false,
         }
+
+        this.columns = [
+            { name: 'revision', title: '修订版本' },
+            { name: "createDate", title: "修订日期" },
+            { name: "changeLog", title: "修订日志" },
+            { name: "comment", title: "备注" },
+        ],
+
+            this.cancelSelect = (() => {
+                this.setState({ showSelectFormula: false })
+            }).bind(this)
+
+
+        this.changeSelection = selection => {
+            let keys = Object.keys(selection)
+            if (keys.length > 1) {
+                let lastNo = selection[keys[keys.length - 1]]
+                selection = [lastNo]
+            }
+
+            this.setState({ selection });
+        }
+
+
+        this.onSelectedFormula = (() => {
+            const { orderItem } = this.props
+            const { formulas, selection } = this.state;
+            if (selection.length == 0) return;
+
+            //
+            let formula = formulas[selection[0]]
+
+            axios.get(`${API_BASE_URL}/formulas/${formula.id}/items`)
+                .then(resp => resp.data._embedded.formulaItems)
+                .then(j => {
+                    let tq = 0
+                    j.forEach(i => {
+                        i.calc_quantity = i.quantity * orderItem.quantity
+                        i.custom_quantity = i.calc_quantity = parseFloat(i.calc_quantity.toFixed(3))
+                        tq += i.calc_quantity
+                    })
+
+                    formula.total_quantity = tq
+                    this.setState({ formula: formula, formulaItems: j, showSelectFormula: false, })
+                })
+                .catch(e => this.showSnackbar(e.message));
+        }).bind(this)
+
+
+        this.handleQuantityChange = (e => {
+            let { formula, formulaItems } = this.state
+
+            let id = e.target.id.split("_")[1]
+            let item = formulaItems.find(i => i.id.material == id)
+            item.custom_quantity = Number.parseFloat(e.target.value)
+
+            let tq = 0
+            formulaItems.forEach(i => {
+                tq += i.custom_quantity
+            })
+            formula.total_quantity = tq
+
+            this.forceUpdate();
+        }).bind(this)
+    }
+
+    componentDidMount() {
+        const { orderItem } = this.props
+
+        axios.get(`${API_BASE_URL}/products/${orderItem.id.product}`)
+            .then(resp => resp.data)
+            .then(j => {
+                this.setState({ product: j });
+                return j._links.formulas.href;
+            })
+            .then(url => axios.get(url))
+            .then(resp => resp.data._embedded.formulas)
+            .then(fs => {
+                fs.forEach(i => i.createDate = i.createDate.split('.')[0].replace("T", " "))
+                return fs//.sort((i, j) => j.revision - i.revision);
+            })
+            .then(fs => this.setState({ formulas: fs }))
+            .catch(e => this.showSnackbar(e.message));
     }
 
     render() {
         const { classes, width } = this.props
-        const { product, orderItem } = this.props
-        const { formula, formulaItems } = this.state
+        const { orderItem } = this.props
+        const { product, formula, formulas, formulaItems } = this.state
+        const { showSelectFormula, selection } = this.state
 
         return (
-            <Paper className={classes.compactPaper}>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Chip label={product.code} className={classes.chip} />
-                    <Chip label={product.color} className={classes.chip} />
-                    <Chip label={product.base} className={classes.chip} />
-                    <Chip label={`${orderItem.quantity} kg`} className={classes.chip} />
-                    <Button onClick={() => { }} color='primary' style={{ fontSize: 18, }} ><mdi.AutoFix />选择配方</Button>
-                </div>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
-                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
-                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料类型</TableCell>
-                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>配方比例</TableCell>
-                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>数量</TableCell>
-                            {/* <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
+            <React.Fragment>
+                <Paper className={classes.paper} style={{ marginBottom: 16 }}>
+                    <Typography variant="title" className={classes.subTitle2}>产品</Typography>
+                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Chip label={product.code} className={classes.chip} />
+                        <Chip label={product.color} className={classes.chip} />
+                        <Chip label={product.base} className={classes.chip} />
+                        <Chip label={`${orderItem.quantity} kg`} className={classNames(classes.chip, classes.quantityChip)} />
+                    </div>
+                    <Divider style={{ margin: '1em 0 1em 0' }} />
+                    <div>
+                        <Typography variant="title" className={classes.subTitle2}>配方</Typography>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                            <Button onClick={() => { this.setState({ showSelectFormula: true }) }} color='primary' style={{ fontSize: 18, marginRight: '2em' }} ><mdi.AutoFix />选择配方</Button>
+                            {formula ? (
+                                <React.Fragment>
+                                    <Tooltip title='修订版本' >
+                                        <Chip label={formula.revision} className={classes.chip} />
+                                    </Tooltip>
+                                    <Tooltip title='修订日期' >
+                                        <Chip label={formula.createDate} className={classes.chip} />
+                                    </Tooltip>
+                                    <Tooltip title={formula.changeLog} >
+                                        <Chip label='修订日志' className={classes.chip} />
+                                    </Tooltip>
+                                    <div style={{ flex: 1 }} />
+                                    <Typography variant="title" className={classes.subTitle2} color='secondary' margin={0}>总量：{formula.total_quantity} kg</Typography>
+                                </React.Fragment>
+                            ) : null}
+                        </div>
+                    </div>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
+                                <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
+                                <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>材料类型</TableCell>
+                                <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>配方比例</TableCell>
+                                <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>计算用量</TableCell>
+                                <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>最终用量</TableCell>
+                                {/* <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
                             </TableCell> */}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {formulaItems.map((n, no) => {
-                            const { material } = n._embedded
-                            return (
-                                <TableRow key={material.id}>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.code}</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.name}</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.type.name}</TableCell>
-                                    <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.quantity}</TableCell>
-                                    <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.quantity * orderItem.quantity}</TableCell>
-                                    {/* <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {formulaItems.map((f, no) => {
+                                const { material } = f._embedded
+                                // let q = f.quantity * orderItem.quantity
+                                // q = parseFloat(q.toFixed(3))
+                                return (
+                                    <TableRow key={material.id}>
+                                        <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.code}</TableCell>
+                                        <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.name}</TableCell>
+                                        <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>{material.type.name}</TableCell>
+                                        <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{f.quantity}</TableCell>
+                                        <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{`${f.calc_quantity} kg`}</TableCell>
+                                        <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                            <TextField type="number" required id={`quantity_${f.id.material}`}
+                                                value={f.custom_quantity}
+                                                fullWidth
+                                                // error={!!errors[`item_${f.id.material}`]}
+                                                inputProps={{ min: 0 }}
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">kg</InputAdornment>
+                                                }}
+                                                onChange={e => this.handleQuantityChange(e)}
+                                            />
+                                        </TableCell>
+                                        {/* <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                         <Tooltip title="删除">
                                             <IconButton onClick={() => this.onDelete(n.id, no)}>
                                                 <mui.Delete />
                                             </IconButton>
                                         </Tooltip>
                                     </TableCell> */}
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
-            </Paper>
+                                    </TableRow>
+                                );
+                            })}
+                        </TableBody>
+                    </Table>
+                </Paper>
+
+                {/* dialog for add materials */}
+                <Dialog
+                    open={showSelectFormula}
+                    onClose={this.cancelSelect}
+                    // className={classes.dialog}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>选择配方</DialogTitle>
+                    <DialogContent>
+                        <Paper>
+                            <Grid
+                                rows={formulas}
+                                columns={this.columns}
+                            >
+                                <SelectionState
+                                    selection={selection}
+                                    onSelectionChange={this.changeSelection}
+                                />
+                                <IntegratedSelection />
+
+                                <SortingState
+                                    defaultSorting={[{ columnName: 'revision', direction: 'desc' }]}
+                                />
+                                <IntegratedSorting />
+
+                                <FilteringState defaultFilters={[]} />
+                                <IntegratedFiltering />
+
+                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+
+                                <TableHeaderRow showSortingControls />
+                                <TableFilterRow />
+                                <TableSelection showSelectAll={false} selectByRowClick={true} />
+                            </Grid>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.cancelSelect} color="primary">取消</Button>
+                        <Button onClick={this.onSelectedFormula} color="secondary">选择</Button>
+                    </DialogActions>
+                </Dialog>
+
+            </React.Fragment>
         )
     }
 }
-
-BomSheet = withStyles(styles)(BomSheet);
 
 
 const styles = theme => ({
@@ -641,6 +783,14 @@ const styles = theme => ({
             opacity: .75,
             margin: 0,
             flex: 1,
+        },
+
+        subTitle2: {
+            fontSize: 16,
+            opacity: .75,
+            margin: `0 0 ${theme.spacing.unit * 1}px 0`,
+            // marginLeft: 0,
+            // marginBottom: ,
         },
 
         // subTitle: {
@@ -658,9 +808,18 @@ const styles = theme => ({
 
         chip: {
             margin: `0 ${theme.spacing.unit * 2}px 0 0`,
+        },
+
+        quantityChip: {
+            backgroundColor: 'dodgerblue',
+            fontWeight: 'bold',
+            color: 'white',
         }
     },
 })
+
+
+BomSheet = withStyles(styles)(BomSheet);
 
 
 export default withStyles(styles)(BomPage);

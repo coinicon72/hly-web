@@ -724,7 +724,7 @@ class AddFourmulaPage extends React.PureComponent {
 
                                 <TableHeaderRow showSortingControls />
                                 <TableFilterRow />
-                                <TableSelection showSelectAll />
+                                <TableSelection showSelectAll selectByRowClick={true} />
                             </Grid>
                         </Paper>
                     </DialogContent>
