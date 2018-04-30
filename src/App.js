@@ -39,7 +39,8 @@ import OrderDetailsPage from "./order_details"
 import ProductPage from "./product"
 import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
-import BomPage from "./bom"
+import BomDetailsPage from "./bom_details"
+import BomsPage from "./boms"
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
@@ -55,7 +56,7 @@ const salesItems = (<div>
       <ListItemText primary="客户" />
     </ListItem>
   </Link>
-  <Link to="/order">
+  <Link to="/orders">
     <ListItem button>
       <ListItemIcon>
         <ClipboardText />
@@ -105,7 +106,7 @@ const basicDataItems = (
 
 const manufactionItems = (
   <div>
-    <Link to="/bom">
+    <Link to="/boms">
       <ListItem button>
         <ListItemIcon>
           <mdi.FileMultiple />
@@ -186,7 +187,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           {/* <Route exact path="/" component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} /> */}
                 <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
                 <Route path="/order/:id" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
-                <Route path="/order" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
+                <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
                 <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
                 {/* <Route path="/formula/add/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} /> */}
                 <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
@@ -194,7 +195,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
                 <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
                 <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
-                <Route path="/bom" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
                 <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
                 </Switch>
 
@@ -238,11 +240,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
               <Switch>
                 <Route path="/client" component={ClientPage} />
                 <Route path="/order/:id?" component={OrderDetailsPage} />
-                <Route path="/order" component={OrderPage} />
+                <Route path="/orders" component={OrderPage} />
                 <Route path="/product/:id" component={ProductDetailsPage} />
-                {/* <Route path="/formula/:mode/:pid" component={AddFormulaPage} /> */}
-                {/* <Route path="/formula/view/:pid/:fid" component={AddFormulaPage} /> */}
-                {/* <Route path="/formula/edit/:pid/:fid" component={AddFormulaPage} /> */}
                 <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
                 <Route path="/product" component={ProductPage} />
                 <Route path="/basic_data/client_type" component={ClientTypePage} />
@@ -253,7 +252,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/basic_data/material_type" component={MaterialTypePage} />
                 <Route path="/basic_data/material" component={MaterialPage} />
                 <Route path="/basic_data/material" component={MaterialPage} />
-                <Route path="/bom/:id?" component={BomPage} />
+                <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
+                <Route path="/boms" component={BomsPage} />
                 <Route component={HomePage} />
               </Switch>
 

@@ -70,7 +70,8 @@ import axios from 'axios'
 import DataTableBase from "./data_table_base"
 
 import { API_BASE_URL } from "./config"
-import { store } from "./redux"
+// import { store } from "./redux"
+import { toFixedMoney } from "./utils"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
@@ -86,6 +87,7 @@ class OrderDetailsPage extends React.PureComponent {
             order: {},
             orderItems: [], // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
             client: null,
+            boms: [],
 
             products: [],
             clients: [],
@@ -357,7 +359,11 @@ class OrderDetailsPage extends React.PureComponent {
                     // j.forEach(it => fs.push({ 'quantity': it.quantity, ...it._embedded.material }))
                     // this.setState({ orderItems: fs });
                     this.setState({ orderItems: j })
+                    return j
                 })
+                .then(j => axios.get(`${API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
+                .then(resp => resp.data._embedded.boms)
+                .then(boms => this.setState({ boms }))
                 .catch(e => this.showSnackbar(e.message));
         }
 
@@ -381,7 +387,7 @@ class OrderDetailsPage extends React.PureComponent {
     render() {
         const { classes, width } = this.props
         const { id } = this.props.match.params;
-        const { mode, order, client, orderItems, products, clients } = this.state;
+        const { mode, order, client, orderItems, products, clients, boms } = this.state;
         const { showSelectProduct, columns, selection } = this.state;
         const { errors, snackbarOpen, snackbarContent } = this.state;
 
@@ -516,7 +522,7 @@ class OrderDetailsPage extends React.PureComponent {
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>条目</Typography>
-                        <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{order.value}</Typography>
+                        <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{order.value ? `¥ ${toFixedMoney(order.value)}` : '--'}</Typography>
                     </div>
                     <Paper className={classes.compactPaper}>
                         <Table>
@@ -526,7 +532,7 @@ class OrderDetailsPage extends React.PureComponent {
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>产品颜色</TableCell>
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>数量</TableCell>
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>单价</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>总价</TableCell>
+                                    <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         <Button variant="flat" size="large" onClick={this.onAddProduct}>
                                             <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
@@ -541,7 +547,7 @@ class OrderDetailsPage extends React.PureComponent {
                                         <TableRow key={rid}>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.code}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.color}</TableCell>
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>
+                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`quantity_${rid}`}
                                                     value={n.quantity}
                                                     fullWidth
@@ -553,7 +559,7 @@ class OrderDetailsPage extends React.PureComponent {
                                                     onChange={e => this.handleQuantityChange(e)}
                                                 />
                                             </TableCell>
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>
+                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`price_${rid}`}
                                                     value={n.price}
                                                     fullWidth
@@ -565,7 +571,7 @@ class OrderDetailsPage extends React.PureComponent {
                                                     onChange={e => this.handlePriceChange(e)}
                                                 />
                                             </TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{n.quantity * n.price}</TableCell>
+                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.price)}`}</TableCell>
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 <Tooltip title="删除">
                                                     <IconButton onClick={() => this.onDelete(n.id, no)}>
@@ -582,6 +588,20 @@ class OrderDetailsPage extends React.PureComponent {
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
                                 <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
+                    </Paper>
+
+
+                    <Typography variant="title" className={classes.subTitle}>BOM</Typography>
+
+                    <Paper className={classes.paper}>
+                        {boms && boms.length > 0 ? (
+                            <React.Fragment>
+                                <Typography >BOM已生成</Typography>
+                                <Button variant="flat" size="large" component={Link} to={`/bom/view/${order.id}`}>
+                                    <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看BOM</Button>
+                            </React.Fragment>
+                        ) : <Button variant="flat" size="large" component={Link} to={`/bom/add/${order.id}`}>
+                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成BOM</Button>}
                     </Paper>
                 </div>
 

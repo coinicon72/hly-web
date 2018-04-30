@@ -86,7 +86,7 @@ class OrderPage extends React.PureComponent {
         });
 
         this.onRowDoubleClicked = this.onRowDoubleClicked.bind(this)
-        this.addRowHandler = () => this.props.history.push('/order/0');
+        this.addRowHandler = () => this.props.history.push('/order');
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
