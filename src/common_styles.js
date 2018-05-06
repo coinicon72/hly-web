@@ -1,9 +1,53 @@
+const drawerWidth = 240;
+
 const styles = theme => ({
+    // appBar: {
+    //     position: 'inherit',
+    //     // marginLeft: drawerWidth,
+    //     // [theme.breakpoints.up('md')]: {
+    //     //     width: `calc(100% - ${drawerWidth}px)`,
+    //     // },
+    //     // transition: theme.transitions.create(['margin', 'width'], {
+    //     //   easing: theme.transitions.easing.sharp,
+    //     //   duration: theme.transitions.duration.leavingScreen,
+    //     // }),
+    // },
+
+    // navIconHide: {
+    //     [theme.breakpoints.up('md')]: {
+    //         display: 'none',
+    //     },
+    // },
+
+    // appTitle: {
+    //     color: "inherit",
+    //     overflow: "hidden",
+    //     whiteSpace: "nowrap",
+    //     textOverflow: "ellipsis",
+    //     flex: 1,
+    // },
+
     contentRoot: {
         // flex: 1,
         minHeight: `calc(100% - ${theme.spacing.unit * 3 * 2}px)`,
         padding: theme.spacing.unit * 3,
         backgroundColor: '#f4f4f4',
+        // marginTop: '64px',
+        // overflowY: 'auto',
+    },
+
+    toolbar: {
+        padding: 0,
+    },
+
+    toolbarTitle: {
+        opacity: .75,
+        margin: 0,
+        flex: 1,
+    },
+
+    error: {
+        color: 'red',
     },
 
     title: {

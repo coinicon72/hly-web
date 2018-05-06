@@ -374,7 +374,7 @@ class DataTableBase extends React.PureComponent {
         let update_height = window.innerHeight// Math.round(update_width/4.4);
         this.setState({ width: update_width, height: update_height });
 
-        this.setState({ tableHeight: update_height - 64 - 64 })
+        this.setState({ tableHeight: update_height - 64 - 64 - 64 })
         // }
     }
 

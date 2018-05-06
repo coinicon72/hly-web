@@ -13,15 +13,21 @@ import CommonStyles from "./common_styles";
 
 // router
 import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
-import axios from 'axios'
-
-import Typography from 'material-ui/Typography';
+//
+import { AppBar, Toolbar, IconButton, Typography } from 'material-ui';
 import {
     TableEditRow, TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';
 
+import * as mdi from 'mdi-material-ui';
+import * as mui from '@material-ui/icons';
+
+//
+import axios from 'axios'
+
+//
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
@@ -143,6 +149,19 @@ class ClientPage extends React.PureComponent {
         const { classes, width } = this.props
 
         return this.state.loaded ? (
+            <React.Fragment>
+            {/* <AppBar className={classes.appBar}>
+              <Toolbar>
+                <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
+                  <mdi.Menu />
+                </IconButton>
+
+                <Typography variant="title" className={classes.appTitle}>客户</Typography>
+
+                <IconButton color="inherit"><mdi.AccountCircle /></IconButton>
+              </Toolbar>
+            </AppBar> */}
+
             <div className={classes.contentRoot}>
             <DataTableBase columns={COLUMNS}
                 editCell={this.editCell}
@@ -155,6 +174,7 @@ class ClientPage extends React.PureComponent {
                 doDelete={this.doDelete}
             />
             </div>
+            </React.Fragment>
         ) : <Typography color="inherit" noWrap variant="headline">Loading</Typography>
     }
 }

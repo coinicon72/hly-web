@@ -73,7 +73,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import {EXPORT_BASE_URL, API_BASE_URL } from "./config"
 import {toFixedMass} from "./utils"
 // import { store } from "./redux"
 
@@ -459,7 +459,7 @@ class BomDetailsPage extends React.PureComponent {
 
     render() {
         const { classes, width } = this.props
-        const { id } = this.props.match.params;
+        const orderId = this.props.match.params.id;
         const { mode, order, orderItems, orders } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
         const { errors, snackbarOpen, snackbarContent } = this.state;
@@ -483,8 +483,11 @@ class BomDetailsPage extends React.PureComponent {
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
                         <Button onClick={() => this.saveBom()} disabled={mode === MODE_VIEW || !order} color='secondary' style={{ fontSize: 18 }} >保存BOM单<mdi.ContentSave /></Button>
-                        {/* {mode === MODE_VIEW ? null :
-                            } */}
+                        
+                        {
+                            mode === MODE_ADD ? null :
+                        <Button href={`${EXPORT_BASE_URL}/boms/${orderId}`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> 
+                        }
                     </Toolbar>
 
                     <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 8, alignItems: 'center' }}>
@@ -987,37 +990,33 @@ class BomSheet extends React.PureComponent {
     }
 }
 
-// const mapStateToBomPageProps = (state) => {
-//     return { ...state }
-// }
+const mapStateToBomPageProps = (state) => {
+    return { ...state }
+}
 
-// const mapStateToBomSheetProps = (state, ownProps) => {
-//     let errors = null
-//     const { product } = ownProps.orderItem.id
+const mapStateToBomSheetProps = (state, ownProps) => {
+    let errors = null
+    const { product } = ownProps.orderItem.id
 
-//     if (state.errors) {
-//         const keys = Object.keys(state.errors)
+    if (state.errors) {
+        const keys = Object.keys(state.errors)
 
-//         keys.filter(k => k == `formula_${product}` || k.startsWith(`material_${product}`))
-//             .forEach(k => {
-//                 errors[k] = state.errors[k]
-//             })
-//     }
+        keys.filter(k => k == `formula_${product}` || k.startsWith(`material_${product}`))
+            .forEach(k => {
+                errors[k] = state.errors[k]
+            })
+    }
 
-//     return { errors }
-// }
+    return { errors }
+}
 
-// const mapDispatchToProps = (dispatch) => {
-//     return { dispatch }
-// }
+const mapDispatchToProps = (dispatch) => {
+    return { dispatch }
+}
 
 const styles = theme => ({
     ...CommonStyles(theme),
     ... {
-        toolbar: {
-            padding: 0,
-        },
-
         title: {
             opacity: .75,
             margin: 0,
@@ -1030,10 +1029,6 @@ const styles = theme => ({
             margin: `0 0 ${theme.spacing.unit * 1}px 0`,
             // marginLeft: 0,
             // marginBottom: ,
-        },
-
-        error: {
-            color: 'red',
         },
 
         // subTitle: {
@@ -1068,4 +1063,4 @@ export default withStyles(styles)(BomDetailsPage);
 
 // BomSheet = compose(connect(mapStateToBomSheetProps, mapDispatchToProps), withStyles(styles))(BomSheet);
 
-// export default compose(connect(mapStateToBomPageProps, mapDispatchToProps), withStyles(styles))(BomPage);
+// export default compose(connect(mapStateToBomPageProps, mapDispatchToProps), withStyles(styles))(BomDetailsPage);

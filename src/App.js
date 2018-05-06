@@ -4,6 +4,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import Loadable from 'react-loadable';
+import Loading from './loading-component';
+
 import compose from 'recompose/compose';
 import { withStyles } from 'material-ui/styles';
 import withWidth from 'material-ui/utils/withWidth';
@@ -28,22 +31,72 @@ import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, Emai
 
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
-import DataTableBase from "./data_table_base"
-import { HomePage } from "./home"
-import ClientTypePage from "./client_type"
-import MaterialTypePage from "./material_type"
-import MaterialPage from "./material"
-import ClientPage from "./client"
-import OrderPage from "./order"
-import OrderDetailsPage from "./order_details"
-import ProductPage from "./product"
-import ProductDetailsPage from "./product_details"
-import FormulaDetailsPage from "./formula_details"
-import BomDetailsPage from "./bom_details"
-import BomsPage from "./boms"
+// import DataTableBase from "./data_table_base"
+import HomePage from "./home"
+// import ClientTypePage from "./client_type"
+// import MaterialTypePage from "./material_type"
+// import MaterialPage from "./material"
+// import ClientPage from "./client"
+// import OrderPage from "./order"
+// import OrderDetailsPage from "./order_details"
+// import ProductPage from "./product"
+// import ProductDetailsPage from "./product_details"
+// import FormulaDetailsPage from "./formula_details"
+// import BomDetailsPage from "./bom_details"
+// import BomsPage from "./boms"
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
+
+
+const DataTableBase = Loadable({
+  loader: () => import('./data_table_base'),
+  loading: Loading,
+});
+const ClientTypePage = Loadable({
+  loader: () => import("./client_type"),
+  loading: Loading,
+});
+const MaterialTypePage = Loadable({
+  loader: () => import("./material_type"),
+  loading: Loading,
+});
+const MaterialPage = Loadable({
+  loader: () => import("./material"),
+  loading: Loading,
+});
+const ClientPage = Loadable({
+  loader: () => import("./client"),
+  loading: Loading,
+});
+const OrderPage = Loadable({
+  loader: () => import("./order"),
+  loading: Loading,
+});
+const OrderDetailsPage = Loadable({
+  loader: () => import("./order_details"),
+  loading: Loading,
+});
+const ProductPage = Loadable({
+  loader: () => import("./product"),
+  loading: Loading,
+});
+const ProductDetailsPage = Loadable({
+  loader: () => import("./product_details"),
+  loading: Loading,
+});
+const FormulaDetailsPage = Loadable({
+  loader: () => import("./formula_details"),
+  loading: Loading,
+});
+const BomDetailsPage = Loadable({
+  loader: () => import("./bom_details"),
+  loading: Loading,
+});
+const BomsPage = Loadable({
+  loader: () => import("./boms"),
+  loading: Loading,
+});
 
 
 
@@ -173,7 +226,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
     return (
       <BrowserRouter>
-        <div className={classes.root}>
+        {/* <div className={classes.root}> */}
           <div className={classes.appFrame}>
             <AppBar className={classes.appBar}>
               <Toolbar>
@@ -181,26 +234,20 @@ class App extends React.PureComponent<{ classes: any }, any> {
                   <MenuIcon />
                 </IconButton>
 
-                {/* <Typography variant="title" color="inherit" noWrap className={classes.flex}> */}
-                  {/* Wasted too much time to figure out a cool title */}
-                  <Switch>
-          {/* <Route exact path="/" component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} /> */}
-                <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
-                <Route path="/order/:id" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
-                <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
-                <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
-                {/* <Route path="/formula/add/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} /> */}
-                <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
-                <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
-                <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
-                <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
-                <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
-                <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-                <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-                <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
+                <Switch>
+                  <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
+                  <Route path="/order/:id" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
+                  <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
+                  <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
+                  <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
+                  <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
+                  <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
+                  <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
+                  <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
+                  <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                  <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                  <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
                 </Switch>
-
-          {/* </Typography> */}
 
                 <IconButton color="inherit"><AccountCircle /></IconButton>
               </Toolbar>
@@ -259,7 +306,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
             </main>
           </div>
-        </div>
+        {/* </div> */}
       </BrowserRouter >
     );
   }
@@ -344,7 +391,8 @@ const styles = theme => ({
   },
   content: {
     // display: 'flex',
-    flexGrow: 1,
+    // flexDirection: 'column',
+    // flex: 1,
     backgroundColor: theme.palette.background.default,
     padding: 0,
     transition: theme.transitions.create('margin', {

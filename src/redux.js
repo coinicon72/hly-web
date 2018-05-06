@@ -17,17 +17,26 @@ const middleware = routerMiddleware(history)
 
 const initialState = {
   page: "home",
+  
+  toolbarTitle: 'toolbar title',
+  navMenus: ['profile', 'settings'],
+  footbarContent: 'footbar',
+  mainContent: 'main content',
 }
 
 function appReducer(state = initialState, action) {
+  let newState = {...state}
   switch (action.type) {
     // case SET_VISIBILITY_FILTER:
     //   return Object.assign({}, state, {
     //     visibilityFilter: action.filter
     //   })
-    default:
-      return state
+    case "clickTitle":
+      newState.toolbarTitle = 'toolbar - ' + parseInt(Math.random() * 10);
+      break
   }
+
+  return newState
 }
 
 // Add the reducer to your store on the `router` key
@@ -37,5 +46,6 @@ export const store = createStore(
     main: appReducer,
     router: routerReducer
   }),
-  applyMiddleware(middleware)
+  applyMiddleware(middleware),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )

@@ -2,6 +2,6 @@
 
 import React from 'react';
 
-export const HomePage = () => {
+export default (props) => {
   return <p>Home Page</p>
 }

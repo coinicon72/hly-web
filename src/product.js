@@ -12,11 +12,15 @@ import CommonStyles from "./common_styles";
 
 import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar } from 'material-ui';
 
+// icons
+import * as mdi from 'mdi-material-ui';
+import * as mui from '@material-ui/icons';
+
 import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import { EXPORT_BASE_URL, API_BASE_URL } from "./config"
 
 
 // =============================================
@@ -96,7 +100,14 @@ class ProductPage extends React.PureComponent {
 
         return (
             <div className={classes.contentRoot}>
-                <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography>
+                {/* <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography> */}
+
+                    <Toolbar className={classes.toolbar}>
+                        {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                        <Typography variant="title" className={classes.toolbarTitle}>双击产品可以查看详情</Typography>
+                        <Button href={`${EXPORT_BASE_URL}/orders`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
+                        {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                    </Toolbar>
 
                 <DataTableBase columns={COLUMNS}
                     editCell={this.editCell}
