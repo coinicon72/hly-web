@@ -31,7 +31,7 @@ import axios from 'axios'
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
-import { API_BASE_URL } from "./config";
+import { EXPORT_BASE_URL, API_BASE_URL } from "./config";
 
 
 // =============================================
@@ -139,7 +139,7 @@ class ClientPage extends React.PureComponent {
         return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
             .then(resp => resp.data)
             .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
-        }
+    }
 
     doDelete = (r) => {
         return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
@@ -149,32 +149,29 @@ class ClientPage extends React.PureComponent {
         const { classes, width } = this.props
 
         return this.state.loaded ? (
-            <React.Fragment>
-            {/* <AppBar className={classes.appBar}>
-              <Toolbar>
-                <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
-                  <mdi.Menu />
-                </IconButton>
-
-                <Typography variant="title" className={classes.appTitle}>客户</Typography>
-
-                <IconButton color="inherit"><mdi.AccountCircle /></IconButton>
-              </Toolbar>
-            </AppBar> */}
+            // <React.Fragment>
 
             <div className={classes.contentRoot}>
-            <DataTableBase columns={COLUMNS}
-                editCell={this.editCell}
-                changeAddedRowsCallback={this.changeAddedRowsCallback}
-                // commitChanges={this.commitChanges}
-                editingColumnExtensions={this.editingColumnExtensions}
-                doLoad={this.doLoad}
-                doAdd={this.doAdd}
-                doUpdate={this.doUpdate}
-                doDelete={this.doDelete}
-            />
+
+                <Toolbar className={classes.toolbar}>
+                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                    <Typography variant="title" className={classes.toolbarTitle}></Typography>
+                    <Button href={`${EXPORT_BASE_URL}/clients`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                </Toolbar>
+
+                <DataTableBase columns={COLUMNS}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    // commitChanges={this.commitChanges}
+                    editingColumnExtensions={this.editingColumnExtensions}
+                    doLoad={this.doLoad}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
+                />
             </div>
-            </React.Fragment>
+            // </React.Fragment>
         ) : <Typography color="inherit" noWrap variant="headline">Loading</Typography>
     }
 }
@@ -187,4 +184,4 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles) (ClientPage) ;
+export default withStyles(styles)(ClientPage);

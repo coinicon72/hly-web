@@ -136,7 +136,7 @@ class OrderPage extends React.PureComponent {
         // const { snackbarOpen, snackbarContent } = this.state;
 
         return (
-            <React.Fragment>
+            // <React.Fragment>
                 <div className={classes.contentRoot}>
                     {/* <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography> */}
 
@@ -163,7 +163,7 @@ class OrderPage extends React.PureComponent {
                     />
                 </div>
 
-            </React.Fragment>
+            // </React.Fragment>
         )
     }
 }
