@@ -31,72 +31,72 @@ import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, Emai
 
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
-// import DataTableBase from "./data_table_base"
 import HomePage from "./home"
-// import ClientTypePage from "./client_type"
-// import MaterialTypePage from "./material_type"
-// import MaterialPage from "./material"
-// import ClientPage from "./client"
-// import OrderPage from "./order"
-// import OrderDetailsPage from "./order_details"
-// import ProductPage from "./product"
-// import ProductDetailsPage from "./product_details"
-// import FormulaDetailsPage from "./formula_details"
-// import BomDetailsPage from "./bom_details"
-// import BomsPage from "./boms"
+import DataTableBase from "./data_table_base"
+import ClientTypePage from "./client_type"
+import MaterialTypePage from "./material_type"
+import MaterialPage from "./material"
+import ClientPage from "./client"
+import OrderPage from "./order"
+import OrderDetailsPage from "./order_details"
+import ProductPage from "./product"
+import ProductDetailsPage from "./product_details"
+import FormulaDetailsPage from "./formula_details"
+import BomDetailsPage from "./bom_details"
+import BomsPage from "./boms"
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
 
 
-const DataTableBase = Loadable({
-  loader: () => import('./data_table_base'),
-  loading: Loading,
-});
-const ClientTypePage = Loadable({
-  loader: () => import("./client_type"),
-  loading: Loading,
-});
-const MaterialTypePage = Loadable({
-  loader: () => import("./material_type"),
-  loading: Loading,
-});
-const MaterialPage = Loadable({
-  loader: () => import("./material"),
-  loading: Loading,
-});
-const ClientPage = Loadable({
-  loader: () => import("./client"),
-  loading: Loading,
-});
-const OrderPage = Loadable({
-  loader: () => import("./order"),
-  loading: Loading,
-});
-const OrderDetailsPage = Loadable({
-  loader: () => import("./order_details"),
-  loading: Loading,
-});
-const ProductPage = Loadable({
-  loader: () => import("./product"),
-  loading: Loading,
-});
-const ProductDetailsPage = Loadable({
-  loader: () => import("./product_details"),
-  loading: Loading,
-});
-const FormulaDetailsPage = Loadable({
-  loader: () => import("./formula_details"),
-  loading: Loading,
-});
-const BomDetailsPage = Loadable({
-  loader: () => import("./bom_details"),
-  loading: Loading,
-});
-const BomsPage = Loadable({
-  loader: () => import("./boms"),
-  loading: Loading,
-});
+// const DataTableBase = Loadable({
+//   loader: () => import('./data_table_base'),
+//   loading: Loading,
+// });
+// const ClientTypePage = Loadable({
+//   loader: () => import("./client_type"),
+//   loading: Loading,
+// });
+// const MaterialTypePage = Loadable({
+//   loader: () => import("./material_type"),
+//   loading: Loading,
+// });
+// const MaterialPage = Loadable({
+//   loader: () => import("./material"),
+//   loading: Loading,
+// });
+// const ClientPage = Loadable({
+//   loader: () => import("./client"),
+//   loading: Loading,
+// });
+// const OrderPage = Loadable({
+//   loader: () => import("./order"),
+//   loading: Loading,
+// });
+// const OrderDetailsPage = Loadable({
+//   loader: () => import("./order_details"),
+//   loading: Loading,
+// });
+// const ProductPage = Loadable({
+//   loader: () => import("./product"),
+//   loading: Loading,
+// });
+// const ProductDetailsPage = Loadable({
+//   loader: () => import("./product_details"),
+//   loading: Loading,
+// });
+// const FormulaDetailsPage = Loadable({
+//   loader: () => import("./formula_details"),
+//   loading: Loading,
+// });
+// const BomDetailsPage = Loadable({
+//   loader: () => import("./bom_details"),
+//   loading: Loading,
+// });
+// const BomsPage = Loadable({
+//   loader: () => import("./boms"),
+//   loading: Loading,
+// });
 
 
 
