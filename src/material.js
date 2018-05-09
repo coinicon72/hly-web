@@ -107,7 +107,7 @@ class MaterialPage extends React.PureComponent {
         return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
             .then(resp => resp.data)
             .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
-        }
+    }
 
     doDelete = (r) => {
         return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
@@ -118,24 +118,31 @@ class MaterialPage extends React.PureComponent {
 
         return this.state.loaded ? (
             <div className={classes.contentRoot}>
-            <DataTableBase columns={[
-                { name: 'id', title: '序号' },
-                { name: 'code', title: '编号' },
-                { name: "name", title: "名称" },
-                { name: "type", title: "类型" },
-                { name: "safeQuantity", title: "安全库存"}, //getCellValue: row => row.safeQuantity ? row.safeQuantity.toString() : undefined },
-                { name: "comment", title: "备注" },
-                // { name: "metadata", title: ""},     
-            ]}
-                editCell={this.editCell}
-                changeAddedRowsCallback={this.changeAddedRowsCallback}
-                // commitChanges={this.commitChanges}
-                editingColumnExtensions={this.editingColumnExtensions}
-                doLoad={this.doLoad}
-                doAdd={this.doAdd}
-                doUpdate={this.doUpdate}
-                doDelete={this.doDelete}
-            />
+                <Toolbar className={classes.toolbar}>
+                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                    <Typography variant="title" className={classes.toolbarTitle}></Typography>
+                    <Button href={`${EXPORT_BASE_URL}/materials`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                </Toolbar>
+
+                <DataTableBase columns={[
+                    { name: 'id', title: '序号' },
+                    { name: 'code', title: '编号' },
+                    { name: "name", title: "名称" },
+                    { name: "type", title: "类型" },
+                    { name: "safeQuantity", title: "安全库存" }, //getCellValue: row => row.safeQuantity ? row.safeQuantity.toString() : undefined },
+                    { name: "comment", title: "备注" },
+                    // { name: "metadata", title: ""},     
+                ]}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    // commitChanges={this.commitChanges}
+                    editingColumnExtensions={this.editingColumnExtensions}
+                    doLoad={this.doLoad}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
+                />
             </div>
         ) : <Typography color="inherit" noWrap variant="headline">Loading</Typography>
     }
@@ -149,4 +156,4 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles) (MaterialPage);
+export default withStyles(styles)(MaterialPage);
