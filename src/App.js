@@ -292,12 +292,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
                 <Route path="/product" component={ProductPage} />
                 <Route path="/basic_data/client_type" component={ClientTypePage} />
-                {/* <Route path="/basic_data/client_type" render={() => <ClientTypePage apiBaseUrl={API_BASE_URL} dataRepo="clientTypes" columns={[
-                  { name: 'id', title: '编号' },
-                  { name: 'name', title: '名称' },
-                ]} />} /> */}
                 <Route path="/basic_data/material_type" component={MaterialTypePage} />
-                <Route path="/basic_data/material" component={MaterialPage} />
                 <Route path="/basic_data/material" component={MaterialPage} />
                 <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
                 <Route path="/boms" component={BomsPage} />
