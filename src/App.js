@@ -44,7 +44,8 @@ import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
 import BomDetailsPage from "./bom_details"
 import BomsPage from "./boms"
-import StockChangingPage from './stock_changing'
+import InStockDetailsPage from './in_stock_details'
+import InStockPage from './in_stock'
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
@@ -171,6 +172,46 @@ const manufactionItems = (
   </div>
 );
 
+const stockItems = (
+  <div>
+    <Link to="/in-stock">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.DatabasePlus />
+        </ListItemIcon>
+        <ListItemText primary="入库单" />
+      </ListItem>
+    </Link>
+
+    <Link to="/out-stock">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.DatabaseMinus />
+        </ListItemIcon>
+        <ListItemText primary="出库单" />
+      </ListItem>
+    </Link>
+
+    <Link to="/stock">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.Database />
+        </ListItemIcon>
+        <ListItemText primary="库存" />
+      </ListItem>
+    </Link>
+
+    <Link to="/inventory">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.DatabaseSearch />
+        </ListItemIcon>
+        <ListItemText primary="盘点" />
+      </ListItem>
+    </Link>
+  </div>
+);
+
 class App extends React.PureComponent<{ classes: any }, any> {
 
   constructor(props) {
@@ -222,88 +263,98 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <List>{basicDataItems}</List>
         <Divider />
         <List>{manufactionItems}</List>
+        <Divider />
+        <List>{stockItems}</List>
       </div>
     );
 
     return (
       <BrowserRouter>
         {/* <div className={classes.root}> */}
-          <div className={classes.appFrame}>
-            <AppBar className={classes.appBar}>
-              <Toolbar>
-                <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
-                  <MenuIcon />
-                </IconButton>
-
-                <Switch>
-                  <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
-                  <Route path="/order/:id" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
-                  <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
-                  <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
-                  <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
-                  <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
-                  <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
-                  <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
-                  <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
-                  <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-                  <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-                  <Route path="/stock_changing/:type" component={({type}) => <Typography variant="title" className={classes.appTitle}>{type == 'in' ? "入库单" : (type == 'out' ? "出库单" : "库存变更")}</Typography>} />
-                  <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
-                </Switch>
-
-                <IconButton color="inherit"><AccountCircle /></IconButton>
-              </Toolbar>
-            </AppBar>
-            <Hidden mdUp>
-              <Drawer
-                variant="temporary"
-                anchor={anchor}
-                open={openDrawer}
-                onClose={this.handleDrawerToggle}
-                classes={{
-                  paper: classes.drawerPaper,
-                }}
-                ModalProps={{
-                  keepMounted: true, // Better open performance on mobile.
-                }}
-              >
-                {drawer}
-              </Drawer>
-            </Hidden>
-            <Hidden smDown implementation="css">
-              <Drawer
-                variant="permanent"
-                open
-                classes={{
-                  paper: classes.drawerPaper,
-                }}
-              >
-                {drawer}
-              </Drawer>
-            </Hidden>
-            <main
-              className={classes.content}
-            >
-              {/* <div className={classes.drawerHeader} /> */}
+        <div className={classes.appFrame}>
+          <AppBar className={classes.appBar}>
+            <Toolbar>
+              <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
+                <MenuIcon />
+              </IconButton>
 
               <Switch>
-                <Route path="/client" component={ClientPage} />
-                <Route path="/order/:id?" component={OrderDetailsPage} />
-                <Route path="/orders" component={OrderPage} />
-                <Route path="/product/:id" component={ProductDetailsPage} />
-                <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
-                <Route path="/product" component={ProductPage} />
-                <Route path="/basic_data/client_type" component={ClientTypePage} />
-                <Route path="/basic_data/material_type" component={MaterialTypePage} />
-                <Route path="/basic_data/material" component={MaterialPage} />
-                <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
-                <Route path="/boms" component={BomsPage} />
-                <Route path="/stock_changing/:type/:id?" component={StockChangingPage} />
-         <Route component={HomePage} />
+                <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
+                <Route path="/order/:id" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
+                <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
+                <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
+                <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
+                <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
+                <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
+                <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
+                <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
+                <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                <Route path="/in-stock" component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
+                <Route path="/out-stock" component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
+                <Route path="/stock" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
+                <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
+                <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
               </Switch>
 
-            </main>
-          </div>
+              <IconButton color="inherit"><AccountCircle /></IconButton>
+            </Toolbar>
+          </AppBar>
+          <Hidden mdUp>
+            <Drawer
+              variant="temporary"
+              anchor={anchor}
+              open={openDrawer}
+              onClose={this.handleDrawerToggle}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+            >
+              {drawer}
+            </Drawer>
+          </Hidden>
+          <Hidden smDown implementation="css">
+            <Drawer
+              variant="permanent"
+              open
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+            >
+              {drawer}
+            </Drawer>
+          </Hidden>
+          <main
+            className={classes.content}
+          >
+            {/* <div className={classes.drawerHeader} /> */}
+
+            <Switch>
+              <Route path="/client" component={ClientPage} />
+              <Route path="/order/:id?" component={OrderDetailsPage} />
+              <Route path="/orders" component={OrderPage} />
+              <Route path="/product/:id" component={ProductDetailsPage} />
+              <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
+              <Route path="/product" component={ProductPage} />
+              <Route path="/basic_data/client_type" component={ClientTypePage} />
+              <Route path="/basic_data/material_type" component={MaterialTypePage} />
+              <Route path="/basic_data/material" component={MaterialPage} />
+              <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
+              <Route path="/boms" component={BomsPage} />
+              <Route path="/in-stock/:mode/:id?" component={InStockDetailsPage} />
+              <Route path="/in-stock" component={InStockPage} />
+              {/* <Route path="/out-stock/:type/:id?" component={OutStockDetailsPage} />
+              <Route path="/out-stock" component={OutStockPage} /> */}
+              {/* <Route path="/stock" component={Stock} />
+              <Route path="/inventory" component={Inventory} /> */}
+              <Route component={HomePage} />
+            </Switch>
+
+          </main>
+        </div>
         {/* </div> */}
       </BrowserRouter >
     );

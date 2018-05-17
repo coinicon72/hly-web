@@ -11,6 +11,9 @@ import { withStyles } from 'material-ui';
 
 import CommonStyles from "./common_styles";
 
+// redux
+// import connect from 'react-redux/lib/connect/connect';
+
 // router
 import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
@@ -72,6 +75,7 @@ import DataTableBase from "./data_table_base"
 import { API_BASE_URL } from "./config"
 // import { store } from "./redux"
 import { toFixedMoney } from "./utils"
+import { normalize } from 'uri-js';
 
 const TYPE_IN_STOCK = "in";
 const TYPE_OUT_STOCK = "out";
@@ -88,26 +92,24 @@ class StockChangingPage extends React.PureComponent {
         super(props);
 
         this.state = {
-            order: {},
-            orderItems: [], // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
-            client: null,
-            boms: [],
-
-            products: [],
-            clients: [],
+            form: {},  // {applicant, application, department}
+            changingItems: [], // [{ material: { }, quantity: 0 }]
 
             //
-            showSelectProduct: false,
+            selectMaterial: false,
             columns: [
                 { name: 'id', title: '序号' },
                 { name: 'code', title: '编号' },
-                { name: "color", title: "颜色" },
+                { name: "name", title: "名称" },
+                { name: "type", title: "类型", getCellValue: row => row.type ? row.type.name : undefined },
+                { name: "spec", title: "规格" },
                 { name: "comment", title: "备注" },
             ],
+            materials: [],
             selection: [],
 
             //
-            savingOrder: false,
+            showSavingDiag: false,
             activeStep: 0,
 
             // errors
@@ -126,108 +128,88 @@ class StockChangingPage extends React.PureComponent {
         //     alert(`edit ${id}`)
         // }).bind(this)
 
-        this.handleOrderInfoChange = (e => {
-            this.state.order[e.target.id] = e.target.value;
+
+        this.handleInput = (e => {
+            this.state.form[e.target.id] = e.target.value
             this.forceUpdate()
         }).bind(this)
 
 
-        this.onChangeTax = (e => {
-            this.state.order.tax = !this.state.order.tax
-            this.forceUpdate()
-        }).bind(this)
+        this.addMaterials = (() => {
+            const { changingItems, materials, selection } = this.state;
+            Object.keys(selection).forEach(idx => {
+                let no = selection[idx];
+                let material = materials[no];
 
+                if (!changingItems.find(v => v.material.id === material.id))
+                    changingItems.push({ material })
+            })
 
-        this.handleSelectClient = (e => {
-            let client = this.state.clients.find(i => i.id == e.target.value)
-            if (client)
-                this.setState({ client: client })
-        }).bind(this)
-
-
-        this.onAddProduct = (() => {
-            this.setState({ showSelectProduct: true })
-        }).bind(this)
-
-
-        this.cancelSelect = (() => {
-            this.setState({ showSelectProduct: false })
+            //
+            this.setState({ changingItems: changingItems, selectMaterial: false, selection: [] })
         }).bind(this)
 
 
         this.changeSelection = selection => this.setState({ selection });
 
+        this.cancelSelect = () => this.setState({ selectMaterial: false })
 
-        this.addProducts = (() => {
-            const { orderItems, products, selection } = this.state;
-            Object.keys(selection).forEach(idx => {
-                let no = selection[idx];
-                let p = products[no];
 
-                if (!orderItems.find(v => v.id.product === p.id))
-                    orderItems.push({ id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 })
-            })
-
-            //
-            this.setState({ orderItems: orderItems, showSelectProduct: false, selection: [] })
+        this.onDelete = ((id, no) => {
+            const { changingItems } = this.state;
+            // let idx = changingItems.findIndex(v => v.id === id)
+            // if (idx >= 0) {
+            changingItems.splice(no, 1);
+            this.forceUpdate();
+            // }
         }).bind(this)
 
 
-        this.onDelete = ((id) => {
-            const { orderItems } = this.state;
-            let idx = orderItems.findIndex(v => v.id === id)
-            if (idx >= 0) {
-                orderItems.splice(idx, 1);
-                this.forceUpdate();
-            }
-        }).bind(this)
-
-
-        this.handleQuantityChange = (e => {
-            let id = e.target.id.split("_")[1]
-            let item = this.state.orderItems.find(i => i.id.product == id)
+        this.handleQuantityChange = ((e, mid, no) => {
+            // let id = e.target.id.split("_")[1]
+            let item = this.state.changingItems[no]
             item.quantity = Number.parseFloat(e.target.value)
 
-            this.updateOrderValue()
+            this.updateFormValue()
 
             this.forceUpdate();
         }).bind(this)
 
 
-        this.handlePriceChange = (e => {
-            let id = e.target.id.split("_")[1]
-            let item = this.state.orderItems.find(i => i.id.product == id)
+        this.handlePriceChange = ((e, mid, no) => {
+            // let id = e.target.id.split("_")[1]
+            let item = this.state.changingItems[no]
             item.price = Number.parseFloat(e.target.value)
 
-            this.updateOrderValue()
+            this.updateFormValue()
 
             this.forceUpdate();
         }).bind(this)
 
 
-        this.updateOrderValue = (e => {
+        this.updateFormValue = (e => {
             let value = 0
-            this.state.orderItems.forEach(i => {
+            this.state.changingItems.forEach(i => {
                 value += i.quantity * i.price
             })
 
-            this.state.order.value = value;
+            this.state.form.amount = toFixedMoney(value);
             this.forceUpdate()
         }).bind(this)
 
 
         //
-        this.cancelSave = () => this.setState({ savingOrder: false, activeStep: 0 })
+        this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
 
         this.onSaveSuccess = (() => {
-            this.setState({ savingOrder: false, activeStep: 0 })
+            this.setState({ showSavingDiag: false, activeStep: 0 })
             this.props.history.goBack();
         }).bind(this)
 
 
-        this.saveOrder = (async () => {
+        this.saveForm = (async () => {
             //
-            this.setState({ savingOrder: true, activeStep: 0 })
+            this.setState({ showSavingDiag: true, activeStep: 0 })
             this.forceUpdate()
 
             //
@@ -238,37 +220,28 @@ class StockChangingPage extends React.PureComponent {
             // step 1
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-            let { order, orderItems, client } = this.state
+            let { form, changingItems } = this.state
 
-            if (!order.no || order.no == "")
-                errors['order.no'] = "无效的订单号"
+            if (!form.applicant || form.applicant == "")
+                errors['form.applicant'] = "无效的申请人"
 
-            if (!order.orderDate || order.orderDate == "")
-                errors['order.orderDate'] = "无效的下单日期"
-
-            if (!order.deliveryDate || order.deliveryDate == "")
-                errors['order.deliveryDate'] = "无效的发货日期"
-
-            if (!client || !client.id)
-                errors['client'] = "无效的客户"
-
-            if (orderItems.length <= 0) {
-                errors['orderItems'] = "订单中没有添加产品"
+            if (changingItems.length <= 0) {
+                errors['changingItems'] = "没有材料"
             } else {
-                orderItems.forEach(item => {
+                changingItems.forEach(item => {
                     if (!item.quantity || item.quantity <= 0) {
-                        errors[`quantity_${item.id.product}`] = "无效的数量"
+                        errors[`quantity_${item.material.id}`] = "无效的数量"
                     }
 
                     if (!item.price || item.price <= 0) {
-                        errors[`price_${item.id.product}`] = "无效的价格"
+                        errors[`price_${item.material.id}`] = "无效的价格"
                     }
                 })
             }
 
             if (Object.keys(errors).length > 0) {
                 this.setState({
-                    savingOrder: false, errors: errors, snackbarOpen: true,
+                    showSavingDiag: false, errors: errors, snackbarOpen: true,
                     snackbarContent: "有错误发生"
                 })
                 return;
@@ -279,21 +252,15 @@ class StockChangingPage extends React.PureComponent {
             this.setState({ activeStep: this.state.activeStep + 1 })
 
             // let value = 0;
-            // orderItems.forEach(i => value += i.quantity * i.price)
+            // changingItems.forEach(i => value += i.quantity * i.price)
 
-            let o = {
-                ...this.state.order,
-                // value: ,
-                client: { id: client.id }
-            }
-
-            await axios.post(`${API_BASE_URL}orders`, o)
+            await axios.post(`${API_BASE_URL}stockChangings`, form)
                 .then(resp => resp.data)
-                .then(j => order.id = j.id)
+                .then(j => form.id = j.id)
                 .catch(e => {
                     cancel = true;
                     this.setState({
-                        savingOrder: false, snackbarOpen: true,
+                        showSavingDiag: false, snackbarOpen: true,
                         snackbarContent: e.message
                     })
                 })
@@ -304,18 +271,21 @@ class StockChangingPage extends React.PureComponent {
             // step 4
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-            orderItems.forEach(p => {
+            // {"id": {"stockChanging": 0, "material": 0}, "stockChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
+            changingItems.forEach(p => {
                 let fi = {
-                    ...p,
-                    order: { id: order.id },
-                    product: { id: p.id.product }
+                    id: { stockChanging: 0, material: 0 },
+                    stockChanging: { id: form.id },
+                    material: { id: p.material.id },
+                    quantity: p.quantity,
+                    price: p.price, 
                 }
 
-                axios.post(`${API_BASE_URL}orderItems`, fi)
+                axios.post(`${API_BASE_URL}stockChangingItems`, fi)
                     .catch(e => {
                         cancel = true;
                         this.setState({
-                            savingOrder: false, snackbarOpen: true,
+                            showSavingDiag: false, snackbarOpen: true,
                             snackbarContent: e.message
                         })
                     })
@@ -334,10 +304,16 @@ class StockChangingPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        let { id } = this.props.match.params;
+        let { type, mode, id } = this.props.match.params;
+
+        // if (type === TYPE_IN_STOCK)
+        //     this.state.form.type = 1;
+        // else if (type === TYPE_OUT_STOCK)
+        //     this.state.form.type = -1;
+
         if (!id) id = 0
 
-        if (id == 0) {
+        if (id == 0 || mode === MODE_ADD) {
             this.state.mode = MODE_ADD
 
             // this.setState({ order: { tax: false } })
@@ -356,13 +332,13 @@ class StockChangingPage extends React.PureComponent {
             //         return `${API_BASE_URL}/orders/${id}/items`
             //     })
             //     .then(url => axios.get(url))
-            //     .then(resp => resp.data._embedded.orderItems)
+            //     .then(resp => resp.data._embedded.changingItems)
             //     .then(j => {
             //         // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
             //         // let fs = []
             //         // j.forEach(it => fs.push({ 'quantity': it.quantity, ...it._embedded.material }))
-            //         // this.setState({ orderItems: fs });
-            //         this.setState({ orderItems: j })
+            //         // this.setState({ changingItems: fs });
+            //         this.setState({ changingItems: j })
             //         return j
             //     })
             //     .then(j => axios.get(`${API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
@@ -373,7 +349,7 @@ class StockChangingPage extends React.PureComponent {
 
         // load materials
         axios.get(`${API_BASE_URL}/materials`)
-            .then(resp => resp.data._embedded.clients)
+            .then(resp => resp.data._embedded.materials)
             .then(j => {
                 this.setState({ materials: j });
             })
@@ -383,13 +359,13 @@ class StockChangingPage extends React.PureComponent {
     render() {
         const { classes, width } = this.props
         const { type, id } = this.props.match.params;
-        const { mode, order, client, orderItems, products, clients, boms } = this.state;
-        const { showSelectProduct, columns, selection } = this.state;
+        const { mode, form, changingItems, materials } = this.state;
+        const { selectMaterial, columns, selection } = this.state;
         const { errors, snackbarOpen, snackbarContent } = this.state;
 
         let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
-        const { savingOrder, activeStep } = this.state;
+        const { showSavingDiag, activeStep } = this.state;
 
         let title = "";
         if (type == TYPE_IN_STOCK) {
@@ -423,7 +399,7 @@ class StockChangingPage extends React.PureComponent {
                     <Toolbar className={classes.toolbar}>
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
-                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveForm()} disabled={mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
@@ -432,15 +408,17 @@ class StockChangingPage extends React.PureComponent {
 
                     <Paper className={classes.paper}>
                         <mu.Grid container direction='column' alignItems="stretch">
+
                             <mu.Grid style={{ marginBottom: 16 }}>
                                 <TextField
+                                    id="applicant"
                                     required
-                                    select
-                                    // error={!!errors['client']}
+                                    // select
+                                    error={!!errors['form.applicant']}
                                     label="申请人"
                                     style={{ width: 300 }}
-                                // value={client ? client.id : ""}
-                                // onChange={e => this.handleSelectClient(e)}
+                                    value={form ? form.applicant : ""}
+                                    onChange={e => this.handleInput(e)}
                                 >
                                     {/* {clients.map(c => (
                                             <MenuItem key={c.id} value={c.id}>
@@ -449,15 +427,17 @@ class StockChangingPage extends React.PureComponent {
                                         ))} */}
                                 </TextField>
                             </mu.Grid>
+
                             <mu.Grid style={{ marginBottom: 16 }}>
                                 <TextField
-                                    required
-                                    select
+                                    id="department"
+                                    // required
+                                    // select
                                     // error={!!errors['client']}
                                     label="部门"
                                     style={{ width: 300 }}
-                                // value={client ? client.id : ""}
-                                // onChange={e => this.handleSelectClient(e)}
+                                    value={form ? form.department : ""}
+                                    onChange={e => this.handleInput(e)}
                                 />
                             </mu.Grid>
 
@@ -478,13 +458,14 @@ class StockChangingPage extends React.PureComponent {
                             </mu.Grid> */}
 
                             <mu.Grid>
-                                <TextField id="application"
+                                <TextField
+                                    id="application"
                                     // error={!!errors['order.comment']} 
                                     label="原因"
                                     defaultValue=""
-                                    // value={order.comment}
                                     className={classes.textFieldWithoutWidth}
-                                    // onChange={e => this.handleOrderInfoChange(e)}
+                                    value={form ? form.application : ""}
+                                    onChange={e => this.handleInput(e)}
                                     multiline
                                     fullWidth
                                     rowsMax="4"
@@ -498,8 +479,10 @@ class StockChangingPage extends React.PureComponent {
                     </Paper>
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>明细</Typography>
-                        {/* <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{order.value ? `¥ ${toFixedMoney(order.value)}` : '--'}</Typography> */}
+                        <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex' }}>明细</Typography>
+                        {errors['changingItems'] ? <Typography className={classes.subTitle} style={{ display: 'inline-flex', color: '#f44336' }}>{errors['changingItems']}</Typography> : null}
+                        <div style={{display: 'inline-flex', flex: 1}} />
+                        <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{form.amount ? `¥ ${toFixedMoney(form.amount)}` : '--'}</Typography>
                     </div>
                     <Paper className={classes.compactPaper}>
                         <Table>
@@ -507,56 +490,64 @@ class StockChangingPage extends React.PureComponent {
                                 <TableRow>
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>类型</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>规格</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>数量</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>类型</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>规格</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>数量</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>价格</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                        <Button variant="flat" size="large" onClick={this.onAddItem}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                        <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
 
                             <TableBody>
-                                {orderItems.map((n, no) => {
-                                    let product = products.find(p => p.id === n.id.product)
-                                    let rid = n.id.product
+                                {changingItems.map((n, no) => {
+                                    let m = n.material
+                                    let subtotal = n.quantity * n.price
+                                    if (!subtotal) subtotal = 0
                                     return (
-                                        <TableRow key={rid}>
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.code}</TableCell>
-                                            
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.color}</TableCell>
-                                            
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
-                                                <TextField type="number" required id={`quantity_${rid}`}
+                                        <TableRow key={m.id}>
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
+
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
+
+                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
+
+                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
+
+                                            <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                                <TextField type="number" required id={`quantity_${m.id}`}
                                                     value={n.quantity}
                                                     fullWidth
-                                                    error={!!errors[`quantity_${rid}`]}
+                                                    error={!!errors[`quantity_${m.id}`]}
                                                     margin="normal" inputProps={{ min: 0 }}
-                                                    InputProps={{
-                                                        endAdornment: <InputAdornment position="end">kg</InputAdornment>
-                                                    }}
-                                                    onChange={e => this.handleQuantityChange(e)}
+                                                    // InputProps={{
+                                                    //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
+                                                    // }}
+                                                    onChange={e => this.handleQuantityChange(e, m.id, no)}
                                                 />
                                             </TableCell>
 
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
-                                                <TextField type="number" required id={`price_${rid}`}
+                                            <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                                <TextField type="number" required id={`price_${m.id}`}
                                                     value={n.price}
                                                     fullWidth
-                                                    error={!!errors[`price_${rid}`]}
+                                                    error={!!errors[`price_${m.id}`]}
                                                     margin="normal" inputProps={{ min: 0 }}
-                                                    InputProps={{
-                                                        startAdornment: <InputAdornment position="start">¥</InputAdornment>
-                                                    }}
-                                                    onChange={e => this.handlePriceChange(e)}
+                                                    // InputProps={{
+                                                    //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
+                                                    // }}
+                                                    onChange={e => this.handlePriceChange(e, m.id, no)}
                                                 />
                                             </TableCell>
 
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.price)}`}</TableCell>
+                                            <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
+
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 <Tooltip title="删除">
-                                                    <IconButton onClick={() => this.onDelete(n.id, no)}>
+                                                    <IconButton onClick={() => this.onDelete(m.id, no)}>
                                                         <mui.Delete />
                                                     </IconButton>
                                                 </Tooltip>
@@ -587,16 +578,17 @@ class StockChangingPage extends React.PureComponent {
 
                 {/* dialog for add materials */}
                 <Dialog
-                    open={showSelectProduct}
+                    open={selectMaterial}
                     onClose={this.cancelSelect}
                     // className={classes.dialog}
                     classes={{ paper: classes.dialog }}
                 >
-                    <DialogTitle>添加产品</DialogTitle>
+                    <DialogTitle>添加材料</DialogTitle>
                     <DialogContent>
+                        {/* <DialogContentText>请选择材料</DialogContentText> */}
                         <Paper>
                             <Grid
-                                rows={products}
+                                rows={materials}
                                 columns={columns}
                             >
                                 <SelectionState
@@ -623,14 +615,14 @@ class StockChangingPage extends React.PureComponent {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.cancelSelect} color="primary">取消</Button>
-                        <Button onClick={this.addProducts} color="secondary">添加</Button>
+                        <Button onClick={this.addMaterials} disabled={selection.length <= 0} color="secondary">添加</Button>
                     </DialogActions>
                 </Dialog>
 
 
                 {/* dialog for save formula */}
                 <Dialog
-                    open={savingOrder}
+                    open={showSavingDiag}
                     onClose={this.cancelSave}
                     classes={{ paper: classes.dialog }}
                 >
@@ -649,7 +641,7 @@ class StockChangingPage extends React.PureComponent {
                         </Paper>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep == savingSteps.length - 1 ? false : true} color="primary">确定</Button>
+                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep >= savingSteps.length - 1 ? false : true} color="primary">确定</Button>
                     </DialogActions>
                 </Dialog>
 
