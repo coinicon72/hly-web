@@ -44,6 +44,7 @@ import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
 import BomDetailsPage from "./bom_details"
 import BomsPage from "./boms"
+import StockChangingPage from './stock_changing'
 
 // import DAC from "./dimension_aware_component"
 import { API_BASE_URL } from "./config"
@@ -246,6 +247,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                   <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
                   <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
                   <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+                  <Route path="/stock_changing/:type" component={({type}) => <Typography variant="title" className={classes.appTitle}>{type == 'in' ? "入库单" : (type == 'out' ? "出库单" : "库存变更")}</Typography>} />
                   <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
                 </Switch>
 
@@ -296,7 +298,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <Route path="/basic_data/material" component={MaterialPage} />
                 <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
                 <Route path="/boms" component={BomsPage} />
-                <Route component={HomePage} />
+                <Route path="/stock_changing/:type/:id?" component={StockChangingPage} />
+         <Route component={HomePage} />
               </Switch>
 
             </main>
