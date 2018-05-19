@@ -10,13 +10,13 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import * as config from "./config"
 import { withStyles } from 'material-ui';
 
 
 // =============================================
-const DATA_REPO = "stockChangings";
-const DATA_FILTER = "/search/findByType?type=1";
+const DATA_REPO = "repoChangings";
+const DATA_FILTER = "/search/findByTypeAndStatus?type=-1&status=0";
 
 const COLUMNS = [
     { name: 'id', title: '序号' },
@@ -24,17 +24,8 @@ const COLUMNS = [
     { name: "department", title: "部门" },
     { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate.split('T')[0] },
     { name: "application", title: "原因" },
-    { name: "amount", title: "总额" },
+    // { name: "amount", title: "总额" },
 ]
-
-const EDITING_COLUMN_EXTENSIONS = [
-    { columnName: 'id', editingEnabled: false },
-]
-
-const NEW_ROW_TEMPLATE = {
-    id: 0,
-    name: '',
-}
 
 
 // =============================================
@@ -42,20 +33,20 @@ class ClientTypePage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = API_BASE_URL + DATA_REPO + DATA_FILTER;
+        this.dataRepoApiUrl = config.API_BASE_URL + DATA_REPO + DATA_FILTER;
 
-        this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
+        // this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
 
-        this.changeAddedRowsCallback = (row => {
-            return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
-        });
+        // this.changeAddedRowsCallback = (row => {
+        //     return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
+        // });
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
         this.doUpdate = this.doUpdate.bind(this)
         this.doDelete = this.doDelete.bind(this)
     
-        this.addRowHandler = () => this.props.history.push('/in-stock/add');
+        this.addRowHandler = () => this.props.history.push(`${config.ROUTER_STOCK_OUT}/add`);
     }
 
     componentDidMount() {
@@ -82,7 +73,7 @@ class ClientTypePage extends React.PureComponent {
 
     onRowDoubleClicked = (row) => {
         if (row)
-            this.props.history.push('/in-stock/edit/' + row.id);
+            this.props.history.push(`${config.ROUTER_STOCK_OUT}/edit/${row.id}`);
     }
 
     render() {

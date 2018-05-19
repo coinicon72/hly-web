@@ -402,7 +402,7 @@ class DataTableBase extends React.PureComponent {
     }
 
     render() {
-        const { classes, columns, editCell, editingColumnExtensions, changeAddedRows } = this.props;
+        const { classes, columns, enableEdit, editCell, editingColumnExtensions, changeAddedRows } = this.props;
         const { rows, selection, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
 
         const TableRow = tableRowWithClickHandler(this.props.clickHandler)
@@ -450,37 +450,40 @@ class DataTableBase extends React.PureComponent {
                         }}> */}
                     {/* </ReactHeight> */}
 
-                    <EditingState
-                        columnExtensions={editingColumnExtensions}
+                    {enableEdit ?
+                        <EditingState
+                            columnExtensions={editingColumnExtensions}
 
-                        editingRowIds={editingRowIds}
-                        onEditingRowIdsChange={this.changeEditingRowIds}
+                            editingRowIds={editingRowIds}
+                            onEditingRowIdsChange={this.changeEditingRowIds}
 
-                        rowChanges={rowChanges}
-                        onRowChangesChange={this.changeRowChanges}
+                            rowChanges={rowChanges}
+                            onRowChangesChange={this.changeRowChanges}
 
-                        addedRows={addedRows}
-                        onAddedRowsChange={changeAddedRows ? changeAddedRows : this.changeAddedRows}
+                            addedRows={addedRows}
+                            onAddedRowsChange={changeAddedRows ? changeAddedRows : this.changeAddedRows}
 
-                        // defaultEditingRowIds={[]}
-                        onCommitChanges={this.commitChanges}
-                    />
+                            // defaultEditingRowIds={[]}
+                            onCommitChanges={this.commitChanges}
+                        /> : null}
 
                     <VirtualTable height={tableHeight} rowComponent={TableRow} messages={{ noData: "没有数据" }} />
 
                     {/* <TableColumnResizing /> */}
                     {/* defaultColumnWidths={defaultColumnWidths} /> */}
                     <TableHeaderRow showSortingControls />
-                    {editCell ? <TableEditRow cellComponent={editCell} /> : <TableEditRow />}
+                    {enableEdit ? (editCell ? <TableEditRow cellComponent={editCell} /> : <TableEditRow />) : null}
 
                     <TableFilterRow />
 
-                    <TableEditColumn
-                        showAddCommand
-                        showEditCommand={this.props.showEditCommand === false ? false : true}
-                        showDeleteCommand={this.props.showDeleteCommand === false ? false : true}
-                        commandComponent={this.Command}
-                    />
+                    {enableEdit ?
+                        <TableEditColumn
+                            showAddCommand
+                            showEditCommand={this.props.showEditCommand === false ? false : true}
+                            showDeleteCommand={this.props.showDeleteCommand === false ? false : true}
+                            commandComponent={this.Command}
+                        />
+                        : null}
                     {/* <TableSelection showSelectAll /> */}
                     {/* <PagingPanel /> */}
                 </Grid>

@@ -26,7 +26,7 @@ import * as mui from '@material-ui/icons';
 import * as mu from 'material-ui';
 import { Paper, Typography, TextField, Button, IconButton, Snackbar, Select, Toolbar, Divider, Tooltip, Chip } from 'material-ui';
 import Input, { InputLabel, InputAdornment } from 'material-ui/Input';
-import { FormGroup, FormControlLabel, FormControl, FormHelperText } from 'material-ui/Form';
+import { FormGroup, FormControlLabel, FormControl, FormHelperText } from 'material-ui';
 import Stepper, { Step, StepLabel } from 'material-ui/Stepper';
 import Switch from 'material-ui/Switch';
 import { MenuItem } from 'material-ui/Menu';
@@ -87,11 +87,13 @@ const MODE_VIEW = "view";
 const savingSteps = ['检查输入数据', '保存基本信息', "保存明细", "完成"];
 
 // =============================================
-class StockChangingPage extends React.PureComponent {
+class RepoChangingPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
         this.state = {
+            dirty: false, // is data dirty?
+
             form: {},  // {applicant, application, department}
             changingItems: [], // [{ material: { }, quantity: 0 }]
 
@@ -129,12 +131,15 @@ class StockChangingPage extends React.PureComponent {
         // }).bind(this)
 
 
+        // basic info changed
         this.handleInput = (e => {
             this.state.form[e.target.id] = e.target.value
+            this.state.dirty = true
             this.forceUpdate()
         }).bind(this)
 
 
+        // select materials
         this.addMaterials = (() => {
             const { changingItems, materials, selection } = this.state;
             Object.keys(selection).forEach(idx => {
@@ -146,7 +151,7 @@ class StockChangingPage extends React.PureComponent {
             })
 
             //
-            this.setState({ changingItems: changingItems, selectMaterial: false, selection: [] })
+            this.setState({ dirty: true, changingItems: changingItems, selectMaterial: false, selection: [] })
         }).bind(this)
 
 
@@ -155,16 +160,20 @@ class StockChangingPage extends React.PureComponent {
         this.cancelSelect = () => this.setState({ selectMaterial: false })
 
 
+        // delete a item
         this.onDelete = ((id, no) => {
             const { changingItems } = this.state;
             // let idx = changingItems.findIndex(v => v.id === id)
             // if (idx >= 0) {
             changingItems.splice(no, 1);
+
+            this.state.dirty = true
             this.forceUpdate();
             // }
         }).bind(this)
 
 
+        // item changed
         this.handleQuantityChange = ((e, mid, no) => {
             // let id = e.target.id.split("_")[1]
             let item = this.state.changingItems[no]
@@ -172,7 +181,7 @@ class StockChangingPage extends React.PureComponent {
 
             this.updateFormValue()
 
-            this.forceUpdate();
+            // this.forceUpdate();
         }).bind(this)
 
 
@@ -183,7 +192,7 @@ class StockChangingPage extends React.PureComponent {
 
             this.updateFormValue()
 
-            this.forceUpdate();
+            // this.forceUpdate();
         }).bind(this)
 
 
@@ -193,12 +202,13 @@ class StockChangingPage extends React.PureComponent {
                 value += i.quantity * i.price
             })
 
+            this.state.dirty = true
             this.state.form.amount = toFixedMoney(value);
             this.forceUpdate()
         }).bind(this)
 
 
-        //
+        // saving
         this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
 
         this.onSaveSuccess = (() => {
@@ -207,7 +217,7 @@ class StockChangingPage extends React.PureComponent {
         }).bind(this)
 
 
-        this.saveForm = (async () => {
+        this.saveForm = (async (doSubmit) => {
             //
             this.setState({ showSavingDiag: true, activeStep: 0 })
             this.forceUpdate()
@@ -253,8 +263,10 @@ class StockChangingPage extends React.PureComponent {
 
             // let value = 0;
             // changingItems.forEach(i => value += i.quantity * i.price)
+            if (doSubmit)
+                form.status = 1
 
-            await axios.post(`${API_BASE_URL}stockChangings`, form)
+            await axios.post(`${API_BASE_URL}repoChangings`, form)
                 .then(resp => resp.data)
                 .then(j => form.id = j.id)
                 .catch(e => {
@@ -271,17 +283,17 @@ class StockChangingPage extends React.PureComponent {
             // step 4
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-            // {"id": {"stockChanging": 0, "material": 0}, "stockChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
+            // {"id": {"repoChanging": 0, "material": 0}, "repoChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
             changingItems.forEach(p => {
                 let fi = {
-                    id: { stockChanging: 0, material: 0 },
-                    stockChanging: { id: form.id },
+                    id: { repoChanging: form.id, material: p.material.id },
+                    repoChanging: { id: form.id },
                     material: { id: p.material.id },
                     quantity: p.quantity,
-                    price: p.price, 
+                    price: p.price,
                 }
 
-                axios.post(`${API_BASE_URL}stockChangingItems`, fi)
+                axios.post(`${API_BASE_URL}repoChangingItems`, fi)
                     .catch(e => {
                         cancel = true;
                         this.setState({
@@ -296,6 +308,9 @@ class StockChangingPage extends React.PureComponent {
             // step 5, done
             this.setState({ activeStep: this.state.activeStep + 1 })
 
+            //
+            this.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
+
         }).bind(this)
     }
 
@@ -307,7 +322,7 @@ class StockChangingPage extends React.PureComponent {
         let { type, mode, id } = this.props.match.params;
 
         // if (type === TYPE_IN_STOCK)
-        //     this.state.form.type = 1;
+        this.state.form.type = 1;
         // else if (type === TYPE_OUT_STOCK)
         //     this.state.form.type = -1;
 
@@ -315,36 +330,33 @@ class StockChangingPage extends React.PureComponent {
 
         if (id == 0 || mode === MODE_ADD) {
             this.state.mode = MODE_ADD
+            // this.state.dirty = f
 
             // this.setState({ order: { tax: false } })
         }
         else //if (id > 0) 
         {
             this.state.mode = MODE_EDIT
+            // this.state.dirty = false
 
-            // axios.get(`${API_BASE_URL}/orders/${id}`)
-            //     .then(resp => resp.data)
-            //     .then(j => {
-            //         this.setState({ order: j });
-            //         if (j._embedded && j._embedded.client)
-            //             this.setState({ client: j._embedded.client });
+            axios.get(`${API_BASE_URL}/repoChangings/${id}`)
+                .then(resp => resp.data)
+                .then(j => {
+                    this.setState({ form: j });
 
-            //         return `${API_BASE_URL}/orders/${id}/items`
-            //     })
-            //     .then(url => axios.get(url))
-            //     .then(resp => resp.data._embedded.changingItems)
-            //     .then(j => {
-            //         // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
-            //         // let fs = []
-            //         // j.forEach(it => fs.push({ 'quantity': it.quantity, ...it._embedded.material }))
-            //         // this.setState({ changingItems: fs });
-            //         this.setState({ changingItems: j })
-            //         return j
-            //     })
-            //     .then(j => axios.get(`${API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
-            //     .then(resp => resp.data._embedded.boms)
-            //     .then(boms => this.setState({ boms }))
-            //     .catch(e => this.showSnackbar(e.message));
+                    return `${API_BASE_URL}/repoChangings/${id}/items`
+                })
+                .then(url => axios.get(url))
+                .then(resp => resp.data._embedded.repoChangingItems)
+                .then(items => {
+                    let { changingItems } = this.state
+                    items.forEach(item => {
+                        changingItems.push({ material: item._embedded.material, quantity: item.quantity, price: item.price })
+                    })
+                    this.state.changingItems = changingItems
+                    this.forceUpdate()
+                })
+                .catch(e => this.showSnackbar(e.message));
         }
 
         // load materials
@@ -360,7 +372,7 @@ class StockChangingPage extends React.PureComponent {
         const { classes, width } = this.props
         const { type, id } = this.props.match.params;
         const { mode, form, changingItems, materials } = this.state;
-        const { selectMaterial, columns, selection } = this.state;
+        const { dirty, selectMaterial, columns, selection } = this.state;
         const { errors, snackbarOpen, snackbarContent } = this.state;
 
         let shrinkLabel = mode === MODE_EDIT ? true : undefined;
@@ -399,7 +411,10 @@ class StockChangingPage extends React.PureComponent {
                     <Toolbar className={classes.toolbar}>
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
-                        <Button onClick={() => this.saveForm()} disabled={mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
+                        <Tooltip title="保存表单">
+                            <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button></Tooltip>
+                        <Tooltip title="保存表单，然后提交给仓库管理员">
+                            <Button onClick={() => this.saveForm(true)} color='secondary' style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<mdi.ContentSave /></Button></Tooltip>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
@@ -419,6 +434,9 @@ class StockChangingPage extends React.PureComponent {
                                     style={{ width: 300 }}
                                     value={form ? form.applicant : ""}
                                     onChange={e => this.handleInput(e)}
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
                                 >
                                     {/* {clients.map(c => (
                                             <MenuItem key={c.id} value={c.id}>
@@ -438,6 +456,9 @@ class StockChangingPage extends React.PureComponent {
                                     style={{ width: 300 }}
                                     value={form ? form.department : ""}
                                     onChange={e => this.handleInput(e)}
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
                                 />
                             </mu.Grid>
 
@@ -481,7 +502,7 @@ class StockChangingPage extends React.PureComponent {
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex' }}>明细</Typography>
                         {errors['changingItems'] ? <Typography className={classes.subTitle} style={{ display: 'inline-flex', color: '#f44336' }}>{errors['changingItems']}</Typography> : null}
-                        <div style={{display: 'inline-flex', flex: 1}} />
+                        <div style={{ display: 'inline-flex', flex: 1 }} />
                         <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{form.amount ? `¥ ${toFixedMoney(form.amount)}` : '--'}</Typography>
                     </div>
                     <Paper className={classes.compactPaper}>
@@ -685,4 +706,4 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(StockChangingPage);
+export default withStyles(styles)(RepoChangingPage);
