@@ -16,7 +16,7 @@ import * as mdi from 'mdi-material-ui';
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
-import { EXPORT_BASE_URL, API_BASE_URL } from "./config";
+import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config";
 import { withStyles } from 'material-ui';
 
 
@@ -26,7 +26,7 @@ class MaterialPage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "materials";
-        this.dataRepoApiUrl = API_BASE_URL + this.dataRepo;
+        this.dataRepoApiUrl = DATA_API_BASE_URL + this.dataRepo;
 
         this.dataTable = null
 
@@ -79,7 +79,7 @@ class MaterialPage extends React.PureComponent {
 
     componentDidMount() {
         let dataRepo = "materialTypes"
-        axios.get(API_BASE_URL + dataRepo)
+        axios.get(DATA_API_BASE_URL + dataRepo)
             .then(r => r.data._embedded[dataRepo])
             .then(j => this.setState({ availableValues: { 'type': j }, loaded: true }))
         // .catch(e => this.showSanckbar(e.message));
@@ -132,6 +132,7 @@ class MaterialPage extends React.PureComponent {
                     { name: 'code', title: '编号' },
                     { name: "name", title: "名称" },
                     { name: "type", title: "类型" },
+                    { name: "spec", title: "规格" },
                     { name: "safeQuantity", title: "安全库存" }, //getCellValue: row => row.safeQuantity ? row.safeQuantity.toString() : undefined },
                     { name: "comment", title: "备注" },
                     // { name: "metadata", title: ""},     

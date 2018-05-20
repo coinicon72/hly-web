@@ -29,7 +29,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import { DATA_API_BASE_URL } from "./config"
 import { store } from "./redux"
 
 // =============================================
@@ -93,19 +93,19 @@ class BomPage extends React.PureComponent {
         // this.doUpdate = this.doUpdate.bind(this)
         // this.doDelete = this.doDelete.bind(this)
         this.loadBoms = (async () => {
-            axios.get(`${API_BASE_URL}/boms`)
+            axios.get(`${DATA_API_BASE_URL}/boms`)
                 .then(resp => resp.data._embedded.boms)
                 .then(boms => {
                     this.state.boms = boms;
 
                     boms.forEach(b => {
-                        axios.get(`${API_BASE_URL}/boms/${b.id}/orderItem`)
+                        axios.get(`${DATA_API_BASE_URL}/boms/${b.id}/orderItem`)
                             .then(resp => resp.data)
                             .then(bi => {
                                 b.orderItem = bi
                                 return bi.order.id
                             })
-                            .then(oid => axios.get(`${API_BASE_URL}/orders/${oid}`))
+                            .then(oid => axios.get(`${DATA_API_BASE_URL}/orders/${oid}`))
                             .then(resp => resp.data._embedded.client)
                             .then(client => {
                                 b.client = client

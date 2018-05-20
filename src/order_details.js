@@ -69,7 +69,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import { DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
 import { toFixedMoney } from "./utils"
 
@@ -283,7 +283,7 @@ class OrderDetailsPage extends React.PureComponent {
                 client: { id: client.id }
             }
 
-            await axios.post(`${API_BASE_URL}orders`, o)
+            await axios.post(`${DATA_API_BASE_URL}orders`, o)
                 .then(resp => resp.data)
                 .then(j => order.id = j.id)
                 .catch(e => {
@@ -307,7 +307,7 @@ class OrderDetailsPage extends React.PureComponent {
                     product: { id: p.id.product }
                 }
 
-                axios.post(`${API_BASE_URL}orderItems`, fi)
+                axios.post(`${DATA_API_BASE_URL}orderItems`, fi)
                     .catch(e => {
                         cancel = true;
                         this.setState({
@@ -342,14 +342,14 @@ class OrderDetailsPage extends React.PureComponent {
         {
             this.state.mode = MODE_EDIT
 
-            axios.get(`${API_BASE_URL}/orders/${id}`)
+            axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
                     this.setState({ order: j });
                     if (j._embedded && j._embedded.client)
                         this.setState({ client: j._embedded.client });
 
-                    return `${API_BASE_URL}/orders/${id}/items`
+                    return `${DATA_API_BASE_URL}/orders/${id}/items`
                 })
                 .then(url => axios.get(url))
                 .then(resp => resp.data._embedded.orderItems)
@@ -361,14 +361,14 @@ class OrderDetailsPage extends React.PureComponent {
                     this.setState({ orderItems: j })
                     return j
                 })
-                .then(j => axios.get(`${API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
+                .then(j => axios.get(`${DATA_API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
                 .then(resp => resp.data._embedded.boms)
                 .then(boms => this.setState({ boms }))
                 .catch(e => this.showSnackbar(e.message));
         }
 
         // load clients
-        axios.get(`${API_BASE_URL}/clients`)
+        axios.get(`${DATA_API_BASE_URL}/clients`)
             .then(resp => resp.data._embedded.clients)
             .then(j => {
                 this.setState({ clients: j });
@@ -376,7 +376,7 @@ class OrderDetailsPage extends React.PureComponent {
             .catch(e => this.showSnackbar(e.message));
 
         // load products
-        axios.get(`${API_BASE_URL}/products`)
+        axios.get(`${DATA_API_BASE_URL}/products`)
             .then(resp => resp.data._embedded.products)
             .then(j => {
                 this.setState({ products: j });

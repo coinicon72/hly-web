@@ -30,7 +30,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import { DATA_API_BASE_URL } from "./config"
 import { store } from "./redux"
 
 
@@ -58,7 +58,7 @@ class ProductDetailsPage extends React.PureComponent {
 
         this.onDelete = ((id, no) => {
             if (window.confirm(`删除此配方？`)) {
-                axios.delete(`${API_BASE_URL}/formulas/${id}`)
+                axios.delete(`${DATA_API_BASE_URL}/formulas/${id}`)
                     .then(r => {
                         this.state.formulas.splice(no, 1);
                         this.forceUpdate();
@@ -76,7 +76,7 @@ class ProductDetailsPage extends React.PureComponent {
     componentDidMount() {
         const { id } = this.props.match.params;
 
-        axios.get(`${API_BASE_URL}/products/${id}`)
+        axios.get(`${DATA_API_BASE_URL}/products/${id}`)
             .then(resp => resp.data)
             .then(j => {
                 this.setState({ product: j });

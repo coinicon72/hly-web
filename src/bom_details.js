@@ -73,7 +73,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import {EXPORT_BASE_URL, API_BASE_URL } from "./config"
+import {EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
 import {toFixedMass} from "./utils"
 // import { store } from "./redux"
 
@@ -227,7 +227,7 @@ class BomDetailsPage extends React.PureComponent {
         // 显示 订单选择对话框
         this.selectOrder = (async () => {
             if (this.state.orders.length == 0) {
-                await axios.get(`${API_BASE_URL}/orders/search/findByStatusEquals?status=0`)
+                await axios.get(`${DATA_API_BASE_URL}/orders/search/findByStatusEquals?status=0`)
                     .then(resp => resp.data._embedded.orders)
                     .then(j => {
                         this.setState({ orders: j });
@@ -266,7 +266,7 @@ class BomDetailsPage extends React.PureComponent {
             //
             let order = orders[selection[0]]
 
-            axios.get(`${API_BASE_URL}/orders/${order.id}/items`)
+            axios.get(`${DATA_API_BASE_URL}/orders/${order.id}/items`)
                 .then(resp => resp.data._embedded.orderItems)
                 .then(j => {
                     this.setState({ order: order, orderItems: j, showSelectOrder: false, selection: [] })
@@ -369,7 +369,7 @@ class BomDetailsPage extends React.PureComponent {
                     }
                 }
 
-                axios.post(`${API_BASE_URL}boms`, bom)
+                axios.post(`${DATA_API_BASE_URL}boms`, bom)
                     .then(resp => resp.data)
                     .then(j => {
                         bom.id = j.id
@@ -387,7 +387,7 @@ class BomDetailsPage extends React.PureComponent {
                                 "calcQuantity": m.calc_quantity
                             }
 
-                            axios.post(`${API_BASE_URL}bomItems`, bi)
+                            axios.post(`${DATA_API_BASE_URL}bomItems`, bi)
                         })
                     })
                     .catch(e => {
@@ -421,7 +421,7 @@ class BomDetailsPage extends React.PureComponent {
             this.state.mode = mode
 
             // load clients
-            axios.get(`${API_BASE_URL}/orders/${id}`)
+            axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
                     this.state.order = j
@@ -730,7 +730,7 @@ class BomSheet extends React.PureComponent {
             let formula = formulas[selection[0]]
             store.dispatch(actionSelectFormula(orderItem.id.product, formula.id))
 
-            axios.get(`${API_BASE_URL}/formulas/${formula.id}/items`)
+            axios.get(`${DATA_API_BASE_URL}/formulas/${formula.id}/items`)
                 .then(resp => resp.data._embedded.formulaItems)
                 .then(j => {
                     let tq = 0
@@ -781,7 +781,7 @@ class BomSheet extends React.PureComponent {
 
         this.state.reduxSubscribe = store.subscribe(this.onRedux)
 
-        axios.get(`${API_BASE_URL}/products/${orderItem.id.product}`)
+        axios.get(`${DATA_API_BASE_URL}/products/${orderItem.id.product}`)
             .then(resp => resp.data)
             .then(j => {
                 this.setState({ product: j });
@@ -794,19 +794,19 @@ class BomSheet extends React.PureComponent {
                 this.setState({ formulas: fs })
                 return orderItem
             })
-            .then(oi => axios.get(`${API_BASE_URL}/orderItems/${oi.id.order}_${oi.id.product}`))
+            .then(oi => axios.get(`${DATA_API_BASE_URL}/orderItems/${oi.id.order}_${oi.id.product}`))
             .then(resp => resp.data._embedded.bom)
             .then(bom => {
                 bom.formula.createDate = bom.formula.createDate.split('.')[0].replace("T", " ")
                 this.state.formula = bom.formula
                 store.dispatch(actionSelectFormula(bom.orderItem.id.product, bom.formula.id))
 
-                axios.get(`${API_BASE_URL}/formulas/${bom.formula.id}/items`)
+                axios.get(`${DATA_API_BASE_URL}/formulas/${bom.formula.id}/items`)
                     .then(resp => resp.data._embedded.formulaItems)
                     .then(formulaItems => {
                         this.state.formulaItems = formulaItems
 
-                        return axios.get(`${API_BASE_URL}/boms/${bom.id}/items`)
+                        return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id}/items`)
                     })
                     .then(resp => resp.data._embedded.bomItems)
                     .then(bomItems => {

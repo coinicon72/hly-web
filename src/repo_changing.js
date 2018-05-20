@@ -7,12 +7,17 @@ import PropTypes from 'prop-types';
 import Loadable from 'react-loadable';
 import Loading from './loading-component';
 
-import CommonStyles from "./common_styles";
+import { DataTypeProvider } from '@devexpress/dx-react-grid';
+import { withStyles, Typography } from 'material-ui';
 
 import axios from 'axios'
 
+//
 import * as config from "./config"
-import { withStyles } from 'material-ui';
+
+import CommonStyles, { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
+
+import { CurrencyTypeProvider } from "./common_components"
 
 import DataTableBase from "./data_table_base"
 // const DataTableBase = Loadable({
@@ -46,6 +51,15 @@ const COLUMNS_IN_OUT = [
     { name: "application", title: "原因" },
     { name: "amount", title: "总额", getCellValue: row => row.type == 1 ? row.amount : "" },
 ]
+
+
+const ChangingTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={({ row, value }) =>
+            <Typography style={row.type == 1 ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value}</Typography>}
+        {...props}
+    />
+);
 
 
 // =============================================
@@ -91,12 +105,12 @@ class RepoChangingPage extends React.PureComponent {
                 break;
 
             case config.TYPE_STOCK_IN_OUT:
-                this.state.dataFilter = "/search/findByStatus?status=1";
+                this.state.dataFilter = "/search/findStockInOutByStatus?status=1";
                 this.state.columns = COLUMNS_IN_OUT
                 break;
         }
 
-        this.setState({ dataRepoApiUrl: config.API_BASE_URL + DATA_REPO + this.state.dataFilter, ready4UI: true })
+        this.setState({ dataRepoApiUrl: config.DATA_API_BASE_URL + DATA_REPO + this.state.dataFilter, ready4UI: true })
     }
 
     doLoad = () => {
@@ -144,8 +158,12 @@ class RepoChangingPage extends React.PureComponent {
                     doDelete={this.doDelete}
                     addHandler={this.addRowHandler}
                     showEditCommand={false}
-                    enableEdit={type !== config.TYPE_STOCK_IN_OUT}
+                    disableEdit={type === config.TYPE_STOCK_IN_OUT}
                     clickHandler={this.onRowDoubleClicked}
+                    providers={[
+                        <ChangingTypeProvider for={['type']} />,
+                        <CurrencyTypeProvider for={['amount']} />,
+                    ]}
                 />
             </div>
         )

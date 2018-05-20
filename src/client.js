@@ -31,7 +31,7 @@ import axios from 'axios'
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
-import { EXPORT_BASE_URL, API_BASE_URL } from "./config";
+import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config";
 
 
 // =============================================
@@ -79,7 +79,7 @@ class ClientPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
 
         this.state = {
             loaded: false,
@@ -112,7 +112,7 @@ class ClientPage extends React.PureComponent {
 
     componentDidMount() {
         let dataRepo = "clientTypes"
-        axios.get(API_BASE_URL + dataRepo)
+        axios.get(DATA_API_BASE_URL + dataRepo)
             .then(r => r.data._embedded[dataRepo])
             .then(j => this.setState({ availableValues: { 'type': j }, loaded: true }))
     }

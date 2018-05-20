@@ -44,10 +44,10 @@ import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
 import BomDetailsPage from "./bom_details"
 import BomsPage from "./boms"
-import StockApplyDetailsPage from './stock_in_details'
-import StockApplyPage from './stock_in'
-// import StockOutDetailsPage from './stock_out_details'
-// import StockOutPage from './stock_out'
+import StockApplyPage from './repo_changing'
+import StockApplyDetailsPage from './repo_changing_details'
+import RepoPage from './repo'
+import InventoryPage from './inventory'
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
@@ -210,7 +210,7 @@ const stockItems = (
       </Link>
     </Tooltip>
 
-    <Link to="/stock">
+    <Link to="/repo">
       <ListItem button>
         <ListItemIcon>
           <mdi.DatabaseSearch />
@@ -261,6 +261,60 @@ class App extends React.PureComponent<{ classes: any }, any> {
   //   this.setState({ openDrawer: false });
   // };
 
+
+  renderRenderTitle(classes) {
+    return (
+      <Switch>
+        <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
+        <Route path="/order" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
+        <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
+        <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
+        <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
+        <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
+        <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
+        <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
+        <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
+        <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+        <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
+        <Route path={config.ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
+        <Route path={config.ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
+        <Route path={config.ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
+        <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
+        <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
+        <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
+      </Switch>
+
+    )
+  }
+
+  renderRenderMainContent() {
+    return (
+      <Switch>
+        <Route path="/client" component={ClientPage} />
+        <Route path="/order/:id?" component={OrderDetailsPage} />
+        <Route path="/orders" component={OrderPage} />
+        <Route path="/product/:id" component={ProductDetailsPage} />
+        <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
+        <Route path="/product" component={ProductPage} />
+        <Route path="/basic_data/client_type" component={ClientTypePage} />
+        <Route path="/basic_data/material_type" component={MaterialTypePage} />
+        <Route path="/basic_data/material" component={MaterialPage} />
+        <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
+        <Route path="/boms" component={BomsPage} />
+        <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_IN} key="stock-in-detail" />} />
+        <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} />} />
+        <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_OUT} key="stock-out-detail" />} />
+        <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} />} />
+        <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockApplyDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
+        <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
+        <Route path="/repo" component={RepoPage} />
+        <Route path="/inventory" component={InventoryPage} />
+        <Route component={HomePage} />
+      </Switch>
+
+    )
+  }
+
   render() {
     const { classes, width } = this.props
     const { anchor, openDrawer } = this.state;
@@ -296,25 +350,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 <MenuIcon />
               </IconButton>
 
-              <Switch>
-                <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
-                <Route path="/order" component={() => <Typography variant="title" className={classes.appTitle}>订单详情</Typography>} />
-                <Route path="/orders" component={() => <Typography variant="title" className={classes.appTitle}>订单</Typography>} />
-                <Route path="/product/:id" component={() => <Typography variant="title" className={classes.appTitle}>产品详情</Typography>} />
-                <Route path="/formula/:mode/*" component={() => <Typography variant="title" className={classes.appTitle}>产品详情 - 配方</Typography>} />
-                <Route path="/product" component={() => <Typography variant="title" className={classes.appTitle}>产品</Typography>} />
-                <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
-                <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
-                <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
-                <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-                <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-                <Route path={config.ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
-                <Route path={config.ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
-                <Route path={config.ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
-                <Route path="/stock" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
-                <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
-                <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
-              </Switch>
+              {this.renderRenderTitle(classes)}
 
               <IconButton color="inherit"><AccountCircle /></IconButton>
             </Toolbar>
@@ -351,31 +387,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           >
             {/* <div className={classes.drawerHeader} /> */}
 
-            <Switch>
-              <Route path="/client" component={ClientPage} />
-              <Route path="/order/:id?" component={OrderDetailsPage} />
-              <Route path="/orders" component={OrderPage} />
-              <Route path="/product/:id" component={ProductDetailsPage} />
-              <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
-              <Route path="/product" component={ProductPage} />
-              <Route path="/basic_data/client_type" component={ClientTypePage} />
-              <Route path="/basic_data/material_type" component={MaterialTypePage} />
-              <Route path="/basic_data/material" component={MaterialPage} />
-              <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
-              <Route path="/boms" component={BomsPage} />
-              <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_IN} key="stock-in-detail" />} />
-              <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} />} />
-              <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_OUT} key="stock-out-detail" />} />
-              <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} />} />
-              <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id?`} render={(props) => <StockApplyDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
-              <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
-              {/* <Route path="/stock/:type/:id?" component={OutStockDetailsPage} />
-              <Route path="/stock" component={OutStockPage} /> */}
-              {/* <Route path="/stock" component={Stock} />
-              <Route path="/inventory" component={Inventory} /> */}
-              <Route component={HomePage} />
-            </Switch>
-
+            {this.renderRenderMainContent()}
           </main>
         </div>
         {/* </div> */}

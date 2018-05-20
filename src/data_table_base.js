@@ -402,7 +402,7 @@ class DataTableBase extends React.PureComponent {
     }
 
     render() {
-        const { classes, columns, enableEdit, editCell, editingColumnExtensions, changeAddedRows } = this.props;
+        const { classes, columns, disableEdit, editCell, editingColumnExtensions, changeAddedRows, providers } = this.props;
         const { rows, selection, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
 
         const TableRow = tableRowWithClickHandler(this.props.clickHandler)
@@ -416,6 +416,12 @@ class DataTableBase extends React.PureComponent {
                     rows={rows}
                     columns={columns}
                 >
+                    {providers ?
+                        <React.Fragment>
+                            {providers.map(i => i)}
+                        </React.Fragment>
+                        : null
+                    }
                     {/* <Toolbar>
                         <div>
                             <Typography color="inherit" noWrap>
@@ -450,7 +456,7 @@ class DataTableBase extends React.PureComponent {
                         }}> */}
                     {/* </ReactHeight> */}
 
-                    {enableEdit ?
+                    {disableEdit ? null :
                         <EditingState
                             columnExtensions={editingColumnExtensions}
 
@@ -465,25 +471,25 @@ class DataTableBase extends React.PureComponent {
 
                             // defaultEditingRowIds={[]}
                             onCommitChanges={this.commitChanges}
-                        /> : null}
+                        />}
 
                     <VirtualTable height={tableHeight} rowComponent={TableRow} messages={{ noData: "没有数据" }} />
 
                     {/* <TableColumnResizing /> */}
                     {/* defaultColumnWidths={defaultColumnWidths} /> */}
                     <TableHeaderRow showSortingControls />
-                    {enableEdit ? (editCell ? <TableEditRow cellComponent={editCell} /> : <TableEditRow />) : null}
+                    {disableEdit ? null : (editCell ? <TableEditRow cellComponent={editCell} /> : <TableEditRow />)}
 
                     <TableFilterRow />
 
-                    {enableEdit ?
+                    {disableEdit ? null :
                         <TableEditColumn
-                            showAddCommand
+                            showAddCommand={this.props.showAddCommand === false ? false : true}
                             showEditCommand={this.props.showEditCommand === false ? false : true}
                             showDeleteCommand={this.props.showDeleteCommand === false ? false : true}
                             commandComponent={this.Command}
                         />
-                        : null}
+                    }
                     {/* <TableSelection showSelectAll /> */}
                     {/* <PagingPanel /> */}
                 </Grid>

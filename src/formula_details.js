@@ -65,7 +65,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { API_BASE_URL } from "./config"
+import { DATA_API_BASE_URL } from "./config"
 import { store } from "./redux"
 
 const MODE_ADD = "add"
@@ -184,7 +184,7 @@ class AddFourmulaPage extends React.PureComponent {
 
             // step 0: generate/check revision
             let latestRev = await axios
-                .get(`${API_BASE_URL}formulas/search/getLatestRevision?id=${this.state.product.id}`)
+                .get(`${DATA_API_BASE_URL}formulas/search/getLatestRevision?id=${this.state.product.id}`)
                 .then(resp => resp.data)
                 .catch(e => {
                     cancel = true;
@@ -279,7 +279,7 @@ class AddFourmulaPage extends React.PureComponent {
                 formula: f
             }
 
-            await axios.post(`${API_BASE_URL}produceConditions`, pc)
+            await axios.post(`${DATA_API_BASE_URL}produceConditions`, pc)
                 .then(resp => resp.data)
                 .then(j => this.state.basicInfo.id = j.id)
                 .catch(e => {
@@ -303,7 +303,7 @@ class AddFourmulaPage extends React.PureComponent {
                     material: item
                 }
 
-                axios.post(`${API_BASE_URL}formulaItems`, fi)
+                axios.post(`${DATA_API_BASE_URL}formulaItems`, fi)
                     // .then(resp => resp.data)
                     // .then(j => {
                     // })
@@ -340,7 +340,7 @@ class AddFourmulaPage extends React.PureComponent {
         }
 
         //
-        axios.get(`${API_BASE_URL}/products/${pid}`)
+        axios.get(`${DATA_API_BASE_URL}/products/${pid}`)
             .then(resp => resp.data)
             .then(j => {
                 // this.setState({ product: j });
@@ -348,14 +348,14 @@ class AddFourmulaPage extends React.PureComponent {
             })
             .catch(e => this.showSnackbar(e.message));
 
-        axios.get(`${API_BASE_URL}/materials`)
+        axios.get(`${DATA_API_BASE_URL}/materials`)
             .then(resp => resp.data._embedded['materials'])
             .then(j => this.state.materails = j)
             .catch(e => this.showSnackbar(e.message));
 
         // load details
         if (this.state.mode === MODE_VIEW || this.state.mode === MODE_EDIT) {
-            axios.get(`${API_BASE_URL}/formulas/${fid}`)
+            axios.get(`${DATA_API_BASE_URL}/formulas/${fid}`)
                 .then(resp => resp.data)
                 .then(j => {
                     this.state.basicInfo = j;
@@ -366,7 +366,7 @@ class AddFourmulaPage extends React.PureComponent {
                 .then(resp => resp.data)
                 .then(j => {
                     this.state.produceCond = j;
-                    return `${API_BASE_URL}/formulas/${fid}/items`
+                    return `${DATA_API_BASE_URL}/formulas/${fid}/items`
                 })
 
                 .then(url => axios.get(url))

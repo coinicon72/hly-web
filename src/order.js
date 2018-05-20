@@ -29,7 +29,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import { EXPORT_BASE_URL, API_BASE_URL } from "./config"
+import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { store } from "./redux"
 
 // =============================================
@@ -77,7 +77,7 @@ class OrderPage extends React.PureComponent {
         //     snackbarContent: "",
         // }
   
-        this.dataRepoApiUrl = API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
 
         this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
 

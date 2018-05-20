@@ -10,7 +10,7 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import {API_BASE_URL} from "./config"
+import {DATA_API_BASE_URL} from "./config"
 import { withStyles } from 'material-ui';
 
 
@@ -37,7 +37,7 @@ class MaterialTypePage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
 
         this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
 
