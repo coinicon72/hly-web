@@ -73,8 +73,8 @@ import axios from 'axios'
 
 import DataTableBase from "./data_table_base"
 
-import {EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
-import {toFixedMass} from "./utils"
+import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
+import { toFixedMass } from "./utils"
 // import { store } from "./redux"
 
 
@@ -417,15 +417,35 @@ class BomDetailsPage extends React.PureComponent {
         let { mode, id } = this.props.match.params;
         if (!id) id = 0
 
-        if ((mode == MODE_EDIT || mode == MODE_VIEW) && id > 0) {
-            this.state.mode = mode
+        // if ((mode == MODE_EDIT || mode == MODE_VIEW) && id > 0) {
+        //     this.state.mode = mode
 
-            // load clients
+        //     // load order
+        //     axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
+        //         .then(resp => resp.data)
+        //         .then(j => {
+        //             this.state.order = j
+        //             return j._links.items.href
+        //         })
+        //         .then(url => axios.get(url))
+        //         .then(resp => resp.data._embedded.orderItems)
+        //         .then(j => {
+        //             this.setState({ orderItems: j })
+        //         })
+        //         .catch(e => this.showSnackbar(e.message));
+        // }
+        // else
+        // {
+        //     this.setState({mode})
+        // }
+        this.setState({ mode })
+
+        if (id > 0) {
             axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
                     this.state.order = j
-                    return j._links.items.href
+                    return `${j._links.self.href}/items`
                 })
                 .then(url => axios.get(url))
                 .then(resp => resp.data._embedded.orderItems)
@@ -433,10 +453,6 @@ class BomDetailsPage extends React.PureComponent {
                     this.setState({ orderItems: j })
                 })
                 .catch(e => this.showSnackbar(e.message));
-        }
-        else
-        {
-            this.setState({mode})
         }
 
 
@@ -483,17 +499,17 @@ class BomDetailsPage extends React.PureComponent {
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
                         <Button onClick={() => this.saveBom()} disabled={mode === MODE_VIEW || !order} color='secondary' style={{ fontSize: 18 }} >保存BOM单<mdi.ContentSave /></Button>
-                        
+
                         {
                             mode === MODE_ADD ? null :
-                        <Button href={`${EXPORT_BASE_URL}/boms/${orderId}`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> 
+                                <Button href={`${EXPORT_BASE_URL}/boms/${orderId}`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
                         }
                     </Toolbar>
 
                     <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 8, alignItems: 'center' }}>
-                        <Button onClick={this.selectOrder} color='primary' style={{ fontSize: 18 }} 
-                        disabled={mode === MODE_VIEW}><mdi.ClipboardText />选择订单</Button>
-                        <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors.order}</Typography>
+                        <Button onClick={this.selectOrder} color='primary' style={{ fontSize: 18 }}
+                            disabled={mode === MODE_VIEW}><mdi.ClipboardText />选择订单</Button>
+                        <Typography className={classes.error} style={{ marginleft: '1em' }}>{errors.order}</Typography>
                     </div>
 
                     {order ? (
@@ -528,7 +544,7 @@ class BomDetailsPage extends React.PureComponent {
 
                                         <TextField type="date" disabled id="deliveryDate"
                                             label="发货日期"
-                                            style={{ marginLeft: 32 }}
+                                            style={{ marginleft: 32 }}
                                             value={order.deliveryDate ? order.deliveryDate.split("T")[0] : ""}
                                             margin="normal"
                                             InputLabelProps={{
@@ -642,7 +658,7 @@ class BomDetailsPage extends React.PureComponent {
                         </Paper>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep >= savingSteps.length - 1 ? false : true} color="primary">确定</Button>
+                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep < savingSteps.length - 1} color="primary">确定</Button>
                     </DialogActions>
                 </Dialog>
 
@@ -795,8 +811,10 @@ class BomSheet extends React.PureComponent {
                 return orderItem
             })
             .then(oi => axios.get(`${DATA_API_BASE_URL}/orderItems/${oi.id.order}_${oi.id.product}`))
-            .then(resp => resp.data._embedded.bom)
+            .then(resp => resp.data._embedded ? resp.data._embedded.bom : null)
             .then(bom => {
+                if (!bom) return
+
                 bom.formula.createDate = bom.formula.createDate.split('.')[0].replace("T", " ")
                 this.state.formula = bom.formula
                 store.dispatch(actionSelectFormula(bom.orderItem.id.product, bom.formula.id))
@@ -815,7 +833,7 @@ class BomSheet extends React.PureComponent {
                             if (fi) {
                                 fi.calc_quantity = bi.calcQuantity
                                 // fi.custom_quantity = bi.quantity
-                                
+
                                 this.updateMaterialQuantity(bi.id.material, bi.quantity, bi.calcQuantity)
                             }
                         })
@@ -928,7 +946,7 @@ class BomSheet extends React.PureComponent {
                         </TableBody>
                     </Table>
                 </Paper>
-                
+
                 <Snackbar
                     anchorOrigin={{
                         vertical: 'bottom',
@@ -937,9 +955,9 @@ class BomSheet extends React.PureComponent {
                     autoHideDuration={3000}
                     open={snackbarOpen}
                     onClose={() => this.setState({ snackbarOpen: false })}
-                    SnackbarContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
+                    // SnackbarContentProps={{
+                    //     'aria-describedby': 'message-id',
+                    // }}
                     message={<span id="message-id">{snackbarContent}</span>}
                 />
 
@@ -1027,7 +1045,7 @@ const styles = theme => ({
             fontSize: 16,
             opacity: .75,
             margin: `0 0 ${theme.spacing.unit * 1}px 0`,
-            // marginLeft: 0,
+            // marginleft: 0,
             // marginBottom: ,
         },
 

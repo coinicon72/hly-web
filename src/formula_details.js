@@ -462,7 +462,7 @@ class AddFourmulaPage extends React.PureComponent {
                                         />
                                     }
                                     label="自动生成修订版本号"
-                                    style={{ marginLeft: 16 }}
+                                    style={{ marginleft: 16 }}
                                 />
                             </mu.Grid>
                             <mu.Grid>
@@ -779,19 +779,19 @@ const styles = theme => ({
         },
 
         textField: {
-            marginLeft: theme.spacing.unit,
+            marginleft: theme.spacing.unit,
             marginRight: theme.spacing.unit,
             width: 200,
         },
 
         textFieldWithoutMargin: {
-            // marginLeft: theme.spacing.unit,
+            // marginleft: theme.spacing.unit,
             // marginRight: theme.spacing.unit,
             width: 200,
         },
 
         textFieldWithoutWidth: {
-            // marginLeft: theme.spacing.unit,
+            // marginleft: theme.spacing.unit,
             // marginRight: theme.spacing.unit,
         },
 

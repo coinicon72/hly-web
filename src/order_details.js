@@ -232,7 +232,7 @@ class OrderDetailsPage extends React.PureComponent {
 
 
             // step 1
-            this.setState({ activeStep: this.state.activeStep + 1 })
+            // this.setState({ activeStep: this.state.activeStep + 1 })
 
             let { order, orderItems, client } = this.state
 
@@ -301,6 +301,7 @@ class OrderDetailsPage extends React.PureComponent {
             this.setState({ activeStep: this.state.activeStep + 1 })
 
             orderItems.forEach(p => {
+                p.id.order = order.id
                 let fi = {
                     ...p,
                     order: { id: order.id },
@@ -476,7 +477,7 @@ class OrderDetailsPage extends React.PureComponent {
                                         />
                                     }
                                     label={!!order.tax ? "含税" : "不含税"}
-                                    style={{ marginLeft: 32 }}
+                                    style={{ marginleft: 32 }}
                                 />
                             </mu.Grid>
 
@@ -493,7 +494,7 @@ class OrderDetailsPage extends React.PureComponent {
 
                                 <TextField type="date" required id="deliveryDate" error={!!errors['order.deliveryDate']}
                                     label="发货日期"
-                                    style={{ marginLeft: 32 }}
+                                    style={{ marginleft: 32 }}
                                     value={order.deliveryDate ? order.deliveryDate.split("T")[0] : ""}
                                     margin="normal"
                                     onChange={e => this.handleOrderInfoChange(e)}
@@ -522,7 +523,7 @@ class OrderDetailsPage extends React.PureComponent {
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>条目</Typography>
-                        <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{order.value ? `¥ ${toFixedMoney(order.value)}` : '--'}</Typography>
+                        <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{order.value ? `¥ ${toFixedMoney(order.value)}` : '--'}</Typography>
                     </div>
                     <Paper className={classes.compactPaper}>
                         <Table>
@@ -684,7 +685,7 @@ class OrderDetailsPage extends React.PureComponent {
                         </Paper>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep == savingSteps.length - 1 ? false : true} color="primary">确定</Button>
+                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep < savingSteps.length - 1} color="primary">确定</Button>
                     </DialogActions>
                 </Dialog>
 

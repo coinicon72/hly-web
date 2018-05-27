@@ -76,7 +76,7 @@ import DataTableBase from "./data_table_base"
 import { TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_EDIT, MODE_VIEW, API_BASE_URL, DATA_API_BASE_URL } from "./config"
 
 // import { store } from "./redux"
-import { toFixedMoney } from "./utils"
+import { toFixedMoney, getTodayString } from "./utils"
 import { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
 import { CurrencyTypeProvider } from "./common_components"
 
@@ -148,6 +148,26 @@ class RepoChangingDetailsPage extends React.PureComponent {
             selection: [],
 
             //
+            repos: [], // all repositories
+            repo: null, // id of repository
+
+            repoChangingReasons: [],
+            reason: null, // id of reason
+
+            //
+            showSelectOrder: false,
+            orderColumns: [
+                { name: 'id', title: '序号' },
+                { name: 'no', title: '订单编号' },
+                { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
+                { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
+                { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
+            ],
+            orders: [], //
+            orderSelection: [],
+            order: null, //
+
+            //
             showSavingDiag: false,
             activeStep: 0,
 
@@ -183,6 +203,12 @@ class RepoChangingDetailsPage extends React.PureComponent {
         // basic info changed
         this.handleInput = (e => {
             this.state.form[e.target.id] = e.target.value
+            this.state.dirty = true
+            this.forceUpdate()
+        }).bind(this)
+
+        this.onChangedRepo = (e => {
+            this.state.form.repo = { id: e.target.value }
             this.state.dirty = true
             this.forceUpdate()
         }).bind(this)
@@ -256,6 +282,62 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.forceUpdate()
         }).bind(this)
 
+        this.handleOrderRelatedChange = (e => this.setState({ orderRelated: e.target.checked })).bind(this)
+
+
+        //
+        this.changedReason = (e => {
+            // this.setState({ reason: e.target.value })
+
+            // const r = this.state.repoChangingReasons.find(i => i.id = this.state.reason)
+            // if (r)
+            //     this.setState({ orderRelated: r.orderRelated })
+            const rid = e.target.value
+
+            const r = this.state.repoChangingReasons.find(i => i.id == rid)
+            if (r) {
+                this.state.dirty = true
+                this.state.form.reason = r
+                this.setState({ orderRelated: r.orderRelated })
+            }
+        }).bind(this)
+
+        // 订单选择
+        //
+        this.selectOrder = (e => {
+            this.setState({ showSelectOrder: true })
+
+            axios.get(`${DATA_API_BASE_URL}/orders`)
+                .then(resp => resp.data._embedded.orders)
+                .then(j => {
+                    this.setState({ orders: j });
+                })
+                .catch(e => this.showSnackbar(e.message));
+
+        }).bind(this)
+
+        this.cancelSelectOrder = (_ => this.setState({ showSelectOrder: false })).bind(this)
+
+        this.changeOrderSelection = (selection => {
+            let keys = Object.keys(selection)
+            if (keys.length > 1) {
+                let lastNo = selection[keys[keys.length - 1]]
+                selection = [lastNo]
+            }
+
+            this.setState({ orderSelection: selection });
+        }).bind(this)
+
+
+        this.onSelectedOrder = (() => {
+            const { orders, orderSelection } = this.state;
+            if (orderSelection.length == 0) return;
+
+            //
+            const order = orders[orderSelection[0]]
+            this.state.form.order = order
+            this.setState({ showSelectOrder: false })
+        }).bind(this)
 
         // saving
         this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
@@ -276,9 +358,15 @@ class RepoChangingDetailsPage extends React.PureComponent {
             let cancel = false;
             let errors = {};
 
+            //
+            // if (!this.state.form.repo)
+            //     this.state.form.repo = this.state.repoes[0]
+
+            // if (!this.state.form.reason)
+            //     this.state.form.reason = this.state.repoChangingReasons[0]
 
             // step 1
-            this.setState({ activeStep: this.state.activeStep + 1 })
+            this.setState({ activeStep: 0 })
 
             let { form, changingItems } = this.state
             let { type } = this.props
@@ -316,8 +404,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             // let value = 0;
             // changingItems.forEach(i => value += i.quantity * i.price)
-            if (doSubmit)
+            if (doSubmit) {
                 form.status = 1
+                form.applyingDate = getTodayString()
+            }
 
             await axios.post(`${DATA_API_BASE_URL}repoChangings`, form)
                 .then(resp => resp.data)
@@ -421,230 +511,278 @@ class RepoChangingDetailsPage extends React.PureComponent {
         }).bind(this)
 
 
-            //
-            this.rejectForm = (() => this.setState({ showConfirmDiag: true, confirmMessage: "确定拒绝此申请吗？" })).bind(this)
+        //
+        this.rejectForm = (() => this.setState({ showConfirmDiag: true, confirmMessage: "确定拒绝此申请吗？" })).bind(this)
 
 
-            // confirm
-            this.cancelConfirm = () => this.setState({ showConfirmDiag: false })
+        // confirm
+        this.cancelConfirm = () => this.setState({ showConfirmDiag: false })
 
-            this.onConfirm = (() => {
-                this.setState({ showConfirmDiag: false })
+        this.onConfirm = (() => {
+            this.setState({ showConfirmDiag: false })
 
-                let { form } = this.state
-                axios.patch(`${DATA_API_BASE_URL}repoChangings/${form.id}`, { status: -1 })
-                    .then(() => this.props.history.goBack())
-                    .catch(e => {
-                        this.showSnackbar(e.message)
-                    })
-            }).bind(this)
-        }
+            let { form } = this.state
+            axios.patch(`${DATA_API_BASE_URL}repoChangings/${form.id}`, { status: -1 })
+                .then(() => this.props.history.goBack())
+                .catch(e => {
+                    this.showSnackbar(e.message)
+                })
+        }).bind(this)
+    }
 
     showSnackbar(msg: String) {
-            this.setState({ snackbarOpen: true, snackbarContent: msg });
+        this.setState({ snackbarOpen: true, snackbarContent: msg });
+    }
+
+    componentDidMount() {
+        let { mode, id } = this.props.match.params;
+        let { type } = this.props
+
+        switch (type) {
+            case TYPE_STOCK_IN:
+                this.state.form.type = 1;
+                break;
+
+            case TYPE_STOCK_OUT:
+                this.state.form.type = -1;
+                break;
+
+            // case TYPE_STOCK_IN_OUT:
+            //     this.state.form.type = 0;
+            //     break;
         }
 
-        componentDidMount() {
-            let { mode, id } = this.props.match.params;
-            let { type } = this.props
+        //
+        if (!id) id = 0
 
-            switch (type) {
-                case TYPE_STOCK_IN:
-                    this.state.form.type = 1;
-                    break;
+        if (id == 0 || mode === MODE_ADD) {
+            this.state.mode = MODE_ADD
+            // this.state.dirty = f
 
-                case TYPE_STOCK_OUT:
-                    this.state.form.type = -1;
-                    break;
+            // this.setState({ order: { tax: false } })
+        }
+        else //if (id > 0) 
+        {
+            this.state.mode = MODE_EDIT
+            // this.state.dirty = false
 
-                case TYPE_STOCK_IN_OUT:
-                    this.state.form.type = 0;
-                    break;
-            }
-
-            //
-            if (!id) id = 0
-
-            if (id == 0 || mode === MODE_ADD) {
-                this.state.mode = MODE_ADD
-                // this.state.dirty = f
-
-                // this.setState({ order: { tax: false } })
-            }
-            else //if (id > 0) 
-            {
-                this.state.mode = MODE_EDIT
-                // this.state.dirty = false
-
-                axios.get(`${DATA_API_BASE_URL}/repoChangings/${id}`)
-                    .then(resp => resp.data)
-                    .then(j => {
-                        this.setState({ form: j });
-
-                        return `${DATA_API_BASE_URL}/repoChangings/${id}/items`
-                    })
-                    .then(url => axios.get(url))
-                    .then(resp => resp.data._embedded.repoChangingItems)
-                    .then(items => {
-                        let { changingItems } = this.state
-                        items.forEach(item => {
-                            changingItems.push({ material: item._embedded.material, quantity: item.quantity, price: item.price })
-                        })
-                        this.state.changingItems = changingItems
-                        this.forceUpdate()
-                    })
-                    .catch(e => this.showSnackbar(e.message));
-            }
-
-            // load materials
-            axios.get(`${DATA_API_BASE_URL}/materials`)
-                .then(resp => resp.data._embedded.materials)
+            axios.get(`${DATA_API_BASE_URL}/repoChangings/${id}`)
+                .then(resp => resp.data)
                 .then(j => {
-                    this.setState({ materials: j });
+                    this.state.form = j
+                    return j._links.repo.href
                 })
-                .catch(e => this.showSnackbar(e.message));
+                .then(url => axios.get(url))
+                .then(resp => {
+                    this.state.form.repo = resp.data
+                    return this.state.form._links.reason.href
+                })
+                .then(url => axios.get(url))
+                .then(resp => {
+                    this.state.form.reason = resp.data
+                    return `${DATA_API_BASE_URL}/repoChangings/${id}/items`
+                })
+                .then(url => axios.get(url))
+                .then(resp => resp.data._embedded.repoChangingItems)
+                .then(items => {
+                    let { changingItems } = this.state
+                    items.forEach(item => {
+                        changingItems.push({ material: item._embedded.material, quantity: item.quantity, price: item.price })
+                    })
+                    this.state.changingItems = changingItems
+                    this.forceUpdate()
+
+                    //
+                    return this.state.form._links.order.href
+                })
+                .catch(e => this.showSnackbar(e.message))
+
+                .then(url => axios.get(url))
+                .then(resp => {
+                    this.state.form.order = resp.data
+                })
+            // .catch(e => this.showSnackbar(e.message))
         }
 
-        render() {
-            const { type, classes, width } = this.props
-            const { id } = this.props.match.params;
-            const { mode, form, changingItems, materials } = this.state;
-            const { dirty, selectMaterial, columns, selection } = this.state;
-            const { errors, snackbarOpen, snackbarContent } = this.state;
+        // load materials
+        axios.get(`${DATA_API_BASE_URL}/materials`)
+            .then(resp => resp.data._embedded.materials)
+            .then(j => {
+                this.setState({ materials: j });
+            })
+            .catch(e => this.showSnackbar(e.message));
 
-            let shrinkLabel = mode === MODE_EDIT ? true : undefined;
+        // load repositories
+        axios.get(`${DATA_API_BASE_URL}/repoes`)
+            .then(resp => resp.data._embedded.repoes)
+            .then(j => {
+                if (mode === MODE_ADD)
+                    this.state.form.repo = j[0]
 
-            const { showSavingDiag, activeStep } = this.state;
+                this.setState({ repoes: j });
+            })
+            .catch(e => this.showSnackbar(e.message));
 
-            // title
-            let title = "";
-            switch (type) {
+        // load changing reason
+        axios.get(`${DATA_API_BASE_URL}/repoChangingReasons`)///search/findByType?type=${this.state.form.type}`)
+            .then(resp => resp.data._embedded.repoChangingReasons)
+            .then(j => {
+                // this.state.form.reason = j[0]
+                if (mode === MODE_ADD)
+                    this.state.form.reason = j.filter(r => r.type == this.state.form.type)[0]
+                
+                this.setState({ repoChangingReasons: j });
+            })
+            .catch(e => this.showSnackbar(e.message));
+    }
 
-                case TYPE_STOCK_IN: {
-                    if (mode == MODE_ADD)
-                        title = "填写入库单";
-                    else
-                        title = "编辑入库单";
-                    break
-                }
+    render() {
+        const { type, classes, width } = this.props
+        const { id } = this.props.match.params;
+        const { mode, form, changingItems, materials } = this.state;
+        const { dirty, selectMaterial, columns, selection } = this.state;
+        const { errors, snackbarOpen, snackbarContent } = this.state;
 
-                case TYPE_STOCK_OUT: {
-                    if (mode == MODE_ADD)
-                        title = "填写出库单";
-                    else
-                        title = "编辑出库单";
-                    break;
-                }
+        let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
-                case TYPE_STOCK_IN_OUT: {
-                    if (form) {
-                        if (form.type == 1)
-                            title = "处理入库单";
-                        else
-                            title = "处理出库单";
-                    } else
-                        title = "处理出/入库单";
-                    break;
-                }
+        const { showSavingDiag, activeStep } = this.state;
+
+        // title
+        let title = "";
+        switch (type) {
+
+            case TYPE_STOCK_IN: {
+                if (mode == MODE_ADD)
+                    title = "填写入库单";
+                else
+                    title = "编辑入库单";
+                break
             }
 
-            // actions
-            const actions = type === TYPE_STOCK_IN_OUT ?
-                <React.Fragment>
-                    <Tooltip title="受理此表单并开始处理">
-                        <Button onClick={() => this.processForm()} color='primary' style={{ fontSize: 18 }} >处理<mdi.ClipboardCheckOutline /></Button></Tooltip>
-                    <Tooltip title="拒绝受理此表单">
-                        <Button onClick={() => this.rejectForm()} color='secondary' style={{ fontSize: 18 }} >拒绝<mdi.CloseOctagonOutline /></Button></Tooltip>
-                </React.Fragment>
-                :
-                <React.Fragment>
-                    <Tooltip title="保存表单">
-                        <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button></Tooltip>
-                    <Tooltip title="保存表单，然后提交给仓库管理员">
-                        <Button onClick={() => this.saveForm(true)} color='secondary' disabled={!dirty && mode === MODE_ADD} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<mdi.ContentSave /></Button></Tooltip>
-                </React.Fragment>
+            case TYPE_STOCK_OUT: {
+                if (mode == MODE_ADD)
+                    title = "填写出库单";
+                else
+                    title = "编辑出库单";
+                break;
+            }
 
-            // enable edit
-            const disableEdit = type === TYPE_STOCK_IN_OUT
+            case TYPE_STOCK_IN_OUT: {
+                if (form) {
+                    if (form.type == 1)
+                        title = "处理入库单";
+                    else
+                        title = "处理出库单";
+                } else
+                    title = "处理出/入库单";
+                break;
+            }
+        }
 
-            // current date
-            let now = new Date();
-            let m = now.getMonth() + 1;
-            if (m < 10)
-                m = '0' + m;
-            let d = now.getDate();
-            if (d < 10)
-                d = '0' + d;
-            let today = `${now.getFullYear()}-${m}-${d}`
+        // actions
+        const actions = type === TYPE_STOCK_IN_OUT ?
+            <React.Fragment>
+                <Tooltip title="受理此表单并开始处理">
+                    <Button onClick={() => this.processForm()} color='primary' style={{ fontSize: 18 }} >处理<mdi.ClipboardCheckOutline /></Button></Tooltip>
+                <Tooltip title="拒绝受理此表单">
+                    <Button onClick={() => this.rejectForm()} color='secondary' style={{ fontSize: 18 }} >拒绝<mdi.CloseOctagonOutline /></Button></Tooltip>
+            </React.Fragment>
+            :
+            <React.Fragment>
+                <Tooltip title="保存表单">
+                    <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button></Tooltip>
+                <Tooltip title="保存表单，然后提交给仓库管理员">
+                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={!dirty && mode === MODE_ADD} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<mdi.ContentSave /></Button></Tooltip>
+            </React.Fragment>
 
-            return (
-                // <Provider store={store}>
-                <React.Fragment>
+        // enable edit
+        const disableEdit = type === TYPE_STOCK_IN_OUT
 
-                    <div className={classes.contentRoot}>
+        return this.state.repoes && this.state.materials && this.state.repoChangingReasons ? (
+            // <Provider store={store}>
+            <React.Fragment>
 
-                        <Toolbar className={classes.toolbar}>
-                            <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
-                            <Typography variant="title" className={classes.title}>{title}</Typography>
-                            {actions}
-                        </Toolbar>
+                <div className={classes.contentRoot}>
 
-                        <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
+                    <Toolbar className={classes.toolbar}>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <Typography variant="title" className={classes.title}>{title}</Typography>
+                        {actions}
+                    </Toolbar>
 
-                        <Paper className={classes.paper}>
-                            <mu.Grid container direction='column' alignItems="stretch">
+                    <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
-                                {type === TYPE_STOCK_IN_OUT ?
-                                    <mu.Grid style={{ marginBottom: 16 }}>
-                                        {form.type == 1 ?
-                                            <Chip label="入库" style={{ color: 'white', backgroundColor: COLOR_STOCK_IN }} />
-                                            :
-                                            <Chip label="出库" style={{ color: 'white', backgroundColor: COLOR_STOCK_OUT }} />}
-                                    </mu.Grid>
-                                    : null
-                                }
+                    <Paper className={classes.paper}>
+                        <mu.Grid container direction='column' alignItems="stretch">
 
+                            {type === TYPE_STOCK_IN_OUT ?
                                 <mu.Grid style={{ marginBottom: 16 }}>
-                                    <TextField
-                                        id="applicant"
-                                        required
-                                        disabled={disableEdit}
-                                        // select
-                                        error={!!errors['form.applicant']}
-                                        label="申请人"
-                                        style={{ width: 300 }}
-                                        value={form ? form.applicant : ""}
-                                        onChange={e => this.handleInput(e)}
-                                        InputLabelProps={{
-                                            shrink: shrinkLabel,
+                                    {form.type == 1 ?
+                                        <Chip label="入库" style={{ color: 'white', backgroundColor: COLOR_STOCK_IN }} />
+                                        :
+                                        <Chip label="出库" style={{ color: 'white', backgroundColor: COLOR_STOCK_OUT }} />}
+                                </mu.Grid>
+                                : null
+                            }
+
+                            <mu.Grid style={{ marginBottom: 16 }}>
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
+                                    <Select
+                                        native
+                                        value={form.repo ? form.repo.id : null}
+                                        onChange={this.onChangedRepo}
+                                        inputProps={{
+                                            name: 'repo',
+                                            id: 'repo',
                                         }}
                                     >
-                                        {/* {clients.map(c => (
+                                        {this.state.repoes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                    </Select>
+                                </FormControl>
+                            </mu.Grid>
+
+                            <mu.Grid style={{ marginBottom: 16 }}>
+                                <TextField
+                                    id="applicant"
+                                    required
+                                    disabled={disableEdit}
+                                    // select
+                                    error={!!errors['form.applicant']}
+                                    label="申请人"
+                                    style={{ width: 300 }}
+                                    value={form ? form.applicant : ""}
+                                    onChange={e => this.handleInput(e)}
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
+                                >
+                                    {/* {clients.map(c => (
                                             <MenuItem key={c.id} value={c.id}>
                                                 {c.fullName}
                                             </MenuItem>
                                         ))} */}
-                                    </TextField>
-                                </mu.Grid>
+                                </TextField>
+                            </mu.Grid>
 
-                                <mu.Grid style={{ marginBottom: 16 }}>
-                                    <TextField
-                                        id="department"
-                                        disabled={disableEdit}
-                                        // required
-                                        // select
-                                        // error={!!errors['client']}
-                                        label="部门"
-                                        style={{ width: 300 }}
-                                        value={form ? form.department : ""}
-                                        onChange={e => this.handleInput(e)}
-                                        InputLabelProps={{
-                                            shrink: shrinkLabel,
-                                        }}
-                                    />
-                                </mu.Grid>
+                            <mu.Grid style={{ marginBottom: 16 }}>
+                                <TextField
+                                    id="department"
+                                    disabled={disableEdit}
+                                    // required
+                                    // select
+                                    // error={!!errors['client']}
+                                    label="部门"
+                                    style={{ width: 300 }}
+                                    value={form ? form.department : ""}
+                                    onChange={e => this.handleInput(e)}
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
+                                />
+                            </mu.Grid>
 
-                                {/* <mu.Grid>
+                            {/* <mu.Grid>
                                 <TextField type="date" 
                                 required 
                                 disabled
@@ -660,301 +798,385 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                 />
                             </mu.Grid> */}
 
-                                <mu.Grid>
-                                    <TextField
-                                        id="application"
-                                        // error={!!errors['order.comment']} 
-                                        disabled={disableEdit}
-                                        label="原因"
-                                        defaultValue=""
-                                        className={classes.textFieldWithoutWidth}
-                                        value={form ? form.application : ""}
-                                        onChange={e => this.handleInput(e)}
-                                        multiline
-                                        fullWidth
-                                        rowsMax="4"
-                                        margin="normal"
-                                        InputLabelProps={{
-                                            shrink: shrinkLabel,
+                            <mu.Grid style={{ marginBottom: 16 }}>
+                                {/* <FormGroup> */}
+
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="reason" shrink>原因类别</InputLabel>
+                                    <Select
+                                        native
+                                        value={this.state.form.reason ? this.state.form.reason.id : null}
+                                        onChange={this.changedReason}
+                                        inputProps={{
+                                            name: 'reason',
+                                            id: 'reason',
                                         }}
-                                    />
-                                </mu.Grid>
+                                    >
+                                        {
+                                            this.state.repoChangingReasons
+                                                .filter(r => r.type == form.type)
+                                                .map(r => <option key={r.id} value={r.id}>{r.reason}</option>)}
+                                        {/* <option key="-1" value="">其他</option> */}
+                                    </Select>
+                                </FormControl>
+
+                                <TextField
+                                    id="reasonDetail"
+                                    // error={!!errors['order.comment']} 
+                                    disabled={disableEdit}
+                                    label="原因描述"
+                                    defaultValue=""
+                                    className={classes.textFieldWithoutWidth}
+                                    value={form ? form.reasonDetail : ""}
+                                    onChange={e => this.handleInput(e)}
+                                    multiline
+                                    fullWidth
+                                    rowsMax="4"
+                                    margin="normal"
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
+                                />
                             </mu.Grid>
-                        </Paper>
 
-                        <div style={{ display: 'flex', flexDirection: 'row' }}>
-                            <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex' }}>明细</Typography>
-                            {errors['changingItems'] ? <Typography className={classes.subTitle} style={{ display: 'inline-flex', color: '#f44336' }}>{errors['changingItems']}</Typography> : null}
-                            {type === TYPE_STOCK_IN ? (
-                                <React.Fragment>
-                                    <div style={{ display: 'inline-flex', flex: 1 }} />
-                                    <Typography variant="title" className={classes.subTitle} color='secondary' marginLeft={0}>总价：{form.amount ? `¥ ${toFixedMoney(form.amount)}` : '--'}</Typography>
-                                </React.Fragment>) : null}
-                        </div>
-                        <Paper className={classes.compactPaper}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
-                                        <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
-                                        <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>类型</TableCell>
-                                        <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>规格</TableCell>
-                                        <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>数量</TableCell>
-                                        {form.type === -1 ? null : (
-                                            <React.Fragment>
-                                                <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>价格</TableCell>
-                                                <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>小计</TableCell>
-                                            </React.Fragment>
-                                        )}
-                                        <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                            {disableEdit ? null :
-                                                <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
-                                                    <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
-                                            }
-                                        </TableCell>
-                                    </TableRow>
-                                </TableHead>
+                            {form.type == -1 && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
+                                // <mu.Grid style={{ marginBottom: 16 }}>
+                                //     <FormControlLabel
+                                //         control={<Switch
+                                //             checked={this.state.orderRelated}
+                                //             onChange={this.handleOrderRelatedChange}
+                                //             value={1}
+                                //         />}
+                                //         label="订单相关" />
+                                // </mu.Grid>
 
-                                <TableBody>
-                                    {changingItems.map((n, no) => {
-                                        let m = n.material
-                                        let subtotal = n.quantity * n.price
-                                        if (!subtotal) subtotal = 0
-                                        return (
-                                            <TableRow key={m.id}>
-                                                <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
+                                <mu.Grid >
+                                    <Button onClick={this.selectOrder}><mdi.ClipboardText color="primary" />选择订单</Button>
+                                    {form.order ? <React.Fragment>
+                                        <Chip label={form.order.no} style={{ marginLeft: 16 }} />
+                                        <Chip label={form.order._embedded.client.name} style={{ marginLeft: 8 }} />
+                                    </React.Fragment> : null}
+                                </mu.Grid>
+                                : null}
+                        </mu.Grid>
+                    </Paper>
 
-                                                <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
-
-                                                <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
-
-                                                <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
-
-                                                <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
-                                                    <TextField type="number" required id={`quantity_${m.id}`}
-                                                        value={n.quantity}
-                                                        fullWidth
-                                                        disabled={disableEdit}
-                                                        error={!!errors[`quantity_${m.id}`]}
-                                                        margin="normal" inputProps={{ min: 0 }}
-                                                        // InputProps={{
-                                                        //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
-                                                        // }}
-                                                        onChange={e => this.handleQuantityChange(e, m.id, no)}
-                                                    />
-                                                </TableCell>
-
-                                                {form.type === -1 ? null : (
-                                                    <React.Fragment>
-                                                        <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
-                                                            <TextField type="number" required id={`price_${m.id}`}
-                                                                value={n.price}
-                                                                disabled={disableEdit}
-                                                                fullWidth
-                                                                error={!!errors[`price_${m.id}`]}
-                                                                margin="normal" inputProps={{ min: 0 }}
-                                                                // InputProps={{
-                                                                //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
-                                                                // }}
-                                                                onChange={e => this.handlePriceChange(e, m.id, no)}
-                                                            />
-                                                        </TableCell>
-
-                                                        <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
-                                                    </React.Fragment>
-                                                )}
-
-                                                <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
-                                                    {disableEdit ? null :
-                                                        <Tooltip title="删除">
-                                                            <IconButton onClick={() => this.onDelete(m.id, no)}>
-                                                                <mui.Delete />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    }
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </Paper>
-
+                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                        <Typography variant="title" className={classes.subTitle} style={{ display: 'inline-flex' }}>明细</Typography>
+                        {errors['changingItems'] ? <Typography className={classes.subTitle} style={{ display: 'inline-flex', color: '#f44336' }}>{errors['changingItems']}</Typography> : null}
+                        {type === TYPE_STOCK_IN ? (
+                            <React.Fragment>
+                                <div style={{ display: 'inline-flex', flex: 1 }} />
+                                <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{form.amount ? `¥ ${toFixedMoney(form.amount)}` : '--'}</Typography>
+                            </React.Fragment>) : null}
                     </div>
+                    <Paper className={classes.compactPaper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
+                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>类型</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>规格</TableCell>
+                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>数量</TableCell>
+                                    {form.type === -1 ? null : (
+                                        <React.Fragment>
+                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>价格</TableCell>
+                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>小计</TableCell>
+                                        </React.Fragment>
+                                    )}
+                                    <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
+                                        {disableEdit ? null :
+                                            <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
+                                        }
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
 
-                    <Snackbar
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'center',
-                        }}
-                        autoHideDuration={3000}
-                        open={snackbarOpen}
-                        onClose={() => this.setState({ snackbarOpen: false })}
-                        SnackbarContentProps={{
-                            'aria-describedby': 'message-id',
-                        }}
-                        message={<span id="message-id">{snackbarContent}</span>}
-                    />
+                            <TableBody>
+                                {changingItems.map((n, no) => {
+                                    let m = n.material
+                                    let subtotal = n.quantity * n.price
+                                    if (!subtotal) subtotal = 0
+                                    return (
+                                        <TableRow key={m.id}>
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
 
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
 
-                    {/* dialog for add materials */}
-                    <Dialog
-                        open={selectMaterial}
-                        onClose={this.cancelSelect}
-                        // className={classes.dialog}
-                        classes={{ paper: classes.dialog }}
-                    >
-                        <DialogTitle>添加材料</DialogTitle>
-                        <DialogContent>
-                            {/* <DialogContentText>请选择材料</DialogContentText> */}
-                            <Paper>
-                                <Grid
-                                    rows={materials}
-                                    columns={columns}
-                                >
-                                    <SelectionState
-                                        selection={selection}
-                                        onSelectionChange={this.changeSelection}
-                                    />
-                                    <IntegratedSelection />
+                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
 
-                                    <SortingState
-                                        defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
-                                    />
-                                    <IntegratedSorting />
+                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
 
-                                    <FilteringState defaultFilters={[]} />
-                                    <IntegratedFiltering />
+                                            <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                                <TextField type="number" required id={`quantity_${m.id}`}
+                                                    value={n.quantity}
+                                                    fullWidth
+                                                    disabled={disableEdit}
+                                                    error={!!errors[`quantity_${m.id}`]}
+                                                    margin="normal" inputProps={{ min: 0 }}
+                                                    // InputProps={{
+                                                    //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
+                                                    // }}
+                                                    onChange={e => this.handleQuantityChange(e, m.id, no)}
+                                                />
+                                            </TableCell>
 
-                                    <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+                                            {form.type === -1 ? null : (
+                                                <React.Fragment>
+                                                    <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                                        <TextField type="number" required id={`price_${m.id}`}
+                                                            value={n.price}
+                                                            disabled={disableEdit}
+                                                            fullWidth
+                                                            error={!!errors[`price_${m.id}`]}
+                                                            margin="normal" inputProps={{ min: 0 }}
+                                                            // InputProps={{
+                                                            //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
+                                                            // }}
+                                                            onChange={e => this.handlePriceChange(e, m.id, no)}
+                                                        />
+                                                    </TableCell>
 
-                                    <TableHeaderRow showSortingControls />
-                                    <TableFilterRow />
-                                    <TableSelection showSelectAll selectByRowClick={true} />
-                                </Grid>
-                            </Paper>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={this.cancelSelect} color="primary">取消</Button>
-                            <Button onClick={this.addMaterials} disabled={selection.length <= 0} color="secondary">添加</Button>
-                        </DialogActions>
-                    </Dialog>
+                                                    <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
+                                                </React.Fragment>
+                                            )}
 
+                                            <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
+                                                {disableEdit ? null :
+                                                    <Tooltip title="删除">
+                                                        <IconButton onClick={() => this.onDelete(m.id, no)}>
+                                                            <mui.Delete />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                }
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </Paper>
 
-                    {/* dialog for save formula */}
-                    <Dialog
-                        open={showSavingDiag}
-                        onClose={this.cancelSave}
-                        classes={{ paper: classes.dialog }}
-                    >
-                        <DialogTitle>正在保存...</DialogTitle>
-                        <DialogContent>
-                            <Paper>
-                                <Stepper activeStep={activeStep} alternativeLabel>
-                                    {savingSteps.map(label => {
-                                        return (
-                                            <Step key={label}>
-                                                <StepLabel>{label}</StepLabel>
-                                            </Step>
-                                        );
-                                    })}
-                                </Stepper>
-                            </Paper>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep >= savingSteps.length - 1 ? false : true} color="primary">确定</Button>
-                        </DialogActions>
-                    </Dialog>
+                </div>
 
-
-                    {/* dialog for preview repo changing */}
-                    <Dialog
-                        open={this.state.showPreviewDiag}
-                        onClose={this.cancelPreview}
-                        classes={{ paper: classes.dialog }}
-                    >
-                        <DialogTitle>仓库变更预览</DialogTitle>
-                        <DialogContent>
-                            <Paper>
-                                <Grid
-                                    rows={this.state.previewData}
-                                    columns={this.state.previewColumns}
-                                >
-                                    <FulfilledTypeProvider for={['fulfilled']} />
-                                    <CurrencyTypeProvider for={['currentPrice', 'inPrice', 'newPrice']} />
-
-                                    <SortingState
-                                        defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
-                                    />
-                                    <IntegratedSorting />
-
-                                    <VirtualTable height={400} messages={{ noData: "没有数据" }} />
-
-                                    <TableHeaderRow showSortingControls />
-                                </Grid>
-                            </Paper>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={this.onApplyChanging} disabled={!this.state.canApplyChanging || this.state.applyChangingCountdown > 0} color="secondary">确定{this.state.applyChangingCountdown > 0 ? ` (${this.state.applyChangingCountdown})` : null}</Button>
-                            <Button onClick={this.cancelPreview} color="primary">取消</Button>
-                        </DialogActions>
-                    </Dialog>
+                <Snackbar
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'center',
+                    }}
+                    autoHideDuration={3000}
+                    open={snackbarOpen}
+                    onClose={() => this.setState({ snackbarOpen: false })}
+                    SnackbarContentProps={{
+                        'aria-describedby': 'message-id',
+                    }}
+                    message={<span id="message-id">{snackbarContent}</span>}
+                />
 
 
-                    {/* dialog for confirm */}
-                    <Dialog
-                        open={this.state.showConfirmDiag}
-                        onClose={this.cancelConfirm}
-                        classes={{ paper: classes.dialog }}
-                    >
-                        <DialogTitle>确认</DialogTitle>
-                        <DialogContent>
-                            <Typography variant="body2" >{this.state.confirmMessage}</Typography>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={this.onConfirm} color="primary">确定</Button>
-                            <Button onClick={this.cancelConfirm} color="secondary">取消</Button>
-                        </DialogActions>
-                    </Dialog>
+                {/* dialog for add materials */}
+                <Dialog
+                    open={selectMaterial}
+                    onClose={this.cancelSelect}
+                    // className={classes.dialog}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>添加材料</DialogTitle>
+                    <DialogContent>
+                        {/* <DialogContentText>请选择材料</DialogContentText> */}
+                        <Paper>
+                            <Grid
+                                rows={materials}
+                                columns={columns}
+                            >
+                                <SelectionState
+                                    selection={selection}
+                                    onSelectionChange={this.changeSelection}
+                                />
+                                <IntegratedSelection />
 
-                </React.Fragment>
-                // </Provider>
-            )
-        }
+                                <SortingState
+                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
+                                />
+                                <IntegratedSorting />
+
+                                <FilteringState defaultFilters={[]} />
+                                <IntegratedFiltering />
+
+                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+
+                                <TableHeaderRow showSortingControls />
+                                <TableFilterRow />
+                                <TableSelection showSelectAll selectByRowClick={true} />
+                            </Grid>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.cancelSelect} color="primary">取消</Button>
+                        <Button onClick={this.addMaterials} disabled={selection.length <= 0} color="secondary">添加</Button>
+                    </DialogActions>
+                </Dialog>
+
+
+                {/* dialog for select order */}
+                <Dialog
+                    open={this.state.showSelectOrder}
+                    onClose={this.cancelSelectOrder}
+                    // className={classes.dialog}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>选择订单</DialogTitle>
+                    <DialogContent>
+                        <Paper>
+                            <Grid
+                                rows={this.state.orders}
+                                columns={this.state.orderColumns}
+                            >
+                                <SelectionState
+                                    selection={this.state.orderSelection}
+                                    onSelectionChange={this.changeOrderSelection}
+                                />
+                                <IntegratedSelection />
+
+                                <SortingState
+                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
+                                />
+                                <IntegratedSorting />
+
+                                <FilteringState defaultFilters={[]} />
+                                <IntegratedFiltering />
+
+                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+
+                                <TableHeaderRow showSortingControls />
+                                <TableFilterRow />
+                                <TableSelection selectByRowClick={true} />
+                            </Grid>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.cancelSelectOrder} color="primary">取消</Button>
+                        <Button onClick={this.onSelectedOrder} disabled={this.state.orderSelection.length <= 0} color="secondary">添加</Button>
+                    </DialogActions>
+                </Dialog>
+
+
+                {/* dialog for save formula */}
+                <Dialog
+                    open={showSavingDiag}
+                    onClose={this.cancelSave}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>正在保存...</DialogTitle>
+                    <DialogContent>
+                        <Paper>
+                            <Stepper activeStep={activeStep} alternativeLabel>
+                                {savingSteps.map(label => {
+                                    return (
+                                        <Step key={label}>
+                                            <StepLabel>{label}</StepLabel>
+                                        </Step>
+                                    );
+                                })}
+                            </Stepper>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep < savingSteps.length - 1} color="primary">确定</Button>
+                    </DialogActions>
+                </Dialog>
+
+
+                {/* dialog for preview repo changing */}
+                <Dialog
+                    open={this.state.showPreviewDiag}
+                    onClose={this.cancelPreview}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>仓库变更预览</DialogTitle>
+                    <DialogContent>
+                        <Paper>
+                            <Grid
+                                rows={this.state.previewData}
+                                columns={this.state.previewColumns}
+                            >
+                                <FulfilledTypeProvider for={['fulfilled']} />
+                                <CurrencyTypeProvider for={['currentPrice', 'inPrice', 'newPrice']} />
+
+                                <SortingState
+                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
+                                />
+                                <IntegratedSorting />
+
+                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+
+                                <TableHeaderRow showSortingControls />
+                            </Grid>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.onApplyChanging} disabled={!this.state.canApplyChanging || this.state.applyChangingCountdown > 0} color="secondary">确定{this.state.applyChangingCountdown > 0 ? ` (${this.state.applyChangingCountdown})` : null}</Button>
+                        <Button onClick={this.cancelPreview} color="primary">取消</Button>
+                    </DialogActions>
+                </Dialog>
+
+
+                {/* dialog for confirm */}
+                <Dialog
+                    open={this.state.showConfirmDiag}
+                    onClose={this.cancelConfirm}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>确认</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2" >{this.state.confirmMessage}</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.onConfirm} color="primary">确定</Button>
+                        <Button onClick={this.cancelConfirm} color="secondary">取消</Button>
+                    </DialogActions>
+                </Dialog>
+
+            </React.Fragment>
+            // </Provider>
+        ) : null
     }
+}
 
 
-    const styles = theme => ({
-        ...CommonStyles(theme),
-        ... {
-            toolbar: {
-                padding: 0,
-            },
-
-            title: {
-                opacity: .75,
-                margin: 0,
-                flex: 1,
-            },
-
-            // subTitle: {
-            //     marginRight: 0,
-            // },
-
-            detailsTitle: {
-                fontSize: 16,
-                opacity: .75,
-            },
-
-            details: {
-                fontSize: 16,
-            },
-
-            chip: {
-                margin: `0 ${theme.spacing.unit * 2}px 0 0`,
-            }
+const styles = theme => ({
+    ...CommonStyles(theme),
+    ... {
+        toolbar: {
+            padding: 0,
         },
-    })
+
+        title: {
+            opacity: .75,
+            margin: 0,
+            flex: 1,
+        },
+
+        // subTitle: {
+        //     marginRight: 0,
+        // },
+
+        detailsTitle: {
+            fontSize: 16,
+            opacity: .75,
+        },
+
+        details: {
+            fontSize: 16,
+        },
+
+        chip: {
+            margin: `0 ${theme.spacing.unit * 2}px 0 0`,
+        }
+    },
+})
 
 
-    export default withStyles(styles)(RepoChangingDetailsPage);
+export default withStyles(styles)(RepoChangingDetailsPage);

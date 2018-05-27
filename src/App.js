@@ -47,6 +47,7 @@ import BomsPage from "./boms"
 import StockApplyPage from './repo_changing'
 import StockApplyDetailsPage from './repo_changing_details'
 import RepoPage from './repo'
+import RepoDetailsPage from './repo_details'
 import InventoryPage from './inventory'
 
 // import DAC from "./dimension_aware_component"
@@ -177,6 +178,15 @@ const manufactionItems = (
 
 const stockItems = (
   <div>
+    <Link to="/repo">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.Database />
+        </ListItemIcon>
+        <ListItemText primary="仓库" />
+      </ListItem>
+    </Link>
+
     <Tooltip title="非库房人员申请">
       <Link to={config.ROUTER_STOCK_IN}>
         <ListItem button>
@@ -210,12 +220,12 @@ const stockItems = (
       </Link>
     </Tooltip>
 
-    <Link to="/repo">
+    <Link to="/repo_details">
       <ListItem button>
         <ListItemIcon>
           <mdi.DatabaseSearch />
         </ListItemIcon>
-        <ListItemText primary="库存" />
+        <ListItemText primary="库存明细" />
       </ListItem>
     </Link>
 
@@ -279,7 +289,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path={config.ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
         <Route path={config.ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
         <Route path={config.ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
-        <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
+        <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
+        <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
         <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
       </Switch>
@@ -307,6 +318,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} />} />
         <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockApplyDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
         <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
+        <Route path="/repo_details" component={RepoDetailsPage} />
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />
         <Route component={HomePage} />
@@ -422,7 +434,7 @@ const styles = theme => ({
   },
   appBar: {
     position: 'absolute',
-    marginLeft: drawerWidth,
+    marginleft: drawerWidth,
     [theme.breakpoints.up('md')]: {
       width: `calc(100% - ${drawerWidth}px)`,
     },
@@ -447,13 +459,13 @@ const styles = theme => ({
     }),
   },
   'appBarShift-left': {
-    marginLeft: drawerWidth,
+    marginleft: drawerWidth,
   },
   'appBarShift-right': {
     marginRight: drawerWidth,
   },
   menuButton: {
-    marginLeft: 12,
+    marginleft: 12,
     marginRight: 20,
   },
   hide: {
@@ -489,7 +501,7 @@ const styles = theme => ({
     width: '100%'
   },
   'content-left': {
-    marginLeft: -drawerWidth,
+    marginleft: -drawerWidth,
   },
   'content-right': {
     marginRight: -drawerWidth,
@@ -501,7 +513,7 @@ const styles = theme => ({
     }),
   },
   'contentShift-left': {
-    marginLeft: 0,
+    marginleft: 0,
   },
   'contentShift-right': {
     marginRight: 0,

@@ -6,7 +6,7 @@ export const COLOR_STOCK_OUT = 'red'
 const styles = theme => ({
     // appBar: {
     //     position: 'inherit',
-    //     // marginLeft: drawerWidth,
+    //     // marginleft: drawerWidth,
     //     // [theme.breakpoints.up('md')]: {
     //     //     width: `calc(100% - ${drawerWidth}px)`,
     //     // },
@@ -57,7 +57,7 @@ const styles = theme => ({
         // fontSize: 24,
         opacity: .75,
         margin: theme.spacing.unit * 4,
-        marginLeft: 0,
+        marginleft: 0,
         marginBottom: theme.spacing.unit * 2,
     },
 
@@ -65,7 +65,7 @@ const styles = theme => ({
         fontSize: 18,
         opacity: .75,
         margin: theme.spacing.unit * 4,
-        marginLeft: 0,
+        marginleft: 0,
         marginBottom: theme.spacing.unit * 1,
     },
 

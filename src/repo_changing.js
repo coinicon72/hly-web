@@ -33,7 +33,7 @@ const COLUMNS_OUT = [
     { name: 'id', title: '序号' },
     { name: "applicant", title: "申请人" },
     { name: "department", title: "部门" },
-    { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate.split('T')[0] },
+    { name: "createDate", title: "创建日期", getCellValue: row => row.createDate.split('T')[0] },
     { name: "application", title: "原因" },
 ]
 

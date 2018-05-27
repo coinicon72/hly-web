@@ -8,54 +8,80 @@ import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
 import DataTableBase from "./data_table_base"
 
-import * as config from "./config"
-import { withStyles, Typography } from 'material-ui';
-import { toFixedMoney } from './utils';
-import { CurrencyTypeProvider } from "./common_components"
+import { DATA_API_BASE_URL } from "./config"
+import { withStyles } from 'material-ui';
+import Select from 'material-ui/Select';
+import Input from 'material-ui/Input';
+import { MenuItem } from 'material-ui/Menu';
+
+import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 
 // =============================================
 const DATA_REPO = "repoes";
-const DATA_FILTER = "";
 
 const COLUMNS = [
-    { name: 'code', title: '编号', getCellValue: row => row._embedded.material.code },
-    { name: "name", title: "名称", getCellValue: row => row._embedded.material.name },
-    { name: "type", title: "类型", getCellValue: row => row._embedded.material.type ? row._embedded.material.type.name : null },
-    { name: "spec", title: "规格", getCellValue: row => row._embedded.material.spec },
-    { name: "safeQuantity", title: "安全库存", getCellValue: row => row._embedded.material.safeQuantity },
-    { name: "quantity", title: "库存" },
-    { name: "price", title: "单价" },
-    { name: "subtotal", title: "小计", getCellValue: row => toFixedMoney(row.quantity * row.price) },
+    { name: 'id', title: '序号' },
+    { name: "name", title: "名称" },
+    { name: "type", title: "类型" }, //getCellValue: row => row.type == 0 ? '物料仓库' : '成品仓库' },
+    { name: "comment", title: "备注" },
 ]
 
-const SafeQuantityTypeProvider = props => (
+const EDITING_COLUMN_EXTENSIONS = [
+    { columnName: 'id', editingEnabled: false },
+]
+
+const NEW_ROW_TEMPLATE = {
+    id: 0,
+    name: '',
+    type: 0,
+}
+
+const RepoTypeEditor = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)}
+        }
+        style={{ width: '100%' }}
+    >
+        <option value=""></option>
+        <option value={0}>物料仓库</option>
+        <option value={1}>成品仓库</option>
+    </Select>
+);
+
+const RepoTypeProvider = props => (
     <DataTypeProvider
-        formatterComponent={({ value }) => <Typography style={{ opacity: .7 }} >{value}</Typography>}
+        // formatterComponent={({ value }) => <Typography style={{ opacity: .7 }} >{value == 0 ? '物料仓库' : '成品仓库'}</Typography>}
+        formatterComponent={({ value }) => value ? '成品仓库' : '物料仓库'}
+        editorComponent={RepoTypeEditor}
         {...props}
     />
 );
 
-const QuantityTypeProvider = props => (
-    <DataTypeProvider
-        formatterComponent={({ row, value }) =>
-            <Typography style={value >= row._embedded.material.safeQuantity ? {} : { fontWeight: 'bold', color: 'red' }} >{value}</Typography>
-        }
-        {...props}
-    />
-);
 
 // =============================================
 class RepoPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = config.DATA_API_BASE_URL + DATA_REPO + DATA_FILTER;
+        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
+
+        this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
+
+        this.changeAddedRowsCallback = (row => {
+            return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
+        });
 
         this.doLoad = this.doLoad.bind(this)
+        this.doAdd = this.doAdd.bind(this)
+        this.doUpdate = this.doUpdate.bind(this)
+        this.doDelete = this.doDelete.bind(this)
     }
 
     componentDidMount() {
@@ -66,18 +92,36 @@ class RepoPage extends React.PureComponent {
             .then(resp => resp.data._embedded[DATA_REPO])
     }
 
+    doAdd = (r) => {
+        return axios.post(this.dataRepoApiUrl, r)
+            .then(resp => resp.data)
+    }
+
+    doUpdate = (r, c) => {
+        return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
+            .then(resp => resp.data)
+    }
+
+    doDelete = (r) => {
+        return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
+    }
+
     render() {
         const { classes, width } = this.props
 
         return (
             <div className={classes.contentRoot}>
+
                 <DataTableBase columns={COLUMNS}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    editingColumnExtensions={this.editingColumnExtensions}
                     doLoad={this.doLoad}
-                    disableEdit={true}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
                     providers={[
-                        <SafeQuantityTypeProvider key='sqtp' for={["safeQuantity"]} />,
-                        <QuantityTypeProvider key='qtp' for={["quantity"]} />,
-                        <CurrencyTypeProvider key='ctp' for={["price", "subtotal"]} />,
+                        <RepoTypeProvider key='rtp' for={["type"]} />,
                     ]}
                 />
             </div>
