@@ -49,6 +49,10 @@ import StockApplyDetailsPage from './repo_changing_details'
 import RepoPage from './repo'
 import RepoDetailsPage from './repo_details'
 import InventoryPage from './inventory'
+import UserPage from './user'
+import RolePage from './role'
+import UserRolePage from './user_role'
+import RolePrivilegePage from './role_privilege'
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
@@ -158,6 +162,51 @@ const basicDataItems = (
           <HexagonMultiple />
         </ListItemIcon>
         <ListItemText primary="材料" />
+      </ListItem>
+    </Link>
+  </div>
+);
+
+const userManagementItems = (
+  <div>
+    <Link to="/user">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="员工" />
+      </ListItem>
+    </Link>
+    <Link to="/role">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="岗位" />
+      </ListItem>
+    </Link>
+    {/* <Link to="/privilege">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="权限" />
+      </ListItem>
+    </Link> */}
+    <Link to="/userRole">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="员工岗位" />
+      </ListItem>
+    </Link>
+    <Link to="/rolePrivilege">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="岗位权限" />
       </ListItem>
     </Link>
   </div>
@@ -292,7 +341,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
         <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
-        <Route component={() => <Typography variant="title" className={classes.appTitle}>Wasted too much time to figure out a cool title</Typography>} />
+        <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
     )
@@ -321,6 +370,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/repo_details" component={RepoDetailsPage} />
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />
+        <Route path="/user" component={UserPage} />
+        <Route path="/role" component={RolePage} />
+        <Route path="/userRole" component={UserRolePage} />
+        <Route path="/rolePrivilege" component={RolePrivilegePage} />
         <Route component={HomePage} />
       </Switch>
 
@@ -343,6 +396,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </div>
         <Divider />
         <List>{salesItems}</List>
+        <Divider />
+        <List>{userManagementItems}</List>
         <Divider />
         <List>{basicDataItems}</List>
         <Divider />
