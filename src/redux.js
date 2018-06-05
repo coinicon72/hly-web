@@ -17,7 +17,7 @@ const middleware = routerMiddleware(history)
 
 const initialState = {
   page: "home",
-  
+
   toolbarTitle: 'toolbar title',
   navMenus: ['profile', 'settings'],
   footbarContent: 'footbar',
@@ -25,7 +25,7 @@ const initialState = {
 }
 
 function appReducer(state = initialState, action) {
-  let newState = {...state}
+  let newState = { ...state }
   switch (action.type) {
     // case SET_VISIBILITY_FILTER:
     //   return Object.assign({}, state, {
@@ -33,6 +33,19 @@ function appReducer(state = initialState, action) {
     //   })
     case "clickTitle":
       newState.toolbarTitle = 'toolbar - ' + parseInt(Math.random() * 10);
+      break
+
+    case 'login.logging':
+      newState.loginError = null
+      break
+
+    case 'login.loggedIn':
+      newState.token = action.token
+      newState.user = action.user
+      break
+
+    case 'login.loginFailed':
+      newState.loginError = action.error
       break
   }
 
@@ -49,3 +62,26 @@ export const store = createStore(
   applyMiddleware(middleware),
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 )
+
+
+// login
+export function actionLogging() {
+  return {
+    type: 'login.logging',
+  }
+}
+
+export function actionLoggedIn(token, user) {
+  return {
+    type: 'login.loggedIn',
+    token: token,
+    user: user,
+  }
+}
+
+export function actionLoginFailed(e) {
+  return {
+    type: 'login.loginFailed',
+    error: e,
+  }
+}

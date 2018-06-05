@@ -29,7 +29,14 @@ import * as mui from '@material-ui/icons';
 import { GroupWork } from '@material-ui/icons'
 import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant } from 'mdi-material-ui';
 
-import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
+import { connect } from 'react-redux'
+
+// import { hashHistory } from 'react-router';
+import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
+
+import { withCookies, Cookies } from 'react-cookie';
+
+import LoginPage from './login';
 
 import HomePage from "./home"
 import DataTableBase from "./data_table_base"
@@ -304,9 +311,26 @@ class App extends React.PureComponent<{ classes: any }, any> {
     this.handleDrawerToggle = this.handleDrawerToggle.bind(this);
   }
 
-  // componentDidMount() {
-  //   this.setState({openDrawer: this.props.width == 'xs' ? false : true});
-  // }
+  componentDidMount() {
+    // const { cookies } = this.props;
+    // const token = cookies.get('token')
+
+    // if (!token) {
+    //   this.props.history.replace('/login');
+    // } else
+    //   this.setState({ token })
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.token && this.props.token) {
+      const { cookies, token } = this.props
+      cookies.set('token', token)
+
+      this.setState({ token })
+      // this.props.history.replace("/")
+      // console.warn(`login failed: ${this.props.loginResult}`)
+    }
+  }
 
   handleDrawerToggle() {
     this.setState({ openDrawer: !this.state.openDrawer });
@@ -382,7 +406,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
   render() {
     const { classes, width } = this.props
-    const { anchor, openDrawer } = this.state;
+    const { token, anchor, openDrawer } = this.state;
 
     // console.debug(this.props.width)
     // const defaultCloseDrawer = (width == 'xs' || width == 'sm');
@@ -407,59 +431,60 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </div>
     );
 
-    return (
-      <BrowserRouter>
-        {/* <div className={classes.root}> */}
-        <div className={classes.appFrame}>
-          <AppBar className={classes.appBar}>
-            <Toolbar>
-              <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
-                <MenuIcon />
-              </IconButton>
+    return !token ? <LoginPage /> :
+      (
+        <BrowserRouter>
+          {/* <div className={classes.root}> */}
+          <div className={classes.appFrame}>
+            <AppBar className={classes.appBar}>
+              <Toolbar>
+                <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
+                  <MenuIcon />
+                </IconButton>
 
-              {this.renderRenderTitle(classes)}
+                {this.renderRenderTitle(classes)}
 
-              <IconButton color="inherit"><AccountCircle /></IconButton>
-            </Toolbar>
-          </AppBar>
-          <Hidden mdUp>
-            <Drawer
-              variant="temporary"
-              anchor={anchor}
-              open={openDrawer}
-              onClose={this.handleDrawerToggle}
-              classes={{
-                paper: classes.drawerPaper,
-              }}
-              ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
-              }}
+                <IconButton color="inherit"><AccountCircle /></IconButton>
+              </Toolbar>
+            </AppBar>
+            <Hidden mdUp>
+              <Drawer
+                variant="temporary"
+                anchor={anchor}
+                open={openDrawer}
+                onClose={this.handleDrawerToggle}
+                classes={{
+                  paper: classes.drawerPaper,
+                }}
+                ModalProps={{
+                  keepMounted: true, // Better open performance on mobile.
+                }}
+              >
+                {drawer}
+              </Drawer>
+            </Hidden>
+            <Hidden smDown implementation="css">
+              <Drawer
+                variant="permanent"
+                open
+                classes={{
+                  paper: classes.drawerPaper,
+                }}
+              >
+                {drawer}
+              </Drawer>
+            </Hidden>
+            <main
+              className={classes.content}
             >
-              {drawer}
-            </Drawer>
-          </Hidden>
-          <Hidden smDown implementation="css">
-            <Drawer
-              variant="permanent"
-              open
-              classes={{
-                paper: classes.drawerPaper,
-              }}
-            >
-              {drawer}
-            </Drawer>
-          </Hidden>
-          <main
-            className={classes.content}
-          >
-            {/* <div className={classes.drawerHeader} /> */}
+              {/* <div className={classes.drawerHeader} /> */}
 
-            {this.renderRenderMainContent()}
-          </main>
-        </div>
-        {/* </div> */}
-      </BrowserRouter >
-    );
+              {this.renderRenderMainContent()}
+            </main>
+          </div>
+          {/* </div> */}
+        </BrowserRouter >
+      );
   }
 }
 
@@ -578,4 +603,37 @@ const styles = theme => ({
 App.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-export default compose(withStyles(styles, { withTheme: true }), withWidth())(App);
+
+
+// 
+const mapStateToProps = state => {
+  return {
+    token: state.main.token,
+    user: state.main.user,
+  }
+}
+
+// const mapDispatchToProps = dispatch => {
+//   return {
+//       doLogin: (uid, pwd) => {
+//           dispatch(actionLogging())
+
+//           axios.post(`${API_BASE_URL}token?uid=${uid}&pwd=${pwd}`)
+//               .then(r => r.data)
+//               .then(r => {
+//                   dispatch(actionLoggedIn(r.data, r.extra))
+//               })
+//               .catch(e => {
+//                   dispatch(actionLoginFailed(e))
+//               })
+//       }
+//   }
+// }
+
+const ConnectedApp = connect(
+  mapStateToProps,
+  // mapDispatchToProps
+)(App)
+
+
+export default compose(withStyles(styles, { withTheme: true }), withWidth())(withCookies(ConnectedApp));
