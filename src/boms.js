@@ -226,7 +226,7 @@ class BomPage extends React.PureComponent {
                     autoHideDuration={3000}
                     open={snackbarOpen}
                     onClose={() => this.setState({ snackbarOpen: false })}
-                    SnackbarContentProps={{
+                    ContentProps={{
                         'aria-describedby': 'message-id',
                     }}
                     message={<span id="message-id">{snackbarContent}</span>}

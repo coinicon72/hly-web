@@ -25,7 +25,7 @@ import { withCookies, Cookies } from 'react-cookie';
 
 //
 import { actionLogging, actionLoggedIn, actionLoginFailed } from './redux'
-
+import { actionShowSnackbar } from "./redux/data_selection"
 
 
 // =============================================
@@ -94,10 +94,12 @@ class LoginPage extends React.PureComponent {
                     />
                 </FormControl>
 
-                <Button variant="contained"
+                <Button
                     style={{ alignSelf: 'flex-end', marginTop: 16 }}
                     disabled={!this.state.uid || !this.state.pwd}
-                    onClick={() => this.props.doLogin && this.props.doLogin(this.state.uid, this.state.pwd)}>登录<mdi.LoginVariant /></Button>
+                    onClick={() => this.props.doLogin && this.props.doLogin(this.state.uid, this.state.pwd)}
+                    // onClick={() => this.props.showSnackbar("test")}
+                    >登录<mdi.LoginVariant /></Button>
 
                 {this.props.loginError ? <p style={{ color: 'red', marginTop: 16 }}>{this.props.loginError.message}</p> : null}
             </FormGroup>
@@ -128,30 +130,29 @@ const styles = theme => ({
 //     }
 // }
 
-const mapStateToProps = state => {
-    return {
-        loginResult: state.main.loginError,
-        token: state.main.token,
-        user: state.main.user,
-    }
-}
+const mapStateToProps = state => ({
+    loginResult: state.main.loginError,
+    token: state.main.token,
+    user: state.main.user,
+})
 
-const mapDispatchToProps = dispatch => {
-    return {
-        doLogin: (uid, pwd) => {
-            dispatch(actionLogging())
+const mapDispatchToProps = dispatch => ({
+    doLogin: (uid, pwd) => {
+        dispatch(actionLogging())
 
-            axios.post(`${API_BASE_URL}token?uid=${uid}&pwd=${pwd}`)
-                .then(r => r.data)
-                .then(r => {
-                    dispatch(actionLoggedIn(r.data, r.extra))
-                })
-                .catch(e => {
-                    dispatch(actionLoginFailed(e))
-                })
-        }
-    }
-}
+        axios.post(`${API_BASE_URL}token?uid=${uid}&pwd=${pwd}`)
+            .then(r => r.data)
+            .then(r => {
+                dispatch(actionLoggedIn(r.data, r.extra))
+            })
+            .catch(e => {
+                dispatch(actionLoginFailed(e))
+            })
+    },
+
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
 
 const ConnectedLoginPage = connect(
     mapStateToProps,

@@ -11,15 +11,11 @@ import compose from 'recompose/compose';
 import { withStyles } from 'material-ui/styles';
 import withWidth from 'material-ui/utils/withWidth';
 
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import Typography from 'material-ui/Typography';
-import IconButton from 'material-ui/IconButton';
-import Button from 'material-ui/Button';
-import Hidden from 'material-ui/Hidden';
+import {
+  AppBar, Drawer, Divider, Toolbar, Tooltip, Button, Grid,
+  Hidden, IconButton, Typography, Paper, Checkbox, Snackbar
+} from 'material-ui';
 import Menu, { MenuItem } from 'material-ui/Menu';
-import Drawer from 'material-ui/Drawer';
-import Divider from 'material-ui/Divider';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 
 // icons
@@ -30,6 +26,8 @@ import { GroupWork } from '@material-ui/icons'
 import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant } from 'mdi-material-ui';
 
 import { connect } from 'react-redux'
+
+import axios from 'axios'
 
 // import { hashHistory } from 'react-router';
 import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
@@ -63,8 +61,9 @@ import RolePrivilegePage from './role_privilege'
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
-import { Tooltip } from 'material-ui';
 
+import { actionLogout, actionUpdateUserInfo } from "./redux"
+import { actionShowSnackbar, actionHideSnackbar } from "./redux/data_selection"
 
 // const DataTableBase = Loadable({
 //   loader: () => import('./data_table_base'),
@@ -117,184 +116,7 @@ import { Tooltip } from 'material-ui';
 
 
 
-const salesItems = (<div>
-  <Link to="/client">
-    <ListItem button>
-      <ListItemIcon>
-        <ClipboardAccount />
-      </ListItemIcon>
-      <ListItemText primary="客户" />
-    </ListItem>
-  </Link>
-  <Link to="/orders">
-    <ListItem button>
-      <ListItemIcon>
-        <ClipboardText />
-      </ListItemIcon>
-      <ListItemText primary="订单" />
-    </ListItem>
-  </Link>
-  <Link to="/product">
-    <ListItem button>
-      <ListItemIcon>
-        <GroupWork />
-      </ListItemIcon>
-      <ListItemText primary="产品" />
-    </ListItem>
-  </Link>
-</div>
-);
 
-const basicDataItems = (
-  <div>
-    <Link to="/basic_data/client_type">
-      <ListItem button>
-        <ListItemIcon>
-          <FlagVariant />
-        </ListItemIcon>
-        <ListItemText primary="客户类型" />
-      </ListItem>
-    </Link>
-    <Link to="/basic_data/material_type">
-      <ListItem button>
-        <ListItemIcon>
-          <FlagVariant />
-        </ListItemIcon>
-        <ListItemText primary="材料分类" />
-      </ListItem>
-    </Link>
-    <Link to="/basic_data/material">
-      <ListItem button>
-        <ListItemIcon>
-          <HexagonMultiple />
-        </ListItemIcon>
-        <ListItemText primary="材料" />
-      </ListItem>
-    </Link>
-  </div>
-);
-
-const userManagementItems = (
-  <div>
-    <Link to="/user">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.AccountCircle />
-        </ListItemIcon>
-        <ListItemText primary="员工" />
-      </ListItem>
-    </Link>
-    <Link to="/role">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.AccountCircle />
-        </ListItemIcon>
-        <ListItemText primary="岗位" />
-      </ListItem>
-    </Link>
-    {/* <Link to="/privilege">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.AccountCircle />
-        </ListItemIcon>
-        <ListItemText primary="权限" />
-      </ListItem>
-    </Link> */}
-    <Link to="/userRole">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.AccountCircle />
-        </ListItemIcon>
-        <ListItemText primary="员工岗位" />
-      </ListItem>
-    </Link>
-    <Link to="/rolePrivilege">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.AccountCircle />
-        </ListItemIcon>
-        <ListItemText primary="岗位权限" />
-      </ListItem>
-    </Link>
-  </div>
-);
-
-const manufactionItems = (
-  <div>
-    <Link to="/boms">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.FileMultiple />
-        </ListItemIcon>
-        <ListItemText primary="BOM 物料清单" />
-      </ListItem>
-    </Link>
-  </div>
-);
-
-const stockItems = (
-  <div>
-    <Link to="/repo">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.Database />
-        </ListItemIcon>
-        <ListItemText primary="仓库" />
-      </ListItem>
-    </Link>
-
-    <Tooltip title="非库房人员申请">
-      <Link to={config.ROUTER_STOCK_IN}>
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.DatabasePlus />
-          </ListItemIcon>
-          <ListItemText primary="入库单" />
-        </ListItem>
-      </Link>
-    </Tooltip>
-
-    <Tooltip title="非库房人员申请">
-      <Link to={config.ROUTER_STOCK_OUT}>
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.DatabaseMinus />
-          </ListItemIcon>
-          <ListItemText primary="出库单" />
-        </ListItem>
-      </Link>
-    </Tooltip>
-
-    <Tooltip title="库房人员使用">
-      <Link to={config.ROUTER_STOCK_IN_OUT}>
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.Database />
-          </ListItemIcon>
-          <ListItemText primary="出/入库单受理" />
-        </ListItem>
-      </Link>
-    </Tooltip>
-
-    <Link to="/repo_details">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.DatabaseSearch />
-        </ListItemIcon>
-        <ListItemText primary="库存明细" />
-      </ListItem>
-    </Link>
-
-    <Link to="/inventory">
-      <ListItem button>
-        <ListItemIcon>
-          <mdi.DatabaseSearch />
-        </ListItemIcon>
-        <ListItemText primary="盘点" />
-      </ListItem>
-    </Link>
-  </div>
-);
 
 class App extends React.PureComponent<{ classes: any }, any> {
 
@@ -309,24 +131,78 @@ class App extends React.PureComponent<{ classes: any }, any> {
     };
 
     this.handleDrawerToggle = this.handleDrawerToggle.bind(this);
+
+    this.handleClick = event => {
+      this.setState({ anchorEl: event.currentTarget });
+    };
+
+    this.handleClose = () => {
+      this.setState({ anchorEl: null });
+    };
+
+    this.handleLogout = () => {
+      this.setState({ anchorEl: null });
+
+      this.props.cookies.remove('token')
+      this.props.logout()
+    };
+
+    this.hasPrivilege = (privilege => {
+      if (!this.state.user || !this.state.user.roles)
+        return false
+
+      const { roles } = this.state.user
+      for (let r of roles) {
+        for (let p of r.privileges) {
+          if (privilege.startsWith(p.code))
+            return true
+        }
+      }
+
+      return false
+    }).bind(this)
   }
 
   componentDidMount() {
-    // const { cookies } = this.props;
-    // const token = cookies.get('token')
+    const { cookies } = this.props;
+    const token = cookies.get('token')
+    // const user = cookies.get('user')
 
     // if (!token) {
     //   this.props.history.replace('/login');
     // } else
-    //   this.setState({ token })
+    this.setState({ token })
+
+    // if (user)
+    //   this.setState({ user })
+    // else {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = token;
+
+      axios.get(`${config.API_BASE_URL}user`)
+        .then(r => r.data.data)
+        .then(user => {
+          this.setState({ user })
+          this.props.updateUserInfo(user)
+        })
+    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!prevProps.token && this.props.token) {
-      const { cookies, token } = this.props
-      cookies.set('token', token)
+    if (prevProps.token != this.props.token) {
+      const { cookies, token, user } = this.props
 
-      this.setState({ token })
+      if (token) {
+        cookies.set('token', token)
+        // cookies.set('user', user)
+
+        axios.defaults.headers.common['Authorization'] = token;
+        // axios.get(`${config.API_BASE_URL}user`)
+        //   .then(r => r.data.data)
+        //   .then(user => this.setState({ user }))
+      }
+
+      this.setState({ token, user })
       // this.props.history.replace("/")
       // console.warn(`login failed: ${this.props.loginResult}`)
     }
@@ -335,6 +211,219 @@ class App extends React.PureComponent<{ classes: any }, any> {
   handleDrawerToggle() {
     this.setState({ openDrawer: !this.state.openDrawer });
   }
+
+  salesItems = _ => (<div>
+    {this.hasPrivilege('sales:client') ?
+      <Link to="/client">
+        <ListItem button>
+          <ListItemIcon>
+            <ClipboardAccount />
+          </ListItemIcon>
+          <ListItemText primary="客户" />
+        </ListItem>
+      </Link>
+      : null}
+
+    {this.hasPrivilege('sales:order') ?
+      <Link to="/orders">
+        <ListItem button>
+          <ListItemIcon>
+            <ClipboardText />
+          </ListItemIcon>
+          <ListItemText primary="订单" />
+        </ListItem>
+      </Link>
+      : null}
+
+    {this.hasPrivilege('production:product') ?
+      <Link to="/product">
+        <ListItem button>
+          <ListItemIcon>
+            <GroupWork />
+          </ListItemIcon>
+          <ListItemText primary="产品" />
+        </ListItem>
+      </Link>
+      : null}
+  </div>
+  )
+
+  basicDataItems = _ => (
+    <div>
+      {this.hasPrivilege('system:basic-data') ?
+        <Link to="/basic_data/client_type">
+          <ListItem button>
+            <ListItemIcon>
+              <FlagVariant />
+            </ListItemIcon>
+            <ListItemText primary="客户类型" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('system:basic-data') ?
+        <Link to="/basic_data/material_type">
+          <ListItem button>
+            <ListItemIcon>
+              <FlagVariant />
+            </ListItemIcon>
+            <ListItemText primary="材料分类" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('production:material') ?
+        <Link to="/basic_data/material">
+          <ListItem button>
+            <ListItemIcon>
+              <HexagonMultiple />
+            </ListItemIcon>
+            <ListItemText primary="材料" />
+          </ListItem>
+        </Link>
+        : null}
+    </div>
+  )
+
+  userManagementItems = _ => (
+    <div>
+      {this.hasPrivilege('system:user-management') ?
+        <Link to="/user">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary="员工" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('system:user-management') ?
+        <Link to="/role">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary="岗位" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('system:user-management') ?
+        <Link to="/userRole">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary="员工岗位" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('system:user-management') ?
+        <Link to="/rolePrivilege">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary="岗位权限" />
+          </ListItem>
+        </Link>
+        : null}
+    </div>
+  )
+
+  manufactionItems = _ => (
+
+    <div>
+      {this.hasPrivilege('production:bom') ?
+        <Link to="/boms">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.FileMultiple />
+            </ListItemIcon>
+            <ListItemText primary="BOM 物料清单" />
+          </ListItem>
+        </Link>
+        : null}
+    </div>
+  )
+
+  stockItems = _ => (
+    <div>
+      {this.hasPrivilege('system:basic-data') ?
+        <Link to="/repo">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.Database />
+            </ListItemIcon>
+            <ListItemText primary="仓库" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('repo:stock-in') ?
+        <Tooltip title="非库房人员申请">
+          <Link to={config.ROUTER_STOCK_IN}>
+            <ListItem button>
+              <ListItemIcon>
+                <mdi.DatabasePlus />
+              </ListItemIcon>
+              <ListItemText primary="入库单" />
+            </ListItem>
+          </Link>
+        </Tooltip>
+        : null}
+
+      {this.hasPrivilege('repo:stock-out') ?
+        <Tooltip title="非库房人员申请">
+          <Link to={config.ROUTER_STOCK_OUT}>
+            <ListItem button>
+              <ListItemIcon>
+                <mdi.DatabaseMinus />
+              </ListItemIcon>
+              <ListItemText primary="出库单" />
+            </ListItem>
+          </Link>
+        </Tooltip>
+        : null}
+
+      {this.hasPrivilege('repo:inventory') ?
+        <Tooltip title="库房人员使用">
+          <Link to={config.ROUTER_STOCK_IN_OUT}>
+            <ListItem button>
+              <ListItemIcon>
+                <mdi.Database />
+              </ListItemIcon>
+              <ListItemText primary="出/入库单受理" />
+            </ListItem>
+          </Link>
+        </Tooltip>
+        : null}
+
+      {this.hasPrivilege('repo:inventory') ?
+        <Link to="/repo_details">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.DatabaseSearch />
+            </ListItemIcon>
+            <ListItemText primary="库存明细" />
+          </ListItem>
+        </Link>
+        : null}
+
+      {this.hasPrivilege('repo:inventory') ?
+        <Link to="/inventory">
+          <ListItem button>
+            <ListItemIcon>
+              <mdi.DatabaseSearch />
+            </ListItemIcon>
+            <ListItemText primary="盘点" />
+          </ListItem>
+        </Link>
+        : null}
+    </div>
+  )
 
   // handleDrawerOpen = () => {
   //   this.setState({ openDrawer: true });
@@ -372,32 +461,86 @@ class App extends React.PureComponent<{ classes: any }, any> {
   }
 
   renderRenderMainContent() {
+    // 'admin'
+    // 'financial-manager'
+    // 'general-manager'
+    // 'process-manager'
+    // 'producing-manager'
+    // 'product-manager'
+    // 'repo-keeper'
+    // 'sales-manager'
+
+    // 'production:bom'
+    // 'production:formula'
+    // 'production:material'
+    // 'production:product'
+    // 'purchasing:plan'
+    // 'repo:inventory'
+    // 'repo:stock-in'
+    // 'repo:stock-out'
+    // 'sales:client'
+    // 'sales:order'
+    // 'system:basic-data'
+    // 'system:user-management'
+
+    const { roles } = this.state.user
+
+
     return (
       <Switch>
+        {/* {this.hasPrivilege('sales:client') ? */}
         <Route path="/client" component={ClientPage} />
+        {/* : null} */}
+
+        {/* {this.hasPrivilege('sales:order') ?
+          <React.Fragment> */}
         <Route path="/order/:id?" component={OrderDetailsPage} />
         <Route path="/orders" component={OrderPage} />
+        {/* </React.Fragment>
+          : null} */}
+
+        {/* {this.hasPrivilege('production:product') ?
+          <React.Fragment> */}
         <Route path="/product/:id" component={ProductDetailsPage} />
         <Route path="/formula/:mode/:pid/:fid" component={FormulaDetailsPage} />
         <Route path="/product" component={ProductPage} />
+        {/* </React.Fragment>
+          : null} */}
+
+        {/* {this.hasPrivilege('system:basic-data') ?
+          <React.Fragment> */}
         <Route path="/basic_data/client_type" component={ClientTypePage} />
         <Route path="/basic_data/material_type" component={MaterialTypePage} />
+        {/* </React.Fragment>
+          : null} */}
+
+        {/* {this.hasPrivilege('production:material') ?
+          <React.Fragment> */}
         <Route path="/basic_data/material" component={MaterialPage} />
+        {/* </React.Fragment>
+          : null} */}
+
         <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
         <Route path="/boms" component={BomsPage} />
-        <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_IN} key="stock-in-detail" />} />
-        <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} />} />
-        <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_OUT} key="stock-out-detail" />} />
-        <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} />} />
-        <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockApplyDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
-        <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} />} />
+        <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
+        <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} user={this.state.user} />} />
+        <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
+        <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} user={this.state.user} />} />
+        <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockApplyDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
         <Route path="/repo_details" component={RepoDetailsPage} />
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />
+
+        {/* {this.hasPrivilege('system:user-management') ? */}
+        {/* <React.Fragment> */}
         <Route path="/user" component={UserPage} />
         <Route path="/role" component={RolePage} />
         <Route path="/userRole" component={UserRolePage} />
         <Route path="/rolePrivilege" component={RolePrivilegePage} />
+        {/* </React.Fragment>
+          : null} */}
+
         <Route component={HomePage} />
       </Switch>
 
@@ -406,7 +549,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
   render() {
     const { classes, width } = this.props
-    const { token, anchor, openDrawer } = this.state;
+    const { token, user, anchor, openDrawer, anchorEl } = this.state;
+
+    const { snackbarOpen, snackbarContent, hideSnackbar } = this.props;
 
     // console.debug(this.props.width)
     // const defaultCloseDrawer = (width == 'xs' || width == 'sm');
@@ -419,22 +564,21 @@ class App extends React.PureComponent<{ classes: any }, any> {
           </IconButton> */}
         </div>
         <Divider />
-        <List>{salesItems}</List>
+        <List>{this.salesItems()}</List>
         <Divider />
-        <List>{userManagementItems}</List>
+        <List>{this.userManagementItems()}</List>
         <Divider />
-        <List>{basicDataItems}</List>
+        <List>{this.basicDataItems()}</List>
         <Divider />
-        <List>{manufactionItems}</List>
+        <List>{this.manufactionItems()}</List>
         <Divider />
-        <List>{stockItems}</List>
+        <List>{this.stockItems()}</List>
       </div>
     );
 
-    return !token ? <LoginPage /> :
-      (
+    return <React.Fragment>
+      {!token || !user ? <LoginPage /> :
         <BrowserRouter>
-          {/* <div className={classes.root}> */}
           <div className={classes.appFrame}>
             <AppBar className={classes.appBar}>
               <Toolbar>
@@ -444,7 +588,30 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
                 {this.renderRenderTitle(classes)}
 
-                <IconButton color="inherit"><AccountCircle /></IconButton>
+                <IconButton color="inherit"
+                  aria-owns={anchorEl ? 'simple-menu' : null}
+                  aria-haspopup="true"
+                  onClick={this.handleClick}><AccountCircle /></IconButton>
+                <Menu
+                  id="simple-menu"
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={this.handleClose}
+                >
+                  {/* <MenuItem onClick={this.handleClose}>
+                    <ListItemIcon className={classes.icon}>
+                      <mdi.FaceProfile />
+                    </ListItemIcon>
+                    <ListItemText classes={{ primary: classes.primary }} primary="个人信息" />
+                  </MenuItem> */}
+                  <MenuItem onClick={this.handleLogout}>
+                    <ListItemIcon className={classes.icon}>
+                      <mdi.Logout />
+                    </ListItemIcon>
+                    <ListItemText classes={{ primary: classes.primary }} primary="退出登录" />
+                  </MenuItem>
+                </Menu>
+                {user ? <Typography style={{ color: "#ffffff" }}>{user.name}</Typography> : null}
               </Toolbar>
             </AppBar>
             <Hidden mdUp>
@@ -482,9 +649,25 @@ class App extends React.PureComponent<{ classes: any }, any> {
               {this.renderRenderMainContent()}
             </main>
           </div>
-          {/* </div> */}
         </BrowserRouter >
-      );
+      }
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        autoHideDuration={3000}
+        open={!!snackbarOpen}
+        // onClose={() => this.setState({ snackbarOpen: false })}
+        onClose={hideSnackbar}
+        ContentProps={{
+          'aria-describedby': 'message-id',
+        }}
+        message={<span id="message-id">{snackbarContent}</span>}
+      />
+
+    </React.Fragment>
   }
 }
 
@@ -605,34 +788,26 @@ App.propTypes = {
 };
 
 
-// 
-const mapStateToProps = state => {
-  return {
-    token: state.main.token,
-    user: state.main.user,
-  }
-}
+//
+const mapStateToProps = state => ({
+  token: state.main.token,
+  user: state.main.user,
 
-// const mapDispatchToProps = dispatch => {
-//   return {
-//       doLogin: (uid, pwd) => {
-//           dispatch(actionLogging())
+  //
+  snackbarOpen: state.data.snackbarOpen,
+  snackbarContent: state.data.snackbarContent,
+})
 
-//           axios.post(`${API_BASE_URL}token?uid=${uid}&pwd=${pwd}`)
-//               .then(r => r.data)
-//               .then(r => {
-//                   dispatch(actionLoggedIn(r.data, r.extra))
-//               })
-//               .catch(e => {
-//                   dispatch(actionLoginFailed(e))
-//               })
-//       }
-//   }
-// }
+const mapDispatchToProps = dispatch => ({
+  updateUserInfo: user => dispatch(actionUpdateUserInfo(user)),
+  logout: _ => dispatch(actionLogout()),
+  showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+  hideSnackbar: _ => dispatch(actionHideSnackbar())
+})
 
 const ConnectedApp = connect(
   mapStateToProps,
-  // mapDispatchToProps
+  mapDispatchToProps
 )(App)
 
 

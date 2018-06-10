@@ -13,6 +13,11 @@ import { withStyles, Typography } from 'material-ui';
 import axios from 'axios'
 
 //
+import { connect } from 'react-redux'
+
+import { actionShowSnackbar } from "./redux/data_selection"
+
+//
 import * as config from "./config"
 
 import CommonStyles, { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
@@ -31,10 +36,11 @@ const DATA_REPO = "repoChangings";
 
 const COLUMNS_OUT = [
     { name: 'id', title: '序号' },
-    { name: "applicant", title: "申请人" },
+    { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
+    { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
     { name: "createDate", title: "创建日期", getCellValue: row => row.createDate.split('T')[0] },
-    { name: "application", title: "原因" },
+    { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
 ]
 
 const COLUMNS_IN = [
@@ -45,10 +51,11 @@ const COLUMNS_IN = [
 const COLUMNS_IN_OUT = [
     { name: 'id', title: '序号' },
     { name: 'type', title: '类型', getCellValue: row => row.type == 1 ? "入库" : "出库" },
-    { name: "applicant", title: "申请人" },
+    { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
+    { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
     { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate.split('T')[0] },
-    { name: "application", title: "原因" },
+    { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
     { name: "amount", title: "总额", getCellValue: row => row.type == 1 ? row.amount : "" },
 ]
 
@@ -56,7 +63,7 @@ const COLUMNS_IN_OUT = [
 const ChangingTypeProvider = props => (
     <DataTypeProvider
         formatterComponent={({ row, value }) =>
-            <Typography style={row.type == 1 ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value}</Typography>}
+            <Typography key={row.type} style={row.type == 1 ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value}</Typography>}
         {...props}
     />
 );
@@ -92,25 +99,42 @@ class RepoChangingPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        let { type } = this.props
+        this.updateDataFilter();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!prevProps.user && this.props.user) {
+            this.updateDataFilter();
+        }
+    }
+
+    updateDataFilter() {
+        let { type, user } = this.props;
+
+        // if (!user)
+        //     user = { id: -1 }
+
         switch (type) {
             case config.TYPE_STOCK_IN:
-                this.state.dataFilter = "/search/findByTypeAndStatus?type=1&status=0";
-                this.state.columns = COLUMNS_IN
+                if (user)
+                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=1&status=0&user=../../../users/${user.id}`;
+                else
+                    this.state.dataFilter = "/search/findByTypeAndStatus?type=1&status=-1";
+                this.state.columns = COLUMNS_IN;
                 break;
-
             case config.TYPE_STOCK_OUT:
-                this.state.dataFilter = "/search/findByTypeAndStatus?type=-1&status=0";
-                this.state.columns = COLUMNS_OUT
+                if (user)
+                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=-1&status=0&user=../../../users/${user.id}`;
+                else
+                    this.state.dataFilter = "/search/findByTypeAndStatus?type=-1&status=-1";
+                this.state.columns = COLUMNS_OUT;
                 break;
-
             case config.TYPE_STOCK_IN_OUT:
                 this.state.dataFilter = "/search/findStockInOutByStatus?status=1";
-                this.state.columns = COLUMNS_IN_OUT
+                this.state.columns = COLUMNS_IN_OUT;
                 break;
         }
-
-        this.setState({ dataRepoApiUrl: config.DATA_API_BASE_URL + DATA_REPO + this.state.dataFilter, ready4UI: true })
+        this.setState({ dataRepoApiUrl: config.DATA_API_BASE_URL + DATA_REPO + this.state.dataFilter, ready4UI: true });
     }
 
     doLoad = () => {
@@ -177,5 +201,21 @@ const styles = theme => ({
     },
 })
 
+// const mapStateToProps = state => ({
+//     token: state.main.token,
+//     user: state.main.user,
+// })
 
-export default withStyles(styles)(RepoChangingPage);
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    // mapStateToProps,
+    null,
+    mapDispatchToProps
+)(RepoChangingPage)
+
+
+export default withStyles(styles)(ConnectedComponent);

@@ -21,6 +21,9 @@ import DataTableBase from "./data_table_base";
 import { EXPORT_BASE_URL, DATA_API_BASE_URL, API_BASE_URL } from "./config";
 import { withStyles } from 'material-ui';
 
+import { connect } from 'react-redux'
+
+import { actionShowSnackbar } from "./redux/data_selection"
 
 // =============================================
 class UserRolePage extends React.PureComponent {
@@ -81,14 +84,14 @@ class UserRolePage extends React.PureComponent {
                     user.roles.push(role)
                     this.forceUpdate()
                 })
-                    .catch(e => this.showSnackbar(e.message))
+                    .catch(e => this.props.showSnackbar(e.message))
             } else {
                 axios.delete(`${user._links.roles.href}/${rid}`)
                     .then(_ => {
                         user.roles.splice(i, 1)
                         this.forceUpdate()
                     })
-                    .catch(e => this.showSnackbar(e.message))
+                    .catch(e => this.props.showSnackbar(e.message))
             }
 
         }).bind(this)
@@ -185,7 +188,7 @@ class UserRolePage extends React.PureComponent {
 
             </div>
 
-            <Snackbar
+            {/* <Snackbar
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'center',
@@ -193,11 +196,11 @@ class UserRolePage extends React.PureComponent {
                 autoHideDuration={3000}
                 open={snackbarOpen}
                 onClose={() => this.setState({ snackbarOpen: false })}
-                SnackbarContentProps={{
+                ContentProps={{
                     'aria-describedby': 'message-id',
                 }}
                 message={<span id="message-id">{snackbarContent}</span>}
-            />
+            /> */}
         </React.Fragment>
     }
 }
@@ -210,4 +213,14 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(UserRolePage);
+const mapDispatchToProps = dispatch => ({
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+        // hideSnackbar: _ => dispatch(actionHideSnackbar())
+})
+
+const ConnectedUserRolePage = connect(
+    // mapStateToProps,
+    mapDispatchToProps
+)(UserRolePage)
+
+export default withStyles(styles)(ConnectedUserRolePage);

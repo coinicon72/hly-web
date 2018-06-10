@@ -70,10 +70,14 @@ import {
 //
 import axios from 'axios'
 
-
 import DataTableBase from "./data_table_base"
 
 import { TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_EDIT, MODE_VIEW, API_BASE_URL, DATA_API_BASE_URL } from "./config"
+
+//
+import { connect } from 'react-redux'
+
+import { actionShowSnackbar } from "./redux/data_selection"
 
 // import { store } from "./redux"
 import { toFixedMoney, getTodayString } from "./utils"
@@ -187,8 +191,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
             confirmMessage: "",
 
             //
-            snackbarOpen: false,
-            snackbarContent: "",
+            // snackbarOpen: false,
+            // snackbarContent: "",
         }
 
         // this.onDetails = ((id) => {
@@ -297,8 +301,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             const r = this.state.repoChangingReasons.find(i => i.id == rid)
             if (r) {
                 this.state.dirty = true
-                this.state.form.reason = r
-                this.setState({ orderRelated: r.orderRelated })
+                this.state.form.reason = { id: r.id }
+                // this.setState({ orderRelated: r.orderRelated })
+                this.state.orderRelated = r.orderRelated
+                this.forceUpdate()
             }
         }).bind(this)
 
@@ -312,7 +318,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .then(j => {
                     this.setState({ orders: j });
                 })
-                .catch(e => this.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message));
 
         }).bind(this)
 
@@ -368,11 +374,13 @@ class RepoChangingDetailsPage extends React.PureComponent {
             // step 1
             this.setState({ activeStep: 0 })
 
+            const { user } = this.props
             let { form, changingItems } = this.state
             let { type } = this.props
 
-            if (!form.applicant || form.applicant == "")
-                errors['form.applicant'] = "无效的申请人"
+            form.applicant = user
+            // if (!form.applicant || form.applicant == "")
+            //     errors['form.applicant'] = "无效的申请人"
 
             if (changingItems.length <= 0) {
                 errors['changingItems'] = "没有材料"
@@ -391,11 +399,13 @@ class RepoChangingDetailsPage extends React.PureComponent {
             }
 
             if (Object.keys(errors).length > 0) {
-                this.setState({
-                    showSavingDiag: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "有错误发生"
-                })
-                return;
+                // this.setState({
+                //     showSavingDiag: false, errors: errors, snackbarOpen: true,
+                //     snackbarContent: "有错误发生"
+                // })
+                this.setState({ showSavingDiag: false })
+                this.props.showSnackbar("有错误发生")
+                return
             }
 
 
@@ -413,11 +423,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .then(resp => resp.data)
                 .then(j => form.id = j.id)
                 .catch(e => {
-                    cancel = true;
-                    this.setState({
-                        showSavingDiag: false, snackbarOpen: true,
-                        snackbarContent: e.message
-                    })
+                    cancel = true
+                    this.setState({ showSavingDiag: false })
+                    this.props.showSnackbar(e.message)
                 })
 
             if (cancel) return;
@@ -439,10 +447,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 axios.post(`${DATA_API_BASE_URL}repoChangingItems`, fi)
                     .catch(e => {
                         cancel = true;
-                        this.setState({
-                            showSavingDiag: false, snackbarOpen: true,
-                            snackbarContent: e.message
-                        })
+                        this.setState({ showSavingDiag: false })
+                        this.props.showSnackbar(e.message)
                     })
             })
 
@@ -452,7 +458,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.setState({ activeStep: this.state.activeStep + 1 })
 
             //
-            this.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
+            this.props.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
 
         }).bind(this)
 
@@ -464,10 +470,13 @@ class RepoChangingDetailsPage extends React.PureComponent {
             axios.get(url)
                 .then(resp => resp.data)
                 .then(p => {
-                    const { changingItems } = this.state
+                    const { repos, changingItems } = this.state
                     return p.map(pi => {
-                        let ci = changingItems.find(ci => ci.material.id == pi.id)
+                        let ci = changingItems.find(ci => ci.material.id == pi.materialId)
                         pi.material = ci.material
+
+                        let repo = repos.find(r => r.id == pi.repoId)
+                        pi.repo = repo
 
                         return pi
                     })
@@ -488,7 +497,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     }, 1000)
                 })
                 .catch(e => {
-                    this.showSnackbar(e.message)
+                    this.props.showSnackbar(e.message)
                 })
         }).bind(this)
 
@@ -501,12 +510,12 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             axios.post(url, { comment: '' })
                 .then(r => {
-                    this.showSnackbar("成功")
+                    this.props.showSnackbar("成功")
                     this.setState({ showPreviewDiag: false })
                     this.props.history.goBack();
                 })
                 .catch(e => {
-                    this.showSnackbar(e.message)
+                    this.props.showSnackbar(e.message)
                 })
         }).bind(this)
 
@@ -525,7 +534,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             axios.patch(`${DATA_API_BASE_URL}repoChangings/${form.id}`, { status: -1 })
                 .then(() => this.props.history.goBack())
                 .catch(e => {
-                    this.showSnackbar(e.message)
+                    this.props.showSnackbar(e.message)
                 })
         }).bind(this)
     }
@@ -536,7 +545,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
     componentDidMount() {
         let { mode, id } = this.props.match.params;
-        let { type } = this.props
+        let { type, user } = this.props
 
         switch (type) {
             case TYPE_STOCK_IN:
@@ -557,6 +566,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         if (id == 0 || mode === MODE_ADD) {
             this.state.mode = MODE_ADD
+            this.state.form.applicant = user
             // this.state.dirty = f
 
             // this.setState({ order: { tax: false } })
@@ -580,6 +590,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .then(url => axios.get(url))
                 .then(resp => {
                     this.state.form.reason = resp.data
+                    return this.state.form._links.applicant.href
+                })
+                .then(url => axios.get(url))
+                .then(resp => {
+                    this.state.form.applicant = resp.data
                     return `${DATA_API_BASE_URL}/repoChangings/${id}/items`
                 })
                 .then(url => axios.get(url))
@@ -595,13 +610,14 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     //
                     return this.state.form._links.order.href
                 })
-                .catch(e => this.showSnackbar(e.message))
+                .catch(e => this.props.showSnackbar(e.message))
 
                 .then(url => axios.get(url))
                 .then(resp => {
                     this.state.form.order = resp.data
+                    this.forceUpdate()
                 })
-            // .catch(e => this.showSnackbar(e.message))
+            // .catch(e => this.props.showSnackbar(e.message))
         }
 
         // load materials
@@ -610,7 +626,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             .then(j => {
                 this.setState({ materials: j });
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
 
         // load repositories
         axios.get(`${DATA_API_BASE_URL}/repoes`)
@@ -621,7 +637,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                 this.setState({ repoes: j });
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
 
         // load changing reason
         axios.get(`${DATA_API_BASE_URL}/repoChangingReasons`)///search/findByType?type=${this.state.form.type}`)
@@ -630,14 +646,21 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 // this.state.form.reason = j[0]
                 if (mode === MODE_ADD)
                     this.state.form.reason = j.filter(r => r.type == this.state.form.type)[0]
-                
+
                 this.setState({ repoChangingReasons: j });
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.mode == MODE_ADD && !prevProps.user && this.props.user) {
+            this.state.form.applicant = this.props.user
+            this.forceUpdate()
+        }
     }
 
     render() {
-        const { type, classes, width } = this.props
+        const { type, classes, width, user } = this.props
         const { id } = this.props.match.params;
         const { mode, form, changingItems, materials } = this.state;
         const { dirty, selectMaterial, columns, selection } = this.state;
@@ -726,7 +749,24 @@ class RepoChangingDetailsPage extends React.PureComponent {
                             }
 
                             <mu.Grid style={{ marginBottom: 16 }}>
-                                <FormControl className={classes.formControl}>
+                                <TextField
+                                    id="applicant"
+                                    // required
+                                    disabled//={disableEdit}
+                                    // select
+                                    // error={!!errors['form.applicant']}
+                                    label="申请人"
+                                    style={{ width: 300 }}
+                                    value={form.applicant ? form.applicant.name : ""}
+                                    // onChange={e => this.handleInput(e)}
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
+                                />
+                            </mu.Grid>
+
+                            <mu.Grid style={{ marginBottom: 16 }}>
+                                <FormControl className={classes.formControl} disabled={disableEdit}>
                                     <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
                                     <Select
                                         native
@@ -742,30 +782,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                 </FormControl>
                             </mu.Grid>
 
-                            <mu.Grid style={{ marginBottom: 16 }}>
-                                <TextField
-                                    id="applicant"
-                                    required
-                                    disabled={disableEdit}
-                                    // select
-                                    error={!!errors['form.applicant']}
-                                    label="申请人"
-                                    style={{ width: 300 }}
-                                    value={form ? form.applicant : ""}
-                                    onChange={e => this.handleInput(e)}
-                                    InputLabelProps={{
-                                        shrink: shrinkLabel,
-                                    }}
-                                >
-                                    {/* {clients.map(c => (
-                                            <MenuItem key={c.id} value={c.id}>
-                                                {c.fullName}
-                                            </MenuItem>
-                                        ))} */}
-                                </TextField>
-                            </mu.Grid>
-
-                            <mu.Grid style={{ marginBottom: 16 }}>
+                            {/* <mu.Grid style={{ marginBottom: 16 }}>
                                 <TextField
                                     id="department"
                                     disabled={disableEdit}
@@ -780,7 +797,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
+                            </mu.Grid> */}
 
                             {/* <mu.Grid>
                                 <TextField type="date" 
@@ -801,7 +818,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                             <mu.Grid style={{ marginBottom: 16 }}>
                                 {/* <FormGroup> */}
 
-                                <FormControl className={classes.formControl}>
+                                <FormControl className={classes.formControl} disabled={disableEdit}>
                                     <InputLabel htmlFor="reason" shrink>原因类别</InputLabel>
                                     <Select
                                         native
@@ -851,7 +868,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                 // </mu.Grid>
 
                                 <mu.Grid >
-                                    <Button onClick={this.selectOrder}><mdi.ClipboardText color="primary" />选择订单</Button>
+                                    <Button onClick={this.selectOrder} disabled={disableEdit}>
+                                        <mdi.ClipboardText color="primary" />{type == TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
+                                    </Button>
                                     {form.order ? <React.Fragment>
                                         <Chip label={form.order.no} style={{ marginLeft: 16 }} />
                                         <Chip label={form.order._embedded.client.name} style={{ marginLeft: 8 }} />
@@ -961,7 +980,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                 </div>
 
-                <Snackbar
+                {/* <Snackbar
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'center',
@@ -969,11 +988,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     autoHideDuration={3000}
                     open={snackbarOpen}
                     onClose={() => this.setState({ snackbarOpen: false })}
-                    SnackbarContentProps={{
+                    ContentProps={{
                         'aria-describedby': 'message-id',
                     }}
                     message={<span id="message-id">{snackbarContent}</span>}
-                />
+                /> */}
 
 
                 {/* dialog for add materials */}
@@ -1179,4 +1198,19 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(RepoChangingDetailsPage);
+const mapStateToProps = state => ({
+    token: state.main.token,
+    user: state.main.user,
+})
+
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(RepoChangingDetailsPage)
+
+export default withStyles(styles)(ConnectedComponent);
