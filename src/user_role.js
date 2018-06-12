@@ -6,8 +6,11 @@ import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
-import { AppBar, Toolbar, Button, Grid, IconButton, Typography, Paper, Checkbox, Snackbar } from 'material-ui';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import { withStyles } from '@material-ui/core';
+import {
+    AppBar, Toolbar, Button, Grid, IconButton, Typography, Paper, Checkbox, Snackbar,
+    Table, TableBody, TableCell, TableHead, TableRow
+} from '@material-ui/core';
 
 import {
     TableEditRow, TableEditColumn,
@@ -19,7 +22,6 @@ import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL, API_BASE_URL } from "./config";
-import { withStyles } from 'material-ui';
 
 import { connect } from 'react-redux'
 
@@ -215,7 +217,7 @@ const styles = theme => ({
 
 const mapDispatchToProps = dispatch => ({
     showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
-        // hideSnackbar: _ => dispatch(actionHideSnackbar())
+    // hideSnackbar: _ => dispatch(actionHideSnackbar())
 })
 
 const ConnectedUserRolePage = connect(

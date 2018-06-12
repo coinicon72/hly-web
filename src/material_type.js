@@ -4,14 +4,15 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import CommonStyles from "./common_styles";
+import { withStyles } from '@material-ui/core';
 
 import axios from 'axios'
 
+import CommonStyles from "./common_styles";
+
 import DataTableBase from "./data_table_base"
 
-import {DATA_API_BASE_URL} from "./config"
-import { withStyles } from 'material-ui';
+import { DATA_API_BASE_URL } from "./config"
 
 
 // =============================================
@@ -79,15 +80,15 @@ class MaterialTypePage extends React.PureComponent {
         return (
             <div className={classes.contentRoot}>
 
-            <DataTableBase columns={COLUMNS}
-                editCell={this.editCell}
-                changeAddedRowsCallback={this.changeAddedRowsCallback}
-                editingColumnExtensions={this.editingColumnExtensions}
-                doLoad={this.doLoad}
-                doAdd={this.doAdd}
-                doUpdate={this.doUpdate}
-                doDelete={this.doDelete}
-            />
+                <DataTableBase columns={COLUMNS}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    editingColumnExtensions={this.editingColumnExtensions}
+                    doLoad={this.doLoad}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
+                />
             </div>
         )
     }

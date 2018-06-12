@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 
 // styles
-import { withStyles } from 'material-ui';
+import { withStyles } from '@material-ui/core';
 
 import CommonStyles from "./common_styles";
 
@@ -20,17 +20,21 @@ import * as mdi from 'mdi-material-ui';
 import * as mui from '@material-ui/icons';
 
 // ui
-import { Paper, Typography, Grid, TextField, Button, IconButton, Snackbar, Input, Select, Toolbar, Divider, Tooltip } from 'material-ui';
-
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import {
+    Paper, Typography, Grid, TextField, Button, IconButton,
+    Snackbar, Input, Select, Toolbar, Divider, Tooltip,
+    Table, TableBody, TableCell, TableHead, TableRow
+} from '@material-ui/core';
 
 //
 import axios from 'axios'
 
+//
 import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { store } from "./redux"
+
 
 // =============================================
 const DATA_REPO = "orders";
@@ -38,7 +42,7 @@ const DATA_REPO = "orders";
 const COLUMNS = [
     { name: 'id', title: '序号' },
     { name: 'no', title: '订单编号' },
-    { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null},
+    { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
     { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
     { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
     { name: 'value', title: '总额' },
@@ -53,16 +57,16 @@ const EDITING_COLUMN_EXTENSIONS = [
 ]
 
 const NEW_ROW_TEMPLATE = {
-    id: 0,           
-    actualValue: 0, 
-    comment: '',      
+    id: 0,
+    actualValue: 0,
+    comment: '',
     deliveryDate: '',
-    metadata: '',     
-    no: '',           
-    orderDate: '',   
-    tax: true,          
-    value: 0,        
-    clientId: 0,    
+    metadata: '',
+    no: '',
+    orderDate: '',
+    tax: true,
+    value: 0,
+    clientId: 0,
 }
 
 class OrderPage extends React.PureComponent {
@@ -71,12 +75,12 @@ class OrderPage extends React.PureComponent {
 
         // this.state = {
         //     orders: [],
-            
+
         //     //
         //     snackbarOpen: false,
         //     snackbarContent: "",
         // }
-  
+
         this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
 
         this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
@@ -92,7 +96,7 @@ class OrderPage extends React.PureComponent {
         this.doAdd = this.doAdd.bind(this)
         this.doUpdate = this.doUpdate.bind(this)
         this.doDelete = this.doDelete.bind(this)
-  }
+    }
 
     componentDidMount() {
         // axios.get(`${API_BASE_URL}/${DATA_REPO}`)
@@ -137,31 +141,31 @@ class OrderPage extends React.PureComponent {
 
         return (
             // <React.Fragment>
-                <div className={classes.contentRoot}>
-                    {/* <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography> */}
+            <div className={classes.contentRoot}>
+                {/* <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography> */}
 
-                    <Toolbar className={classes.toolbar}>
-                        {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
-                        <Typography variant="title" className={classes.toolbarTitle}></Typography>
-                        <Button href={`${EXPORT_BASE_URL}/orders`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
-                        {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
-                    </Toolbar>
+                <Toolbar className={classes.toolbar}>
+                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                    <Typography variant="title" className={classes.toolbarTitle}></Typography>
+                    <Button href={`${EXPORT_BASE_URL}/orders`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                </Toolbar>
 
-                    <DataTableBase columns={COLUMNS}
-                        editCell={this.editCell}
-                        changeAddedRowsCallback={this.changeAddedRowsCallback}
-                        editingColumnExtensions={this.editingColumnExtensions}
-                        doLoad={this.doLoad}
-                        doAdd={this.doAdd}
-                        doUpdate={this.doUpdate}
-                        doDelete={this.doDelete}
-                        clickHandler={this.onRowDoubleClicked}
-                        showEditCommand={false}
-                        showDeleteCommand={false}
-                        addHandler={this.addRowHandler}
-                        // editHandler={this.editRowHandler}
-                    />
-                </div>
+                <DataTableBase columns={COLUMNS}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
+                    editingColumnExtensions={this.editingColumnExtensions}
+                    doLoad={this.doLoad}
+                    doAdd={this.doAdd}
+                    doUpdate={this.doUpdate}
+                    doDelete={this.doDelete}
+                    clickHandler={this.onRowDoubleClicked}
+                    showEditCommand={false}
+                    showDeleteCommand={false}
+                    addHandler={this.addRowHandler}
+                // editHandler={this.editRowHandler}
+                />
+            </div>
 
             // </React.Fragment>
         )

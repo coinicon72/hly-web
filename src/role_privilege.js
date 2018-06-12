@@ -2,28 +2,41 @@
 
 import React from 'react';
 
-import CommonStyles from "./common_styles";
-
 import axios from 'axios'
+import { connect } from 'react-redux'
 
-import { AppBar, Toolbar, Button, Grid, IconButton, Typography, Paper, Checkbox, Snackbar, Switch } from 'material-ui';
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import { FormGroup, FormControlLabel, FormControl, FormHelperText, FormLabel } from 'material-ui/Form';
-
+import { withStyles } from '@material-ui/core';
 import {
-    TableEditRow, TableEditColumn,
-} from '@devexpress/dx-react-grid-material-ui';
+    // AppBar,
+    // Toolbar,
+    Button,
+    // IconButton,
+    Grid,
+    Typography,
+    Paper,
+    Checkbox,
+    // Snackbar,
+    Switch,
+    Table, TableBody, TableCell, TableHead, TableRow,
+    // FormGroup, FormControlLabel, FormControl, FormHelperText, FormLabel
+} from '@material-ui/core';
 
-import * as mdi from 'mdi-material-ui';
+// import {
+//     TableEditRow, 
+//     TableEditColumn,
+// } from '@devexpress/dx-react-grid-material-ui';
+
+// import * as mdi from 'mdi-material-ui';
+
+//
+import { EXPORT_BASE_URL, DATA_API_BASE_URL, API_BASE_URL } from "./config";
+
+import CommonStyles from "./common_styles";
 
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
-import { EXPORT_BASE_URL, DATA_API_BASE_URL, API_BASE_URL } from "./config";
-import { withStyles } from 'material-ui';
-
 //
-import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
-import { Typography } from 'material-ui';
+import { Typography } from '@material-ui/core';
 
 export const CurrencyTypeProvider = props => (
     <DataTypeProvider

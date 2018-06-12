@@ -2,28 +2,34 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
+// import classNames from 'classnames';
 
-import Loadable from 'react-loadable';
-import Loading from './loading-component';
+// import Loadable from 'react-loadable';
+// import Loading from './loading-component';
 
 import compose from 'recompose/compose';
-import { withStyles } from 'material-ui/styles';
-import withWidth from 'material-ui/utils/withWidth';
 
+import { withStyles, withWidth } from '@material-ui/core';
 import {
-  AppBar, Drawer, Divider, Toolbar, Tooltip, Button, Grid,
-  Hidden, IconButton, Typography, Paper, Checkbox, Snackbar
-} from 'material-ui';
-import Menu, { MenuItem } from 'material-ui/Menu';
-import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
+  AppBar, Drawer, Divider, Toolbar,
+  // Tooltip, Button, Grid,
+  Hidden, IconButton, Typography,
+  // Paper, Checkbox, 
+  Snackbar,
+  Menu, MenuItem,
+  List, ListItem, ListItemIcon, ListItemText
+} from '@material-ui/core';
 
 // icons
 import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+// import * as mui from '@material-ui/icons';
 
 import { GroupWork } from '@material-ui/icons'
-import { Menu as MenuIcon, AccountCircle, ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant } from 'mdi-material-ui';
+import {
+  Menu as MenuIcon, AccountCircle,
+  // ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, 
+  ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant
+} from 'mdi-material-ui';
 
 import { connect } from 'react-redux'
 
@@ -49,8 +55,9 @@ import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
 import BomDetailsPage from "./bom_details"
 import BomsPage from "./boms"
-import StockApplyPage from './repo_changing'
-import StockApplyDetailsPage from './repo_changing_details'
+import PurchingPlanPage from "./purching_plan"
+import StockChangingPage from './repo_changing'
+import StockChangingDetailsPage from './repo_changing_details'
 import RepoPage from './repo'
 import RepoDetailsPage from './repo_details'
 import InventoryPage from './inventory'
@@ -64,6 +71,7 @@ import * as config from "./config"
 
 import { actionLogout, actionUpdateUserInfo } from "./redux"
 import { actionShowSnackbar, actionHideSnackbar } from "./redux/data_selection"
+import withRouter from 'react-router-dom/withRouter';
 
 // const DataTableBase = Loadable({
 //   loader: () => import('./data_table_base'),
@@ -145,6 +153,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
       this.props.cookies.remove('token')
       this.props.logout()
+
+      // this.props.history.replace("/")
     };
 
     this.hasPrivilege = (privilege => {
@@ -203,7 +213,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       }
 
       this.setState({ token, user })
-      // this.props.history.replace("/")
+      this.props.history.replace("/")
       // console.warn(`login failed: ${this.props.loginResult}`)
     }
   }
@@ -212,218 +222,275 @@ class App extends React.PureComponent<{ classes: any }, any> {
     this.setState({ openDrawer: !this.state.openDrawer });
   }
 
-  salesItems = _ => (<div>
-    {this.hasPrivilege('sales:client') ?
-      <Link to="/client">
+  salesItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('sales:client'))
+      l.push(<Link key="/client" to="/client">
         <ListItem button>
           <ListItemIcon>
             <ClipboardAccount />
           </ListItemIcon>
           <ListItemText primary="客户" />
         </ListItem>
-      </Link>
-      : null}
+      </Link>)
 
-    {this.hasPrivilege('sales:order') ?
-      <Link to="/orders">
+    if (this.hasPrivilege('sales:order'))
+      l.push(<Link to="/orders">
         <ListItem button>
           <ListItemIcon>
             <ClipboardText />
           </ListItemIcon>
           <ListItemText primary="订单" />
         </ListItem>
-      </Link>
-      : null}
+      </Link>)
 
-    {this.hasPrivilege('production:product') ?
-      <Link to="/product">
+    if (this.hasPrivilege('production:product'))
+      l.push(<Link to="/product">
         <ListItem button>
           <ListItemIcon>
             <GroupWork />
           </ListItemIcon>
           <ListItemText primary="产品" />
         </ListItem>
-      </Link>
-      : null}
-  </div>
-  )
+      </Link>)
 
-  basicDataItems = _ => (
-    <div>
-      {this.hasPrivilege('system:basic-data') ?
-        <Link to="/basic_data/client_type">
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
+
+  basicDataItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('system:basic-data'))
+      l.push(<Link to="/basic_data/client_type">
+        <ListItem button>
+          <ListItemIcon>
+            <FlagVariant />
+          </ListItemIcon>
+          <ListItemText primary="客户类型" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('system:basic-data'))
+      l.push(<Link to="/basic_data/material_type">
+        <ListItem button>
+          <ListItemIcon>
+            <FlagVariant />
+          </ListItemIcon>
+          <ListItemText primary="材料分类" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('production:material'))
+      l.push(<Link to="/basic_data/material">
+        <ListItem button>
+          <ListItemIcon>
+            <HexagonMultiple />
+          </ListItemIcon>
+          <ListItemText primary="材料" />
+        </ListItem>
+      </Link>)
+
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
+
+  userManagementItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('system:user-management'))
+      l.push(<Link to="/user">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.AccountCircle />
+          </ListItemIcon>
+          <ListItemText primary="员工" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('system:user-management'))
+      l.push(<Link to="/role">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.AccountCircle />
+          </ListItemIcon>
+          <ListItemText primary="岗位" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('system:user-management'))
+      l.push(<Link to="/userRole">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.AccountCircle />
+          </ListItemIcon>
+          <ListItemText primary="员工岗位" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('system:user-management'))
+      l.push(<Link to="/rolePrivilege">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.AccountCircle />
+          </ListItemIcon>
+          <ListItemText primary="岗位权限" />
+        </ListItem>
+      </Link>)
+
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
+
+  manufactionItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('production:bom'))
+      l.push(<Link to="/boms">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.FileMultiple />
+          </ListItemIcon>
+          <ListItemText primary="BOM 物料清单" />
+        </ListItem>
+      </Link>)
+
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
+
+  purchingPlanItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('purching:plan'))
+      l.push(<Link to="/purchingPlan">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.LibraryBooks />
+          </ListItemIcon>
+          <ListItemText primary="采购计划" />
+        </ListItem>
+      </Link>)
+
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
+
+  stockItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('system:basic-data'))
+      l.push(<Link to="/repo">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.Database />
+          </ListItemIcon>
+          <ListItemText primary="仓库" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('repo:stock-in'))
+      l.push(
+        // <Tooltip key="key_stock_in" title="非库房人员申请">
+        <Link to={config.ROUTER_STOCK_IN}>
           <ListItem button>
             <ListItemIcon>
-              <FlagVariant />
+              <mdi.DatabasePlus />
             </ListItemIcon>
-            <ListItemText primary="客户类型" />
+            <ListItemText primary="入库单" />
           </ListItem>
         </Link>
-        : null}
+        // </Tooltip>
+      )
 
-      {this.hasPrivilege('system:basic-data') ?
-        <Link to="/basic_data/material_type">
+    if (this.hasPrivilege('repo:stock-out'))
+      l.push(
+        // <Tooltip key="key_stock_out" title="非库房人员申请">
+        <Link to={config.ROUTER_STOCK_OUT}>
           <ListItem button>
             <ListItemIcon>
-              <FlagVariant />
+              <mdi.DatabaseMinus />
             </ListItemIcon>
-            <ListItemText primary="材料分类" />
+            <ListItemText primary="出库单" />
           </ListItem>
         </Link>
-        : null}
+        // </Tooltip>
+      )
 
-      {this.hasPrivilege('production:material') ?
-        <Link to="/basic_data/material">
-          <ListItem button>
-            <ListItemIcon>
-              <HexagonMultiple />
-            </ListItemIcon>
-            <ListItemText primary="材料" />
-          </ListItem>
-        </Link>
-        : null}
-    </div>
-  )
-
-  userManagementItems = _ => (
-    <div>
-      {this.hasPrivilege('system:user-management') ?
-        <Link to="/user">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.AccountCircle />
-            </ListItemIcon>
-            <ListItemText primary="员工" />
-          </ListItem>
-        </Link>
-        : null}
-
-      {this.hasPrivilege('system:user-management') ?
-        <Link to="/role">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.AccountCircle />
-            </ListItemIcon>
-            <ListItemText primary="岗位" />
-          </ListItem>
-        </Link>
-        : null}
-
-      {this.hasPrivilege('system:user-management') ?
-        <Link to="/userRole">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.AccountCircle />
-            </ListItemIcon>
-            <ListItemText primary="员工岗位" />
-          </ListItem>
-        </Link>
-        : null}
-
-      {this.hasPrivilege('system:user-management') ?
-        <Link to="/rolePrivilege">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.AccountCircle />
-            </ListItemIcon>
-            <ListItemText primary="岗位权限" />
-          </ListItem>
-        </Link>
-        : null}
-    </div>
-  )
-
-  manufactionItems = _ => (
-
-    <div>
-      {this.hasPrivilege('production:bom') ?
-        <Link to="/boms">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.FileMultiple />
-            </ListItemIcon>
-            <ListItemText primary="BOM 物料清单" />
-          </ListItem>
-        </Link>
-        : null}
-    </div>
-  )
-
-  stockItems = _ => (
-    <div>
-      {this.hasPrivilege('system:basic-data') ?
-        <Link to="/repo">
+    if (this.hasPrivilege('repo:inventory'))
+      l.push(
+        // <Tooltip key="key_inventory" title="库房人员使用">
+        <Link to={config.ROUTER_STOCK_IN_OUT}>
           <ListItem button>
             <ListItemIcon>
               <mdi.Database />
             </ListItemIcon>
-            <ListItemText primary="仓库" />
+            <ListItemText primary="出/入库单受理" />
           </ListItem>
         </Link>
-        : null}
+        // </Tooltip>
+      )
 
-      {this.hasPrivilege('repo:stock-in') ?
-        <Tooltip title="非库房人员申请">
-          <Link to={config.ROUTER_STOCK_IN}>
-            <ListItem button>
-              <ListItemIcon>
-                <mdi.DatabasePlus />
-              </ListItemIcon>
-              <ListItemText primary="入库单" />
-            </ListItem>
-          </Link>
-        </Tooltip>
-        : null}
+    if (this.hasPrivilege('repo:inventory'))
+      l.push(<Link to="/repo_details">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.DatabaseSearch />
+          </ListItemIcon>
+          <ListItemText primary="库存明细" />
+        </ListItem>
+      </Link>)
 
-      {this.hasPrivilege('repo:stock-out') ?
-        <Tooltip title="非库房人员申请">
-          <Link to={config.ROUTER_STOCK_OUT}>
-            <ListItem button>
-              <ListItemIcon>
-                <mdi.DatabaseMinus />
-              </ListItemIcon>
-              <ListItemText primary="出库单" />
-            </ListItem>
-          </Link>
-        </Tooltip>
-        : null}
+    if (this.hasPrivilege('repo:inventory'))
+      l.push(<Link to="/inventory">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.DatabaseSearch />
+          </ListItemIcon>
+          <ListItemText primary="盘点" />
+        </ListItem>
+      </Link>)
 
-      {this.hasPrivilege('repo:inventory') ?
-        <Tooltip title="库房人员使用">
-          <Link to={config.ROUTER_STOCK_IN_OUT}>
-            <ListItem button>
-              <ListItemIcon>
-                <mdi.Database />
-              </ListItemIcon>
-              <ListItemText primary="出/入库单受理" />
-            </ListItem>
-          </Link>
-        </Tooltip>
-        : null}
-
-      {this.hasPrivilege('repo:inventory') ?
-        <Link to="/repo_details">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.DatabaseSearch />
-            </ListItemIcon>
-            <ListItemText primary="库存明细" />
-          </ListItem>
-        </Link>
-        : null}
-
-      {this.hasPrivilege('repo:inventory') ?
-        <Link to="/inventory">
-          <ListItem button>
-            <ListItemIcon>
-              <mdi.DatabaseSearch />
-            </ListItemIcon>
-            <ListItemText primary="盘点" />
-          </ListItem>
-        </Link>
-        : null}
-    </div>
-  )
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
 
   // handleDrawerOpen = () => {
   //   this.setState({ openDrawer: true });
@@ -453,7 +520,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path={config.ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
-        <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
+        <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
+        <Route path="/purchingPlan" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -522,15 +590,17 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
         <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
         <Route path="/boms" component={BomsPage} />
-        <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
-        <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} user={this.state.user} />} />
-        <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockApplyDetailsPage {...props} type={config.TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
-        <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} user={this.state.user} />} />
-        <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockApplyDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
-        <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockApplyPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={config.TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
+        <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockChangingPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} user={this.state.user} />} />
+        <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={config.TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
+        <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockChangingPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} user={this.state.user} />} />
+        <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockChangingDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockChangingPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
         <Route path="/repo_details" component={RepoDetailsPage} />
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />
+
+        <Route path="/purchingPlan" component={PurchingPlanPage} />
 
         {/* {this.hasPrivilege('system:user-management') ? */}
         {/* <React.Fragment> */}
@@ -562,17 +632,30 @@ class App extends React.PureComponent<{ classes: any }, any> {
           {/* <IconButton onClick={this.handleDrawerToggle}>
             <ChevronLeft />
           </IconButton> */}
+          <Link to="/"><Typography variant="title">华丽雅</Typography></Link>
         </div>
+        {/* <Divider />
+        <List> */}
+        {this.salesItems()}
+        {/* </List>
         <Divider />
-        <List>{this.salesItems()}</List>
+        <List> */}
+        {this.userManagementItems()}
+        {/* </List>
         <Divider />
-        <List>{this.userManagementItems()}</List>
+        <List> */}
+        {this.basicDataItems()}
+        {/* </List>
         <Divider />
-        <List>{this.basicDataItems()}</List>
+        <List> */}
+        {this.manufactionItems()}
+        {/* </List>
         <Divider />
-        <List>{this.manufactionItems()}</List>
-        <Divider />
-        <List>{this.stockItems()}</List>
+        <List> */}
+        {this.purchingPlanItems()}
+
+        {this.stockItems()}
+        {/* </List> */}
       </div>
     );
 
@@ -744,7 +827,7 @@ const styles = theme => ({
   drawerHeader: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     padding: '0 8px',
     ...theme.mixins.toolbar,
   },

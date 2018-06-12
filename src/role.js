@@ -6,18 +6,18 @@ import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
-import { AppBar, Toolbar, Button, IconButton, Typography } from 'material-ui';
+import { withStyles } from '@material-ui/core';
+import { Toolbar, Typography } from '@material-ui/core';
 import {
-    TableEditRow, TableEditColumn,
+    TableEditRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
-import * as mdi from 'mdi-material-ui';
+// import * as mdi from 'mdi-material-ui';
 
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config";
-import { withStyles } from 'material-ui';
 
 
 // =============================================
@@ -46,7 +46,7 @@ class RolePage extends React.PureComponent {
                 disabled: false,
                 comment: '',
             }
-        }).bind(this);
+        })//.bind(this);
 
         // this.commitChanges = this.commitChanges.bind(this);
 
@@ -58,7 +58,7 @@ class RolePage extends React.PureComponent {
                 return <LookupEditCell {...props} availableColumnValues={availableColumnValues} />;
             }
             return <TableEditRow.Cell {...props} />;
-        }).bind(this);
+        })//.bind(this);
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
@@ -77,13 +77,13 @@ class RolePage extends React.PureComponent {
     doAdd = (r) => {
         return axios.post(this.dataRepoApiUrl, r)
             .then(resp => resp.data)
-            // .then(j => ({ ...j, type: r.type.name }))
+        // .then(j => ({ ...j, type: r.type.name }))
     }
 
     doUpdate = (r, c) => {
         return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
             .then(resp => resp.data)
-            // .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
+        // .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
     }
 
     doDelete = (r) => {
@@ -91,40 +91,40 @@ class RolePage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes } = this.props
 
         return <div className={classes.contentRoot}>
-                <Toolbar className={classes.toolbar}>
-                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
-                    <Typography variant="title" className={classes.toolbarTitle}></Typography>
-                    {/* <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> */}
-                </Toolbar>
+            <Toolbar className={classes.toolbar}>
+                {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                <Typography variant="title" className={classes.toolbarTitle}></Typography>
+                {/* <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> */}
+            </Toolbar>
 
-                <DataTableBase columns={[
-                    { name: 'id', title: '序号' },
-                    { name: 'code', title: '代号' },
-                    { name: "name", title: "名称" },
-                    // { name: "disabled", title: "有效" },
-                    { name: "comment", title: "备注" },
-                ]}
-                    editCell={this.editCell}
-                    changeAddedRowsCallback={this.changeAddedRowsCallback}
-                    // commitChanges={this.commitChanges}
-                    editingColumnExtensions={this.editingColumnExtensions}
-                    doLoad={this.doLoad}
-                    doAdd={this.doAdd}
-                    doUpdate={this.doUpdate}
-                    doDelete={this.doDelete}
-                />
-            </div>
+            <DataTableBase columns={[
+                { name: 'id', title: '序号' },
+                { name: 'code', title: '代号' },
+                { name: "name", title: "名称" },
+                // { name: "disabled", title: "有效" },
+                { name: "comment", title: "备注" },
+            ]}
+                editCell={this.editCell}
+                changeAddedRowsCallback={this.changeAddedRowsCallback}
+                // commitChanges={this.commitChanges}
+                editingColumnExtensions={this.editingColumnExtensions}
+                doLoad={this.doLoad}
+                doAdd={this.doAdd}
+                doUpdate={this.doUpdate}
+                doDelete={this.doDelete}
+            />
+        </div>
     }
 }
 
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
-    },
+    // ... {
+    // },
 })
 
 

@@ -4,17 +4,20 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import CommonStyles from "./common_styles";
-
 import axios from 'axios'
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
-import DataTableBase from "./data_table_base"
+import { withStyles, Typography } from '@material-ui/core';
 
+import { DataTypeProvider } from '@devexpress/dx-react-grid';
+
+//
 import * as config from "./config"
-import { withStyles, Typography } from 'material-ui';
+
+import CommonStyles from "./common_styles";
 import { toFixedMoney } from './utils';
 import { CurrencyTypeProvider } from "./common_components"
+
+import DataTableBase from "./data_table_base"
 
 
 // =============================================

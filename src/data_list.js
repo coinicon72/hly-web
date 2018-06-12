@@ -3,11 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
-import { withStyles } from 'material-ui/styles';
-import withWidth from 'material-ui/utils/withWidth';
+import { withStyles, withWidth } from '@material-ui/core';
 
 
-class DataList extends React.Component<any, any> {
+class DataList extends React.Component {
     render() {
         const { classes } = this.props;
 

@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 
 // styles
-import { withStyles } from 'material-ui';
+import { withStyles } from '@material-ui/core';
 
 import CommonStyles from "./common_styles";
 
@@ -23,22 +23,15 @@ import * as mdi from 'mdi-material-ui';
 import * as mui from '@material-ui/icons';
 
 // ui
-import * as mu from 'material-ui';
-import { Paper, Typography, TextField, Button, IconButton, Snackbar, Select, Toolbar, Divider, Tooltip, Chip } from 'material-ui';
-import Input, { InputLabel, InputAdornment } from 'material-ui/Input';
-import { FormGroup, FormControlLabel, FormControl, FormHelperText } from 'material-ui';
-import Stepper, { Step, StepLabel } from 'material-ui/Stepper';
-import Switch from 'material-ui/Switch';
-import { MenuItem } from 'material-ui/Menu';
-
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-
-import Dialog, {
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
+import * as mu from '@material-ui/core';
+import {
+    Paper, Typography, TextField, Button, IconButton, MenuItem, Snackbar, Select, Toolbar, Divider, Tooltip, Chip,
+    Input, InputLabel, InputAdornment,
+    FormGroup, FormControlLabel, FormControl, FormHelperText,
+    Stepper, Step, StepLabel, Switch,
+    Table, TableBody, TableCell, TableHead, TableRow,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+} from '@material-ui/core';
 
 import {
     SelectionState,

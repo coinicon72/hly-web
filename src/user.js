@@ -2,22 +2,23 @@
 
 import React from 'react';
 
-import CommonStyles from "./common_styles";
-
 import axios from 'axios'
 
-import { AppBar, Toolbar, Button, IconButton, Typography } from 'material-ui';
+import { withStyles } from '@material-ui/core';
+import { AppBar, Toolbar, Button, IconButton, Typography } from '@material-ui/core';
 import {
     TableEditRow, TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';
 
 import * as mdi from 'mdi-material-ui';
 
+//
+import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config";
+
+import CommonStyles from "./common_styles";
+
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
-
-import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config";
-import { withStyles } from 'material-ui';
 
 
 // =============================================
@@ -75,7 +76,7 @@ class UserPage extends React.PureComponent {
     doLoad = () => {
         return axios.get(this.dataRepoApiUrl)//,
             .then(resp => resp.data._embedded[this.dataRepo])
-            // .then(rs => rs.map(r => { if (r.type) r.type = r.type.name; return r; }))
+        // .then(rs => rs.map(r => { if (r.type) r.type = r.type.name; return r; }))
     }
 
     doAdd = (r) => {
@@ -104,30 +105,30 @@ class UserPage extends React.PureComponent {
         const { classes, width } = this.props
 
         return <div className={classes.contentRoot}>
-                <Toolbar className={classes.toolbar}>
-                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
-                    <Typography variant="title" className={classes.toolbarTitle}></Typography>
-                    {/* <Button href={`${EXPORT_BASE_URL}/users`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> */}
-                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
-                </Toolbar>
+            <Toolbar className={classes.toolbar}>
+                {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                <Typography variant="title" className={classes.toolbarTitle}></Typography>
+                {/* <Button href={`${EXPORT_BASE_URL}/users`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> */}
+                {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+            </Toolbar>
 
-                <DataTableBase columns={[
-                    { name: 'id', title: '序号' },
-                    { name: "name", title: "名称" },
-                    { name: "phone", title: "手机" },
-                    { name: "title", title: "头衔" },
-                    { name: "comment", title: "备注" },
-                ]}
-                    editCell={this.editCell}
-                    changeAddedRowsCallback={this.changeAddedRowsCallback}
-                    // commitChanges={this.commitChanges}
-                    editingColumnExtensions={this.editingColumnExtensions}
-                    doLoad={this.doLoad}
-                    doAdd={this.doAdd}
-                    doUpdate={this.doUpdate}
-                    doDelete={this.doDelete}
-                />
-            </div>
+            <DataTableBase columns={[
+                { name: 'id', title: '序号' },
+                { name: "name", title: "名称" },
+                { name: "phone", title: "手机" },
+                { name: "title", title: "头衔" },
+                { name: "comment", title: "备注" },
+            ]}
+                editCell={this.editCell}
+                changeAddedRowsCallback={this.changeAddedRowsCallback}
+                // commitChanges={this.commitChanges}
+                editingColumnExtensions={this.editingColumnExtensions}
+                doLoad={this.doLoad}
+                doAdd={this.doAdd}
+                doUpdate={this.doUpdate}
+                doDelete={this.doDelete}
+            />
+        </div>
     }
 }
 

@@ -8,15 +8,16 @@ import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
-import DataTableBase from "./data_table_base"
-
-import { DATA_API_BASE_URL } from "./config"
-import { withStyles } from 'material-ui';
-import Select from 'material-ui/Select';
-import Input from 'material-ui/Input';
-import { MenuItem } from 'material-ui/Menu';
+//
+import { withStyles } from '@material-ui/core';
+import { Select, Input, MenuItem } from '@material-ui/core';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
+
+//
+import { DATA_API_BASE_URL } from "./config"
+
+import DataTableBase from "./data_table_base"
 
 
 // =============================================
@@ -45,7 +46,8 @@ const RepoTypeEditor = ({ value, onValueChange }) => (
         input={<Input />}
         value={value}
         onChange={event => {
-            onValueChange(event.target.value)}
+            onValueChange(event.target.value)
+        }
         }
         style={{ width: '100%' }}
     >

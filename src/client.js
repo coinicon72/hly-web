@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 
 // styles
-import { withStyles } from 'material-ui';
+import { withStyles } from '@material-ui/core';
 
 import CommonStyles from "./common_styles";
 
@@ -16,7 +16,7 @@ import { withRouter } from 'react-router'
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
 //
-import { AppBar, Toolbar, Button, IconButton, Typography } from 'material-ui';
+import { AppBar, Toolbar, Button, IconButton, Typography } from '@material-ui/core';
 import {
     TableEditRow, TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';

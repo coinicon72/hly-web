@@ -6,19 +6,12 @@ import PropTypes from 'prop-types';
 
 // import _ from "lodash";
 
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core';
 
-import CommonStyles from "./common_styles";
-
-import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar, Tooltip } from 'material-ui';
-// import Icon from 'material-ui/Icon';
-
-import Dialog, {
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
+import {
+    Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar, Tooltip,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+} from '@material-ui/core';
 
 import { AddCircleOutline, PlaylistAdd, Delete, Edit, Save, Cancel } from '@material-ui/icons';
 import { Refresh } from 'mdi-material-ui';
@@ -50,6 +43,8 @@ import {
 } from '@devexpress/dx-react-grid-material-ui';
 
 import axios from 'axios'
+
+import CommonStyles from "./common_styles";
 
 import { LookupEditCell } from "./data_table_util";
 

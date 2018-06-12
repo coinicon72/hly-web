@@ -24,13 +24,13 @@ import LoginPage from './login';
 
 ReactDOM.render(<CookiesProvider>
     <Provider store={store}>
-        {/* <BrowserRouter>
-            <Switch>
-                <Route path="/login" component={LoginPage} />
-                <Route component={App} />
-            </Switch>
-        </BrowserRouter> */}
-        <App />
+        <BrowserRouter>
+            {/* <Switch>
+                <Route path="/login" component={LoginPage} /> */}
+            <Route component={App} />
+            {/* </Switch> */}
+        </BrowserRouter>
+        {/* <App /> */}
     </Provider>
 </CookiesProvider>, document.getElementById('root'));
 // ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 
-import Select from 'material-ui/Select';
-import Input from 'material-ui/Input';
-import { MenuItem } from 'material-ui/Menu';
-import { TableCell } from 'material-ui/Table';
+import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input';
+import { MenuItem } from '@material-ui/core/Menu';
+import { TableCell } from '@material-ui/core/Table';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 

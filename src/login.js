@@ -6,24 +6,29 @@ import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
-import { AppBar, Toolbar, Button, IconButton, Typography } from 'material-ui';
-import Input, { InputLabel, InputAdornment } from 'material-ui/Input';
-import { FormGroup, FormControlLabel, FormControl, FormHelperText, FormLabel } from 'material-ui/Form';
+//
+import {
+    AppBar, Toolbar, Button, IconButton, Typography,
+    Input, InputLabel, InputAdornment,
+    FormGroup, FormControlLabel, FormControl, FormHelperText, FormLabel
+} from '@material-ui/core';
+import { withStyles } from '@material-ui/core';
 
 import {
     TableEditRow, TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';
 
+//
 import * as mdi from 'mdi-material-ui';
 
-import { EXPORT_BASE_URL, API_BASE_URL, DATA_API_BASE_URL } from "./config";
-import { withStyles } from 'material-ui';
-
+//
 import { connect } from 'react-redux'
 
 import { withCookies, Cookies } from 'react-cookie';
 
 //
+import { EXPORT_BASE_URL, API_BASE_URL, DATA_API_BASE_URL } from "./config";
+
 import { actionLogging, actionLoggedIn, actionLoginFailed } from './redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
@@ -98,8 +103,8 @@ class LoginPage extends React.PureComponent {
                     style={{ alignSelf: 'flex-end', marginTop: 16 }}
                     disabled={!this.state.uid || !this.state.pwd}
                     onClick={() => this.props.doLogin && this.props.doLogin(this.state.uid, this.state.pwd)}
-                    // onClick={() => this.props.showSnackbar("test")}
-                    >登录<mdi.LoginVariant /></Button>
+                // onClick={() => this.props.showSnackbar("test")}
+                >登录<mdi.LoginVariant /></Button>
 
                 {this.props.loginError ? <p style={{ color: 'red', marginTop: 16 }}>{this.props.loginError.message}</p> : null}
             </FormGroup>

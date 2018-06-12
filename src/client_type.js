@@ -11,7 +11,7 @@ import axios from 'axios'
 import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
-import { withStyles } from 'material-ui';
+import { withStyles } from '@material-ui/core';
 
 
 // =============================================

@@ -70,7 +70,7 @@ const ChangingTypeProvider = props => (
 
 
 // =============================================
-class RepoChangingPage extends React.PureComponent {
+class PurchingPlanPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -215,7 +215,7 @@ const ConnectedComponent = connect(
     // mapStateToProps,
     null,
     mapDispatchToProps
-)(RepoChangingPage)
+)(PurchingPlanPage)
 
 
 export default withStyles(styles)(ConnectedComponent);

@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 
 // styles
-import { withStyles } from 'material-ui';
+import { withStyles } from '@material-ui/core';
 
 import CommonStyles from "./common_styles";
 
@@ -20,9 +20,10 @@ import * as mdi from 'mdi-material-ui';
 import * as mui from '@material-ui/icons';
 
 // ui
-import { Paper, Typography, Grid, TextField, Button, IconButton, Snackbar, Input, Select, Toolbar, Divider, Tooltip } from 'material-ui';
-
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
+import {
+    Paper, Typography, Grid, TextField, Button, IconButton, Snackbar, Input, Select, Toolbar, Divider, Tooltip,
+    Table, TableBody, TableCell, TableHead, TableRow
+} from '@material-ui/core';
 
 //
 import axios from 'axios'
