@@ -1,8 +1,8 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 import axios from 'axios'
 
@@ -70,7 +70,7 @@ class RepoDetailsPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes } = this.props
 
         return (
             <div className={classes.contentRoot}>
@@ -91,7 +91,7 @@ class RepoDetailsPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

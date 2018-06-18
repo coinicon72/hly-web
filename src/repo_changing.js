@@ -1,11 +1,11 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
-import Loadable from 'react-loadable';
-import Loading from './loading-component';
+// import Loadable from 'react-loadable';
+// import Loading from './loading-component';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 import { withStyles, Typography } from '@material-ui/core';
@@ -50,20 +50,20 @@ const COLUMNS_IN = [
 
 const COLUMNS_IN_OUT = [
     { name: 'id', title: '序号' },
-    { name: 'type', title: '类型', getCellValue: row => row.type == 1 ? "入库" : "出库" },
+    { name: 'type', title: '类型', getCellValue: row => row.type === 1 ? "入库" : "出库" },
     { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
     { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
     { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate.split('T')[0] },
     { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
-    { name: "amount", title: "总额", getCellValue: row => row.type == 1 ? row.amount : "" },
+    { name: "amount", title: "总额", getCellValue: row => row.type === 1 ? row.amount : "" },
 ]
 
 
 const ChangingTypeProvider = props => (
     <DataTypeProvider
         formatterComponent={({ row, value }) =>
-            <Typography key={row.type} style={row.type == 1 ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value}</Typography>}
+            <Typography key={row.type} style={row.type === 1 ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value}</Typography>}
         {...props}
     />
 );
@@ -133,6 +133,9 @@ class RepoChangingPage extends React.PureComponent {
                 this.state.dataFilter = "/search/findStockInOutByStatus?status=1";
                 this.state.columns = COLUMNS_IN_OUT;
                 break;
+
+            default:
+                break
         }
         this.setState({ dataRepoApiUrl: config.DATA_API_BASE_URL + DATA_REPO + this.state.dataFilter, ready4UI: true });
     }
@@ -158,7 +161,7 @@ class RepoChangingPage extends React.PureComponent {
 
     onRowDoubleClicked = (row) => {
         if (row) {
-            if (this.props.type == config.TYPE_STOCK_IN_OUT)
+            if (this.props.type === config.TYPE_STOCK_IN_OUT)
                 this.props.history.push(`${this.props.match.path}/${row.id}`);
             else
                 this.props.history.push(`${this.props.match.path}/edit/${row.id}`);
@@ -166,7 +169,7 @@ class RepoChangingPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width, type } = this.props
+        const { classes, type } = this.props
         const { ready4UI, columns } = this.state
 
         return (
@@ -197,7 +200,7 @@ class RepoChangingPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

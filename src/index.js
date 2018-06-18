@@ -5,12 +5,17 @@ import ReactDOM from 'react-dom';
 import registerServiceWorker from './registerServiceWorker';
 
 import { Provider } from 'react-redux'
-import { store } from './redux'
+import { store } from './redux/redux'
 // import ReduxTest from './redux-test'
 
 import { CookiesProvider } from 'react-cookie';
 
-import { BrowserRouter, Switch, Route, Link, withRouter } from 'react-router-dom';
+import {
+    BrowserRouter,
+    Route,
+    // Switch,
+    // Link, withRouter
+} from 'react-router-dom';
 
 // import 'typeface-roboto'
 // import '../node_modules/material-components-web/dist/material-components-web.min.css'
@@ -20,7 +25,7 @@ import './main.css'
 import './index.css';
 
 import App from './App';
-import LoginPage from './login';
+// import LoginPage from './login';
 
 ReactDOM.render(<CookiesProvider>
     <Provider store={store}>

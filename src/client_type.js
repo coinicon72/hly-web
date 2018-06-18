@@ -1,8 +1,8 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 import CommonStyles from "./common_styles";
 
@@ -74,7 +74,7 @@ class ClientTypePage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
 
         return (
             <div className={classes.contentRoot}>
@@ -95,7 +95,7 @@ class ClientTypePage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

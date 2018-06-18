@@ -1,4 +1,4 @@
-const drawerWidth = 240;
+// const drawerWidth = 240;
 
 export const COLOR_STOCK_IN = 'green'
 export const COLOR_STOCK_OUT = 'red'

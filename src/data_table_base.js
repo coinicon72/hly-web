@@ -1,31 +1,37 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 // import _ from "lodash";
 
 import { withStyles } from '@material-ui/core';
 
 import {
-    Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar, Tooltip,
+    Paper,
+    // Typography, 
+    Button, IconButton, Snackbar, 
+    // Input, Select, Toolbar, 
+    Tooltip,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
 } from '@material-ui/core';
 
-import { AddCircleOutline, PlaylistAdd, Delete, Edit, Save, Cancel } from '@material-ui/icons';
-import { Refresh } from 'mdi-material-ui';
+import { AddCircleOutline, 
+    // PlaylistAdd, 
+    Delete, Edit, Save, Cancel } from '@material-ui/icons';
+// import { Refresh } from 'mdi-material-ui';
 
 import {
-    SelectionState,
-    IntegratedSelection,
+    // SelectionState,
+    // IntegratedSelection,
     SortingState,
     IntegratedSorting,
     FilteringState,
     IntegratedFiltering,
     EditingState,
-    PagingState,
-    IntegratedPaging,
+    // PagingState,
+    // IntegratedPaging,
 } from '@devexpress/dx-react-grid';
 
 import {
@@ -33,34 +39,34 @@ import {
     Table,
     VirtualTable,
     TableHeaderRow,
-    TableSelection,
-    PagingPanel,
+    // TableSelection,
+    // PagingPanel,
     // Toolbar,
     TableEditRow,
     TableEditColumn,
-    TableColumnResizing,
+    // TableColumnResizing,
     TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
-import axios from 'axios'
+// import axios from 'axios'
 
 import CommonStyles from "./common_styles";
 
-import { LookupEditCell } from "./data_table_util";
+// import { LookupEditCell } from "./data_table_util";
 
 // import ReactHeight from 'react-height';
 
 // import { generateRows } from './data_generator'
-const AddButton = ({ onExecute }) => (
-    <Tooltip title="新增一条数据">
-        <IconButton
-            color="primary"
-            onClick={onExecute}
-        >
-            <AddCircleOutline style={{ fontSize: 28 }} />
-        </IconButton>
-    </Tooltip>
-);
+// const AddButton = ({ onExecute }) => (
+//     <Tooltip title="新增一条数据">
+//         <IconButton
+//             color="primary"
+//             onClick={onExecute}
+//         >
+//             <AddCircleOutline style={{ fontSize: 28 }} />
+//         </IconButton>
+//     </Tooltip>
+// );
 
 function CustomAddButton(handler) {
     return ({ onExecute }) => {
@@ -86,18 +92,18 @@ const EditButton = ({ onExecute }) => (
     </Tooltip>
 );
 
-function CustomEditButton(handler) {
-    return ({ onExecute }) => {
-        if (handler) onExecute = handler
-        return (
-            <Tooltip title="编辑">
-                <IconButton onClick={onExecute}>
-                    <Edit />
-                </IconButton>
-            </Tooltip>
-        )
-    }
-}
+// function CustomEditButton(handler) {
+//     return ({ onExecute }) => {
+//         if (handler) onExecute = handler
+//         return (
+//             <Tooltip title="编辑">
+//                 <IconButton onClick={onExecute}>
+//                     <Edit />
+//                 </IconButton>
+//             </Tooltip>
+//         )
+//     }
+// }
 
 const DeleteButton = ({ onExecute }) => (
     <Tooltip title="删除">
@@ -398,7 +404,7 @@ class DataTableBase extends React.PureComponent {
 
     render() {
         const { classes, columns, disableEdit, editCell, editingColumnExtensions, changeAddedRows, providers } = this.props;
-        const { rows, selection, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
+        const { rows, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
 
         const TableRow = tableRowWithClickHandler(this.props.clickHandler)
 
@@ -541,7 +547,7 @@ class DataTableBase extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
         lookupEditCell: {
             paddingTop: theme.spacing.unit * 0.875,
             paddingRight: theme.spacing.unit,

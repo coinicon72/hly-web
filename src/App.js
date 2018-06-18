@@ -36,14 +36,20 @@ import { connect } from 'react-redux'
 import axios from 'axios'
 
 // import { hashHistory } from 'react-router';
-import { BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom';
+import {
+  BrowserRouter, Switch, Route, Link,
+  // Redirect
+} from 'react-router-dom';
 
-import { withCookies, Cookies } from 'react-cookie';
+import {
+  withCookies,
+  // Cookies
+} from 'react-cookie';
 
 import LoginPage from './login';
 
 import HomePage from "./home"
-import DataTableBase from "./data_table_base"
+// import DataTableBase from "./data_table_base"
 import ClientTypePage from "./client_type"
 import MaterialTypePage from "./material_type"
 import MaterialPage from "./material"
@@ -55,7 +61,8 @@ import ProductDetailsPage from "./product_details"
 import FormulaDetailsPage from "./formula_details"
 import BomDetailsPage from "./bom_details"
 import BomsPage from "./boms"
-import PurchingPlanPage from "./purching_plan"
+import PurchasingOrderPage from "./purchasing_order"
+import PurchasingOrderDetailsPage from "./purchasing_order_details"
 import StockChangingPage from './repo_changing'
 import StockChangingDetailsPage from './repo_changing_details'
 import RepoPage from './repo'
@@ -69,9 +76,9 @@ import RolePrivilegePage from './role_privilege'
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
 
-import { actionLogout, actionUpdateUserInfo } from "./redux"
+import { actionLogout, actionUpdateUserInfo } from "./redux/redux"
 import { actionShowSnackbar, actionHideSnackbar } from "./redux/data_selection"
-import withRouter from 'react-router-dom/withRouter';
+// import withRouter from 'react-router-dom/withRouter';
 
 // const DataTableBase = Loadable({
 //   loader: () => import('./data_table_base'),
@@ -170,7 +177,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       }
 
       return false
-    }).bind(this)
+    })
   }
 
   componentDidMount() {
@@ -199,7 +206,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.token != this.props.token) {
+    if (prevProps.token !== this.props.token) {
       const { cookies, token, user } = this.props
 
       if (token) {
@@ -384,11 +391,11 @@ class App extends React.PureComponent<{ classes: any }, any> {
       : null
   }
 
-  purchingPlanItems = _ => {
+  purchasingOrderItems = _ => {
     let l = []
 
-    if (this.hasPrivilege('purching:plan'))
-      l.push(<Link to="/purchingPlan">
+    if (this.hasPrivilege('purchasing:plan'))
+      l.push(<Link to="/purchasingOrder">
         <ListItem button>
           <ListItemIcon>
             <mdi.LibraryBooks />
@@ -521,7 +528,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
         <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
-        <Route path="/purchingPlan" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划</Typography>} />
+        <Route path="/purchasingOrder" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划</Typography>} />
+        <Route path="/purchasingOrderDetails" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划明细</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -551,7 +559,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     // 'system:basic-data'
     // 'system:user-management'
 
-    const { roles } = this.state.user
+    // const { roles } = this.state.user
 
 
     return (
@@ -600,7 +608,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />
 
-        <Route path="/purchingPlan" component={PurchingPlanPage} />
+        <Route path="/purchasingOrder" render={(props) => <PurchasingOrderPage {...props} user={this.state.user} />} />
+        <Route path="/purchasingOrderDetails/:id?" render={(props) => <PurchasingOrderDetailsPage {...props} user={this.state.user} />} />
 
         {/* {this.hasPrivilege('system:user-management') ? */}
         {/* <React.Fragment> */}
@@ -618,7 +627,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
   }
 
   render() {
-    const { classes, width } = this.props
+    const { classes, } = this.props
     const { token, user, anchor, openDrawer, anchorEl } = this.state;
 
     const { snackbarOpen, snackbarContent, hideSnackbar } = this.props;
@@ -652,7 +661,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         {/* </List>
         <Divider />
         <List> */}
-        {this.purchingPlanItems()}
+        {this.purchasingOrderItems()}
 
         {this.stockItems()}
         {/* </List> */}

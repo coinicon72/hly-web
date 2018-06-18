@@ -1,8 +1,8 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 import CommonStyles from "./common_styles";
 
@@ -10,7 +10,10 @@ import axios from 'axios'
 
 //
 import { withStyles } from '@material-ui/core';
-import { Select, Input, MenuItem } from '@material-ui/core';
+import {
+    Select, Input,
+    // MenuItem
+} from '@material-ui/core';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
@@ -109,7 +112,7 @@ class RepoPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes } = this.props
 
         return (
             <div className={classes.contentRoot}>
@@ -134,7 +137,7 @@ class RepoPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

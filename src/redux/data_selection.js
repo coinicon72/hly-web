@@ -1,4 +1,4 @@
-import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
+// import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
 
 const initState = {
     snackbarOpen: false,
@@ -16,6 +16,9 @@ export default function dataSelectionReducer(state = initState, action) {
 
         case 'data.hideSanckbar':
             newState.snackbarOpen = false
+            break
+
+        default:
             break
     }
 

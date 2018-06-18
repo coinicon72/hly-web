@@ -1,16 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+// import React from 'react'
+// import ReactDOM from 'react-dom'
 
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
-import { Provider } from 'react-redux'
+// import { Provider } from 'react-redux'
 
 import createHistory from 'history/createBrowserHistory'
-import { Route } from 'react-router'
+// import { Route } from 'react-router'
 
-import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
+import {
+  // ConnectedRouter,
+  routerReducer, routerMiddleware,
+  // push
+} from 'react-router-redux'
 
 //
-import dataSelectionReducer from "./redux/data_selection"
+import dataSelectionReducer from "./data_selection"
 
 
 // Create a history of your choosing (we're using a browser history in this case)
@@ -36,7 +40,7 @@ function appReducer(state = initialState, action) {
     //     visibilityFilter: action.filter
     //   })
     case "clickTitle":
-      state.toolbarTitle = 'toolbar - ' + parseInt(Math.random() * 10);
+      state.toolbarTitle = 'toolbar - ' + parseInt(Math.random() * 10, 10);
       break
 
     case 'login.logging':

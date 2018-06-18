@@ -1,8 +1,8 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 import { withStyles } from '@material-ui/core';
 
@@ -75,7 +75,7 @@ class MaterialTypePage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
 
         return (
             <div className={classes.contentRoot}>
@@ -97,7 +97,7 @@ class MaterialTypePage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

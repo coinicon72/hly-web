@@ -5,15 +5,24 @@ import React from 'react';
 import axios from 'axios'
 
 import { withStyles } from '@material-ui/core';
-import { AppBar, Toolbar, Button, IconButton, Typography } from '@material-ui/core';
 import {
-    TableEditRow, TableEditColumn,
+    // AppBar,
+    Toolbar,
+    // Button, IconButton, 
+    Typography
+} from '@material-ui/core';
+import {
+    TableEditRow,
+    // TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';
 
-import * as mdi from 'mdi-material-ui';
+// import * as mdi from 'mdi-material-ui';
 
 //
-import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config";
+import {
+    // EXPORT_BASE_URL,
+    DATA_API_BASE_URL
+} from "./config";
 
 import CommonStyles from "./common_styles";
 
@@ -52,7 +61,7 @@ class UserPage extends React.PureComponent {
                 title: '',
                 comment: '',
             }
-        }).bind(this);
+        });
 
         this.editCell = ((props) => {
             let availableColumnValues = this.state.availableValues[props.column.name];
@@ -62,7 +71,7 @@ class UserPage extends React.PureComponent {
                 return <LookupEditCell {...props} availableColumnValues={availableColumnValues} />;
             }
             return <TableEditRow.Cell {...props} />;
-        }).bind(this);
+        });
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
@@ -102,7 +111,7 @@ class UserPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
 
         return <div className={classes.contentRoot}>
             <Toolbar className={classes.toolbar}>
@@ -135,7 +144,7 @@ class UserPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

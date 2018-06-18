@@ -2,9 +2,9 @@
 
 // basic
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
+// import compose from 'recompose/compose';
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core';
 import CommonStyles from "./common_styles";
 
 // router
-import { withRouter } from 'react-router'
+// import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
 
 // icons
@@ -21,50 +21,54 @@ import * as mui from '@material-ui/icons';
 
 // ui
 import {
-    Paper, Typography, Grid, TextField, Button, IconButton, Snackbar, Input, Select, Toolbar, Divider, Tooltip,
+    Paper, 
+    // Typography, Grid, TextField, 
+    Button, IconButton, Snackbar, 
+    // Input, Select, Toolbar, Divider, 
+    Tooltip,
     Table, TableBody, TableCell, TableHead, TableRow
 } from '@material-ui/core';
 
 //
 import axios from 'axios'
 
-import DataTableBase from "./data_table_base"
+// import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
-import { store } from "./redux"
+// import { store } from "./redux/redux"
 
 // =============================================
 const DATA_REPO = "orders";
 
-const COLUMNS = [
-    { name: 'id', title: '序号' },
-    { name: 'no', title: '订单编号' },
-    { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
-    { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
-    { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
-    { name: 'value', title: '总额' },
-    { name: 'tax', title: '是否含税', getCellValue: row => row.tax ? '是' : '否' },
-    { name: 'comment', title: '备注' },
-    // { name: 'actual_value', title: '' },
-    // { name: 'metadata', title: '' },
-]
+// const COLUMNS = [
+//     { name: 'id', title: '序号' },
+//     { name: 'no', title: '订单编号' },
+//     { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
+//     { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
+//     { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
+//     { name: 'value', title: '总额' },
+//     { name: 'tax', title: '是否含税', getCellValue: row => row.tax ? '是' : '否' },
+//     { name: 'comment', title: '备注' },
+//     // { name: 'actual_value', title: '' },
+//     // { name: 'metadata', title: '' },
+// ]
 
-const EDITING_COLUMN_EXTENSIONS = [
-    { columnName: 'id', editingEnabled: false },
-]
+// const EDITING_COLUMN_EXTENSIONS = [
+//     { columnName: 'id', editingEnabled: false },
+// ]
 
-const NEW_ROW_TEMPLATE = {
-    id: 0,
-    actualValue: 0,
-    comment: '',
-    deliveryDate: '',
-    metadata: '',
-    no: '',
-    orderDate: '',
-    tax: true,
-    value: 0,
-    clientId: 0,
-}
+// const NEW_ROW_TEMPLATE = {
+//     id: 0,
+//     actualValue: 0,
+//     comment: '',
+//     deliveryDate: '',
+//     metadata: '',
+//     no: '',
+//     orderDate: '',
+//     tax: true,
+//     value: 0,
+//     clientId: 0,
+// }
 
 class BomPage extends React.PureComponent {
     constructor(props) {
@@ -118,7 +122,7 @@ class BomPage extends React.PureComponent {
                 })
                 .catch(e => this.showSnackbar(e.message));
 
-        }).bind(this)
+        })
     }
 
     showSnackbar(msg: String) {
@@ -158,7 +162,7 @@ class BomPage extends React.PureComponent {
     // }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
         const { boms } = this.state
         const { snackbarOpen, snackbarContent } = this.state;
 
@@ -240,7 +244,7 @@ class BomPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

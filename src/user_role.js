@@ -8,20 +8,26 @@ import axios from 'axios'
 
 import { withStyles } from '@material-ui/core';
 import {
-    AppBar, Toolbar, Button, Grid, IconButton, Typography, Paper, Checkbox, Snackbar,
+    // AppBar, Toolbar, Button, 
+    Grid, 
+    // IconButton, 
+    // Snackbar,
+    Typography, Paper, Checkbox, 
     Table, TableBody, TableCell, TableHead, TableRow
 } from '@material-ui/core';
 
-import {
-    TableEditRow, TableEditColumn,
-} from '@devexpress/dx-react-grid-material-ui';
+// import {
+//     TableEditRow, TableEditColumn,
+// } from '@devexpress/dx-react-grid-material-ui';
 
-import * as mdi from 'mdi-material-ui';
+// import * as mdi from 'mdi-material-ui';
 
-import { LookupEditCell } from "./data_table_util";
-import DataTableBase from "./data_table_base";
+// import { LookupEditCell } from "./data_table_util";
+// import DataTableBase from "./data_table_base";
 
-import { EXPORT_BASE_URL, DATA_API_BASE_URL, API_BASE_URL } from "./config";
+import { 
+    // EXPORT_BASE_URL, 
+    DATA_API_BASE_URL, API_BASE_URL } from "./config";
 
 import { connect } from 'react-redux'
 
@@ -43,7 +49,7 @@ class UserRolePage extends React.PureComponent {
             snackbarContent: "",
         }
 
-        this.isUserSelected = (uid => !!this.state.selectedUser && this.state.selectedUser.id === uid).bind(this)
+        this.isUserSelected = (uid => !!this.state.selectedUser && this.state.selectedUser.id === uid)
 
         this.handleUserClick = ((event, uid) => {
             let user = this.state.users.find(u => u.id === uid)
@@ -61,13 +67,13 @@ class UserRolePage extends React.PureComponent {
                         this.forceUpdate()
                     })
             }
-        }).bind(this)
+        })
 
         this.isRoleSelected = (rid =>
             !!this.state.selectedUser
             && !!this.state.selectedUser.roles
             && !!this.state.selectedUser.roles.find(r => r.id === rid)
-        ).bind(this)
+        )
 
         this.handleRoleClick = ((event, rid) => {
             let user = this.state.selectedUser
@@ -96,7 +102,7 @@ class UserRolePage extends React.PureComponent {
                     .catch(e => this.props.showSnackbar(e.message))
             }
 
-        }).bind(this)
+        })
     }
 
     componentDidMount() {
@@ -110,9 +116,9 @@ class UserRolePage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
-        const { users, roles, selectedUser } = this.state
-        const { snackbarOpen, snackbarContent } = this.state;
+        const { classes } = this.props
+        const { users, roles } = this.state
+        // const { snackbarOpen, snackbarContent } = this.state;
 
         return <React.Fragment>
             <div className={classes.contentRoot}>
@@ -210,7 +216,7 @@ class UserRolePage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

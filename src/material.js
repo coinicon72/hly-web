@@ -58,7 +58,7 @@ class MaterialPage extends React.PureComponent {
                 // { name: "safeQuantity", title: "安全库存" },
                 // { name: "comment", title: "备注" },
             }
-        }).bind(this);
+        });
 
         // this.commitChanges = this.commitChanges.bind(this);
 
@@ -70,7 +70,7 @@ class MaterialPage extends React.PureComponent {
                 return <LookupEditCell {...props} availableColumnValues={availableColumnValues} />;
             }
             return <TableEditRow.Cell {...props} />;
-        }).bind(this);
+        });
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
@@ -117,7 +117,7 @@ class MaterialPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
 
         return this.state.loaded ? (
             <div className={classes.contentRoot}>
@@ -155,7 +155,7 @@ class MaterialPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

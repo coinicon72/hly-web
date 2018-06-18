@@ -9,7 +9,7 @@ import { withStyles } from '@material-ui/core';
 import {
     // AppBar,
     // Toolbar,
-    Button,
+    // Button,
     // IconButton,
     Grid,
     Typography,
@@ -29,12 +29,15 @@ import {
 // import * as mdi from 'mdi-material-ui';
 
 //
-import { EXPORT_BASE_URL, DATA_API_BASE_URL, API_BASE_URL } from "./config";
+import {
+    // EXPORT_BASE_URL, 
+    DATA_API_BASE_URL, API_BASE_URL
+} from "./config";
 
 import CommonStyles from "./common_styles";
 
-import { LookupEditCell } from "./data_table_util";
-import DataTableBase from "./data_table_base";
+// import { LookupEditCell } from "./data_table_util";
+// import DataTableBase from "./data_table_base";
 
 //
 import { actionShowSnackbar } from "./redux/data_selection"
@@ -50,13 +53,9 @@ class RolePrivilegePage extends React.PureComponent {
             privileges: [],
 
             selectedRole: null, // selected user
-
-            //
-            snackbarOpen: false,
-            snackbarContent: "",
         }
 
-        this.isRoleSelected = (uid => !!this.state.selectedRole && this.state.selectedRole.id === uid).bind(this)
+        this.isRoleSelected = (uid => !!this.state.selectedRole && this.state.selectedRole.id === uid)
 
         this.handleRoleClick = ((event, rid) => {
             let role = this.state.roles.find(u => u.id === rid)
@@ -73,22 +72,22 @@ class RolePrivilegePage extends React.PureComponent {
                         this.forceUpdate()
                     })
             }
-        }).bind(this)
+        })
 
         this.isPrivilegeSelected = (pid => {
             const role = this.state.selectedRole
 
             return !!role && !!role.privileges && !!role.privileges.find(p => p.id === pid)
-        }).bind(this)
+        })
 
         this.isWriteablePrivilege = (pcode => {
             const role = this.state.selectedRole
 
             return !!role && !!role.privileges && !!role.privileges.find(p => p.code === pcode)
-        }).bind(this)
+        })
 
         this.handlePrivilegeClick = ((event, pid) => {
-            const { showSnackbar } = this.props
+            // const { showSnackbar } = this.props
 
             const privilege = this.state.privileges.find(r => r.id === pid)
 
@@ -130,12 +129,12 @@ class RolePrivilegePage extends React.PureComponent {
                 this.updatePrivilege([privilege], isAdd)
                 // .catch(e => showSnackbar(e.message))
             }
-        }).bind(this)
+        })
 
         this.handleToggle = code => (event => {
             const privilege = this.state.privileges.find(r => r.code === code)
             this.updatePrivilege([privilege], event.target.checked)
-        }).bind(this)
+        })
 
         this.updatePrivilege = (async (privileges, isAdd) => {
             const { showSnackbar } = this.props
@@ -172,7 +171,7 @@ class RolePrivilegePage extends React.PureComponent {
                     // return true
                 }
             }
-        }).bind(this)
+        })
     }
 
     componentDidMount() {
@@ -188,9 +187,8 @@ class RolePrivilegePage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
         const { privileges, roles, selectedRole } = this.state
-        const { snackbarOpen, snackbarContent } = this.state;
 
         return <React.Fragment>
             <div className={classes.contentRoot}>
@@ -307,7 +305,7 @@ class RolePrivilegePage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

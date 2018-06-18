@@ -3,12 +3,15 @@
 // basic
 import React from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
+// import PropTypes from 'prop-types';
+// import compose from 'recompose/compose';
 
 // redux
-import { createStore, combineReducers, applyMiddleware } from 'redux'
-import { Provider, connect } from 'react-redux'
+import {
+    createStore,
+    // combineReducers, applyMiddleware
+} from 'redux'
+// import { Provider, connect } from 'react-redux'
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -16,22 +19,28 @@ import { withStyles } from '@material-ui/core';
 import CommonStyles from "./common_styles";
 
 // router
-import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { withRouter } from 'react-router'
+// import { Link } from 'react-router-dom'
 
 // icons
 import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+// import * as mui from '@material-ui/icons';
 
 // ui
 import * as mu from '@material-ui/core';
 import {
-    Paper, Typography, TextField, Button, IconButton, MenuItem, Snackbar, Select, Toolbar, Divider, Tooltip, Chip,
+    Paper, Typography, TextField, Button, IconButton,
+    // MenuItem, 
+    Snackbar,
+    // Select, 
+    Toolbar, Divider, Tooltip, Chip,
     Input, InputLabel, InputAdornment,
-    FormGroup, FormControlLabel, FormControl, FormHelperText,
-    Stepper, Step, StepLabel, Switch,
+    // FormGroup, FormControlLabel, 
+    FormControl, FormHelperText,
+    Stepper, Step, StepLabel,
+    // Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
-    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    Dialog, DialogActions, DialogContent, DialogTitle,
 } from '@material-ui/core';
 
 import {
@@ -41,22 +50,22 @@ import {
     IntegratedSorting,
     FilteringState,
     IntegratedFiltering,
-    EditingState,
-    PagingState,
-    IntegratedPaging,
+    // EditingState,
+    // PagingState,
+    // IntegratedPaging,
 } from '@devexpress/dx-react-grid';
 
 import {
     Grid,
-    Table as dxTable,
+    // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
     TableSelection,
-    PagingPanel,
+    // PagingPanel,
     // Toolbar,
-    TableEditRow,
-    TableEditColumn,
-    TableColumnResizing,
+    // TableEditRow,
+    // TableEditColumn,
+    // TableColumnResizing,
     TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
@@ -64,7 +73,7 @@ import {
 import axios from 'axios'
 
 
-import DataTableBase from "./data_table_base"
+// import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { toFixedMass } from "./utils"
@@ -122,7 +131,7 @@ function bomReducer(state = initState, action) {
         case SELECT_FORMULA: {
             let { product, formula } = action
 
-            newState.boms = newState.boms.filter(i => i.product != product)
+            newState.boms = newState.boms.filter(i => i.product !== product)
             // let bi = newState.bomItems.find(i => i.product == product && i.formula == formula)
             // if (!bi) 
             newState.boms.push({ product, formula, materials: [] })
@@ -131,9 +140,9 @@ function bomReducer(state = initState, action) {
 
         case CHANGE_MATERIAL_QUANTITY: {
             let { product, formula, material, quantity, calc_quantity } = action
-            let bi = newState.boms.find(i => i.product == product && i.formula == formula)
+            let bi = newState.boms.find(i => i.product === product && i.formula === formula)
             if (bi) {
-                let mi = bi.materials.find(m => m.material == material)
+                let mi = bi.materials.find(m => m.material === material)
                 if (mi)
                     mi.quantity = quantity
                 else {
@@ -151,6 +160,9 @@ function bomReducer(state = initState, action) {
             newState.errors = action.errors
             break;
         }
+
+        default:
+            break
     }
 
     return newState;
@@ -214,12 +226,12 @@ class BomDetailsPage extends React.PureComponent {
             }
 
             this.forceUpdate()
-        }).bind(this)
+        })
 
 
         // 显示 订单选择对话框
         this.selectOrder = (async () => {
-            if (this.state.orders.length == 0) {
+            if (this.state.orders.length === 0) {
                 await axios.get(`${DATA_API_BASE_URL}/orders/search/findByStatusEquals?status=0`)
                     .then(resp => resp.data._embedded.orders)
                     .then(j => {
@@ -230,13 +242,13 @@ class BomDetailsPage extends React.PureComponent {
 
             store.dispatch(actionValidData({}))
             this.setState({ showSelectOrder: true })
-        }).bind(this)
+        })
 
 
         // 取消显示 订单选择对话框
         this.cancelSelect = (() => {
             this.setState({ showSelectOrder: false })
-        }).bind(this)
+        })
 
 
         // 订单选择发送变化 （在 订单选择对话框 内）
@@ -254,7 +266,7 @@ class BomDetailsPage extends React.PureComponent {
         // 确定了 订单选择
         this.onSelectedOrder = (() => {
             const { orders, selection } = this.state;
-            if (selection.length == 0) return;
+            if (selection.length === 0) return;
 
             //
             let order = orders[selection[0]]
@@ -267,7 +279,7 @@ class BomDetailsPage extends React.PureComponent {
                     store.dispatch(actionSelectOrder(order.id))
                 })
                 .catch(e => this.showSnackbar(e.message));
-        }).bind(this)
+        })
 
 
         //
@@ -276,7 +288,7 @@ class BomDetailsPage extends React.PureComponent {
         this.onSaveSuccess = (() => {
             this.setState({ showSavingBom: false, activeStep: 0 })
             this.props.history.goBack();
-        }).bind(this)
+        })
 
 
         this.saveBom = (async () => {
@@ -298,7 +310,7 @@ class BomDetailsPage extends React.PureComponent {
             const { boms } = store.getState()
             let { order, orderItems } = this.state
 
-            if (!order || !order.no || order.no == "")
+            if (!order || !order.no || order.no === "")
                 errors['order'] = "无效的订单"
             else {
                 if (!orderItems || orderItems.length <= 0) {
@@ -309,7 +321,7 @@ class BomDetailsPage extends React.PureComponent {
                         const pid = oi.id.product
 
                         // find bom from redux store
-                        const bi = boms.find(bi => bi.product == pid)
+                        const bi = boms.find(bi => bi.product === pid)
 
                         if (!bi)
                             errors[`formula_${pid}`] = "未选择配方"
@@ -399,7 +411,7 @@ class BomDetailsPage extends React.PureComponent {
             // done
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-        }).bind(this)
+        })
     }
 
     showSnackbar(msg: String) {
@@ -467,7 +479,7 @@ class BomDetailsPage extends React.PureComponent {
 
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
         const orderId = this.props.match.params.id;
         const { mode, order, orderItems, orders } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
@@ -696,7 +708,7 @@ class BomSheet extends React.PureComponent {
             if (errors) {
                 const keys = Object.keys(errors)
 
-                keys.filter(k => k == `formula_${product}`)
+                keys.filter(k => k === `formula_${product}`)
                     .forEach(k => {
                         e.formula = errors[k]
                     })
@@ -711,12 +723,12 @@ class BomSheet extends React.PureComponent {
             }
 
             this.forceUpdate()
-        }).bind(this)
+        })
 
         //
         this.cancelSelect = (() => {
             this.setState({ showSelectFormula: false })
-        }).bind(this)
+        })
 
 
         this.changeSelection = selection => {
@@ -733,7 +745,7 @@ class BomSheet extends React.PureComponent {
         this.onSelectedFormula = (() => {
             const { orderItem } = this.props
             const { formulas, selection } = this.state;
-            if (selection.length == 0) return;
+            if (selection.length === 0) return;
 
             //
             let formula = formulas[selection[0]]
@@ -755,14 +767,14 @@ class BomSheet extends React.PureComponent {
                     this.setState({ formula: formula, formulaItems: j, showSelectFormula: false, })
                 })
                 .catch(e => this.showSnackbar(e.message));
-        }).bind(this)
+        })
 
 
         this.updateMaterialQuantity = ((mid, quantity, calcQuantity) => {
             const { orderItem } = this.props
             let { formula, formulaItems } = this.state
 
-            let item = formulaItems.find(i => i.id.material == mid)
+            let item = formulaItems.find(i => i.id.material === mid)
             item.custom_quantity = quantity
 
             store.dispatch(actionChangeMaterialQuantity(orderItem.id.product, item.id.formula, item.id.material, item.custom_quantity, calcQuantity))
@@ -775,14 +787,14 @@ class BomSheet extends React.PureComponent {
             formula.total_quantity = parseFloat(tq.toFixed(3))
 
             this.forceUpdate();
-        }).bind(this)
+        })
 
         this.handleQuantityChange = (e => {
             const mid = e.target.id.split("_")[1]
             const value = Number.parseFloat(e.target.value)
 
             this.updateMaterialQuantity(mid, value)
-        }).bind(this)
+        })
     }
 
     componentDidMount() {
@@ -822,7 +834,7 @@ class BomSheet extends React.PureComponent {
                     .then(resp => resp.data._embedded.bomItems)
                     .then(bomItems => {
                         bomItems.forEach(bi => {
-                            let fi = this.state.formulaItems.find(fi => fi.id.material == bi.id.material)
+                            let fi = this.state.formulaItems.find(fi => fi.id.material === bi.id.material)
                             if (fi) {
                                 fi.calc_quantity = bi.calcQuantity
                                 // fi.custom_quantity = bi.quantity
@@ -847,7 +859,7 @@ class BomSheet extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
         const { orderItem, mode } = this.props
         const { product, formula, formulas, formulaItems } = this.state
         const { showSelectFormula, selection } = this.state
@@ -919,8 +931,8 @@ class BomSheet extends React.PureComponent {
                                                 value={f.custom_quantity ? toFixedMass(f.custom_quantity) : null}
                                                 fullWidth
                                                 error={errors && errors[`material_${f.id.material}`]}
-                                                inputProps={{ min: 0 }}
                                                 InputProps={{
+                                                    min: 0,
                                                     endAdornment: <InputAdornment position="end">kg</InputAdornment>
                                                 }}
                                                 onChange={e => this.handleQuantityChange(e)}
@@ -1001,33 +1013,33 @@ class BomSheet extends React.PureComponent {
     }
 }
 
-const mapStateToBomPageProps = (state) => {
-    return { ...state }
-}
+// const mapStateToBomPageProps = (state) => {
+//     return { ...state }
+// }
 
-const mapStateToBomSheetProps = (state, ownProps) => {
-    let errors = null
-    const { product } = ownProps.orderItem.id
+// const mapStateToBomSheetProps = (state, ownProps) => {
+//     let errors = null
+//     const { product } = ownProps.orderItem.id
 
-    if (state.errors) {
-        const keys = Object.keys(state.errors)
+//     if (state.errors) {
+//         const keys = Object.keys(state.errors)
 
-        keys.filter(k => k == `formula_${product}` || k.startsWith(`material_${product}`))
-            .forEach(k => {
-                errors[k] = state.errors[k]
-            })
-    }
+//         keys.filter(k => k == `formula_${product}` || k.startsWith(`material_${product}`))
+//             .forEach(k => {
+//                 errors[k] = state.errors[k]
+//             })
+//     }
 
-    return { errors }
-}
+//     return { errors }
+// }
 
-const mapDispatchToProps = (dispatch) => {
-    return { dispatch }
-}
+// const mapDispatchToProps = (dispatch) => {
+//     return { dispatch }
+// }
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
         title: {
             opacity: .75,
             margin: 0,

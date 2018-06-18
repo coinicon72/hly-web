@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
-import { MenuItem } from '@material-ui/core/Menu';
+// import { MenuItem } from '@material-ui/core/Menu';
 import { TableCell } from '@material-ui/core/Table';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
@@ -142,9 +142,9 @@ export const NumericTypeProvider = props => (
 
 
 
-const IntEditor = (props) => (
-    <EditorBase />
-);
+// const IntEditor = (props) => (
+//     <EditorBase />
+// );
 export const IntTypeProvider = props => (
     <DataTypeProvider
         // formatterComponent={Formatter}

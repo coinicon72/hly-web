@@ -2,8 +2,8 @@
 
 // basic
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 import compose from 'recompose/compose';
 
 // styles
@@ -13,7 +13,7 @@ import CommonStyles from "./common_styles";
 
 // router
 import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom'
 
 // icons
 import * as mdi from 'mdi-material-ui';
@@ -22,12 +22,18 @@ import * as mui from '@material-ui/icons';
 // ui components
 import * as mu from '@material-ui/core';
 import {
-    Paper, Typography, TextField, Button, IconButton, MenuItem, Snackbar, Select, Toolbar, Divider, Tooltip, Chip,
+    Paper, Typography, TextField, Button, IconButton,
+    // MenuItem, 
+    Snackbar,
+    // Select, 
+    Toolbar,
+    // Divider, Tooltip, Chip,
     Input, InputLabel, InputAdornment,
-    FormGroup, FormControlLabel, FormControl, FormHelperText,
+    // FormGroup, 
+    FormControlLabel, FormControl, FormHelperText,
     Stepper, Step, StepLabel, Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
-    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    Dialog, DialogActions, DialogContent, DialogTitle,
 } from '@material-ui/core';
 
 import {
@@ -37,31 +43,33 @@ import {
     IntegratedSorting,
     FilteringState,
     IntegratedFiltering,
-    EditingState,
-    PagingState,
-    IntegratedPaging,
+    // EditingState,
+    // PagingState,
+    // IntegratedPaging,
 } from '@devexpress/dx-react-grid';
 
 import {
     Grid,
-    Table as dxTable,
+    // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
     TableSelection,
-    PagingPanel,
+    // PagingPanel,
     // Toolbar,
-    TableEditRow,
-    TableEditColumn,
-    TableColumnResizing,
+    // TableEditRow,
+    // TableEditColumn,
+    // TableColumnResizing,
     TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
 import axios from 'axios'
 
-import DataTableBase from "./data_table_base"
+// import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
-import { store } from "./redux"
+
+import { getTodayString } from "./utils"
+// import { store } from "./redux/redux"
 
 const MODE_ADD = "add"
 const MODE_VIEW = "view"
@@ -87,7 +95,7 @@ class AddFourmulaPage extends React.PureComponent {
                 { name: "type", title: "类型", getCellValue: row => row.type ? row.type.name : undefined },
                 { name: "comment", title: "备注" },
             ],
-            materails: [],
+            materials: [],
             selection: [],
 
             //
@@ -113,7 +121,7 @@ class AddFourmulaPage extends React.PureComponent {
 
         this.onEdit = ((id) => {
             alert(`edit ${id}`)
-        }).bind(this)
+        })
 
         this.onDelete = ((id) => {
             const { formulaItems } = this.state;
@@ -123,7 +131,7 @@ class AddFourmulaPage extends React.PureComponent {
                 // this.setState({ formulas: formulas });
                 this.forceUpdate();
             }
-        }).bind(this)
+        })
 
         this.changeSelection = selection => this.setState({ selection });
 
@@ -132,18 +140,18 @@ class AddFourmulaPage extends React.PureComponent {
         this.handleBasicInfoChange = (e => {
             this.state.basicInfo[e.target.id] = e.target.value
             this.forceUpdate();
-        }).bind(this)
+        })
 
         this.handleProdCondChange = (e => {
             this.state.produceCond[e.target.id] = e.target.value;
             this.forceUpdate();
-        }).bind(this)
+        })
 
         this.addMaterials = (() => {
-            const { formulaItems, materails, selection } = this.state;
+            const { formulaItems, materials, selection } = this.state;
             Object.keys(selection).forEach(idx => {
                 let no = selection[idx];
-                let material = materails[no];
+                let material = materials[no];
 
                 if (!formulaItems.find(v => v.id === material.id))
                     formulaItems.push(material)
@@ -151,14 +159,14 @@ class AddFourmulaPage extends React.PureComponent {
 
             //
             this.setState({ formulaItems: formulaItems, selectMaterial: false, selection: [] })
-        }).bind(this)
+        })
 
         this.handleQuantityChange = (e => {
-            let id = e.target.id.split("_")[1]
-            let item = this.state.formulaItems.find(i => i.id == id)
+            let id = parseInt(e.target.id.split("_")[1], 10)
+            let item = this.state.formulaItems.find(i => i.id === id)
             item.quantity = Number.parseFloat(e.target.value)
             this.forceUpdate();
-        }).bind(this)
+        })
 
         //
         this.cancelSave = () => this.setState({ savingFormula: false, activeStep: 0 })
@@ -166,7 +174,7 @@ class AddFourmulaPage extends React.PureComponent {
         this.onSaveSuccess = (() => {
             this.setState({ savingFormula: false, activeStep: 0 })
             this.props.history.goBack();
-        }).bind(this)
+        })
 
         this.saveFormula = (async () => {
             //
@@ -316,7 +324,7 @@ class AddFourmulaPage extends React.PureComponent {
             // step 5, done
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-        }).bind(this)
+        })
     }
 
     showSnackbar(msg: String) {
@@ -345,7 +353,7 @@ class AddFourmulaPage extends React.PureComponent {
 
         axios.get(`${DATA_API_BASE_URL}/materials`)
             .then(resp => resp.data._embedded['materials'])
-            .then(j => this.state.materails = j)
+            .then(j => this.state.materials = j)
             .catch(e => this.showSnackbar(e.message));
 
         // load details
@@ -376,10 +384,10 @@ class AddFourmulaPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
-        const { id } = this.props.match.params;
-        const { product, basicInfo, produceCond, formulaItems } = this.state;
-        const { selectMaterial, materails, columns, selection, errors } = this.state;
+        const { classes, } = this.props
+        // const { id } = this.props.match.params;
+        const { basicInfo, produceCond, formulaItems } = this.state;
+        const { selectMaterial, materials, columns, selection, errors } = this.state;
         const { snackbarOpen, snackbarContent } = this.state;
 
         // save formula
@@ -402,19 +410,10 @@ class AddFourmulaPage extends React.PureComponent {
             case MODE_EDIT:
                 title = "编辑配方"
                 break
+
+            default:
+                break
         }
-
-        // current date
-        let now = new Date();
-        let m = now.getMonth() + 1;
-        if (m < 10)
-            m = '0' + m;
-        let d = now.getDate();
-        if (d < 10)
-            d = '0' + d;
-        let ds = `${now.getFullYear()}-${m}-${d}`
-
-        // this.state.basicInfo.createDate = ds;
 
         return (
             // <Provider store={store}>
@@ -463,7 +462,7 @@ class AddFourmulaPage extends React.PureComponent {
                             <mu.Grid>
                                 <TextField type="date" required disabled id="createDate" label="修订日期"
                                     // defaultValue={basicInfo.createDate}
-                                    value={ds}
+                                    value={getTodayString()}
                                     // className={classes.textFieldWithoutMargin}
                                     margin="normal"
                                     onChange={e => this.handleBasicInfoChange(e)}
@@ -511,11 +510,11 @@ class AddFourmulaPage extends React.PureComponent {
                             className={classes.textField}
                             onChange={e => this.handleProdCondChange(e)}
                             margin="normal"
-                            inputProps={{ min: 0 }}
                             InputLabelProps={{
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
+                                min: 0,
                                 endAdornment: <InputAdornment position="end" style={{ width: '3em' }}>分钟</InputAdornment>
                             }}
                         />
@@ -523,13 +522,14 @@ class AddFourmulaPage extends React.PureComponent {
                         <TextField type="number" required id="mesh" error={!!errors['mesh']}
                             label="筛网目数"
                             value={produceCond['mesh']}
-                            className={classes.textField} inputProps={{ min: 0 }}
+                            className={classes.textField}
                             onChange={e => this.handleProdCondChange(e)}
                             margin="normal"
                             InputLabelProps={{
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
+                                min: 0,
                                 endAdornment: <InputAdornment position="end">目</InputAdornment>
                             }}
                         />
@@ -538,13 +538,14 @@ class AddFourmulaPage extends React.PureComponent {
                             <TextField type="number" required id="inputTemperature" error={!!errors['inputTemperature']}
                                 label="进料挤温" defaultValue=""
                                 value={produceCond.inputTemperature}
-                                className={classes.textField} inputProps={{ min: 0 }}
+                                className={classes.textField}
                                 onChange={e => this.handleProdCondChange(e)}
                                 margin="normal"
                                 InputLabelProps={{
                                     shrink: shrinkLabel,
                                 }}
                                 InputProps={{
+                                    min: 0,
                                     endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
                                 }}
                             />
@@ -552,13 +553,14 @@ class AddFourmulaPage extends React.PureComponent {
                             <TextField type="number" required id="outputTemperature" error={!!errors['outputTemperature']}
                                 label="出料挤温" defaultValue=""
                                 value={produceCond.outputTemperature}
-                                className={classes.textField} inputProps={{ min: 0 }}
+                                className={classes.textField}
                                 onChange={e => this.handleProdCondChange(e)}
                                 margin="normal"
                                 InputLabelProps={{
                                     shrink: shrinkLabel,
                                 }}
                                 InputProps={{
+                                    min: 0,
                                     endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
                                 }}
                             />
@@ -566,39 +568,42 @@ class AddFourmulaPage extends React.PureComponent {
 
                         <TextField type="number" required id="mainMillerRpm" error={!!errors['mainMillerRpm']} label="主磨转数" defaultValue=""
                             value={produceCond.mainMillerRpm}
-                            className={classes.textField} inputProps={{ min: 0 }}
+                            className={classes.textField}
                             onChange={e => this.handleProdCondChange(e)}
                             margin="normal"
                             InputLabelProps={{
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
+                                min: 0,
                                 endAdornment: <InputAdornment position="end">RPM</InputAdornment>
                             }}
                         />
 
                         <TextField type="number" required id="secondMillerRpm" error={!!errors['secondMillerRpm']} label="副磨转数" defaultValue=""
                             value={produceCond.secondMillerRpm}
-                            className={classes.textField} inputProps={{ min: 0 }}
+                            className={classes.textField}
                             onChange={e => this.handleProdCondChange(e)}
                             margin="normal"
                             InputLabelProps={{
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
+                                min: 0,
                                 endAdornment: <InputAdornment position="end">RPM</InputAdornment>
                             }}
                         />
 
                         <TextField type="number" required id="screwRpm" error={!!errors['screwRpm']} label="螺杆转数" defaultValue=""
                             value={produceCond.screwRpm}
-                            className={classes.textField} inputProps={{ min: 0 }}
+                            className={classes.textField}
                             onChange={e => this.handleProdCondChange(e)}
                             margin="normal"
                             InputLabelProps={{
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
+                                min: 0,
                                 endAdornment: <InputAdornment position="end">RPM</InputAdornment>
                             }}
                         />
@@ -641,7 +646,7 @@ class AddFourmulaPage extends React.PureComponent {
                                                     value={m.quantity}
                                                     fullWidth
                                                     error={!!errors[`item_${m.id}`]}
-                                                    margin="normal" inputProps={{ min: 0 }}
+                                                    margin="normal"
                                                     InputProps={{
                                                         endAdornment: <InputAdornment position="end">kg</InputAdornment>
                                                     }}
@@ -698,7 +703,7 @@ class AddFourmulaPage extends React.PureComponent {
                         {/* <DialogContentText>请选择材料</DialogContentText> */}
                         <Paper>
                             <Grid
-                                rows={materails}
+                                rows={materials}
                                 columns={columns}
                             >
                                 <SelectionState
@@ -752,7 +757,7 @@ class AddFourmulaPage extends React.PureComponent {
                         </Paper>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep == this.steps.length - 1 ? false : true} color="primary">确定</Button>
+                        <Button onClick={this.onSaveSuccess} disabled={this.state.activeStep >= this.steps.length - 1 ? false : true} color="primary">确定</Button>
                     </DialogActions>
                 </Dialog>
             </React.Fragment>
@@ -762,7 +767,7 @@ class AddFourmulaPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
         toolbar: {
             padding: 0,
         },

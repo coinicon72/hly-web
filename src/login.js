@@ -8,15 +8,20 @@ import axios from 'axios'
 
 //
 import {
-    AppBar, Toolbar, Button, IconButton, Typography,
+    // AppBar, Toolbar, Typography,
+    Button, IconButton,
     Input, InputLabel, InputAdornment,
-    FormGroup, FormControlLabel, FormControl, FormHelperText, FormLabel
+    FormGroup,
+    // FormControlLabel, 
+    FormControl, 
+    // FormHelperText, FormLabel
 } from '@material-ui/core';
+
 import { withStyles } from '@material-ui/core';
 
-import {
-    TableEditRow, TableEditColumn,
-} from '@devexpress/dx-react-grid-material-ui';
+// import {
+//     TableEditRow, TableEditColumn,
+// } from '@devexpress/dx-react-grid-material-ui';
 
 //
 import * as mdi from 'mdi-material-ui';
@@ -24,12 +29,19 @@ import * as mdi from 'mdi-material-ui';
 //
 import { connect } from 'react-redux'
 
-import { withCookies, Cookies } from 'react-cookie';
+import {
+    withCookies,
+    // Cookies 
+} from 'react-cookie';
 
 //
-import { EXPORT_BASE_URL, API_BASE_URL, DATA_API_BASE_URL } from "./config";
+import {
+    // EXPORT_BASE_URL,
+    API_BASE_URL, 
+    // DATA_API_BASE_URL
+} from "./config";
 
-import { actionLogging, actionLoggedIn, actionLoginFailed } from './redux'
+import { actionLogging, actionLoggedIn, actionLoginFailed } from './redux/redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 
@@ -65,7 +77,7 @@ class LoginPage extends React.PureComponent {
     // }
 
     render() {
-        const { classes, width } = this.props
+        // const { classes, width } = this.props
 
         return <div style={{ display: 'flex', flex: 1, justifyContent: 'center', padding: 24 }}>
             <FormGroup>
@@ -115,7 +127,7 @@ class LoginPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

@@ -2,9 +2,9 @@
 
 // basic
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
+// import compose from 'recompose/compose';
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -12,18 +12,25 @@ import { withStyles } from '@material-ui/core';
 import CommonStyles from "./common_styles";
 
 // router
-import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { withRouter } from 'react-router'
+// import { Link } from 'react-router-dom'
 
 // icons
 import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+// import * as mui from '@material-ui/icons';
 
 // ui
 import {
-    Paper, Typography, Grid, TextField, Button, IconButton,
-    Snackbar, Input, Select, Toolbar, Divider, Tooltip,
-    Table, TableBody, TableCell, TableHead, TableRow
+    // Paper, 
+    Typography, 
+    // Grid, TextField, 
+    Button, 
+    // IconButton, Snackbar, Input, Select, 
+    Toolbar, 
+    // Divider, Tooltip,
+    // Table, 
+    // TableBody, 
+    // TableCell, TableHead, TableRow
 } from '@material-ui/core';
 
 //
@@ -33,7 +40,7 @@ import axios from 'axios'
 import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
-import { store } from "./redux"
+// import { store } from "./redux/redux"
 
 
 // =============================================
@@ -136,7 +143,7 @@ class OrderPage extends React.PureComponent {
     // }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
         // const { snackbarOpen, snackbarContent } = this.state;
 
         return (
@@ -175,7 +182,7 @@ class OrderPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

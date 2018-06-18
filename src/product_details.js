@@ -2,9 +2,9 @@
 
 // basic
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
+// import compose from 'recompose/compose';
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core';
 import CommonStyles from "./common_styles";
 
 // router
-import { withRouter } from 'react-router'
+// import { withRouter } from 'react-router'
 import { Link } from 'react-router-dom'
 
 // icons
@@ -21,7 +21,13 @@ import * as mui from '@material-ui/icons';
 
 // ui
 import {
-    Paper, Typography, Grid, TextField, Button, IconButton, Snackbar, Input, Select, Toolbar, Divider, Tooltip,
+    Paper, Typography, Grid, 
+    // TextField, 
+    Button, IconButton, Snackbar, 
+    // Input, Select, 
+    Toolbar, 
+    // Divider, 
+    Tooltip,
     Table, TableBody, TableCell, TableHead, TableRow
 } from '@material-ui/core';
 
@@ -29,10 +35,10 @@ import {
 import axios from 'axios'
 
 
-import DataTableBase from "./data_table_base"
+// import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
-import { store } from "./redux"
+// import { store } from "./redux/redux"
 
 
 // =============================================
@@ -51,11 +57,11 @@ class ProductDetailsPage extends React.PureComponent {
 
         // this.onDetails = ((id) => {
         //     alert(`details ${id}`)
-        // }).bind(this)
+        // })
 
         // this.onEdit = ((id) => {
         //     alert(`edit ${id}`)
-        // }).bind(this)
+        // })
 
         this.onDelete = ((id, no) => {
             if (window.confirm(`删除此配方？`)) {
@@ -67,7 +73,7 @@ class ProductDetailsPage extends React.PureComponent {
                     })
                     .catch(e => this.showSnackbar(e.message));
             }
-        }).bind(this)
+        })
     }
 
     showSnackbar(msg: String) {
@@ -94,8 +100,8 @@ class ProductDetailsPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
-        const { id } = this.props.match.params;
+        const { classes, } = this.props
+        // const { id } = this.props.match.params;
         const { product, formulas } = this.state;
         const { snackbarOpen, snackbarContent } = this.state;
 
@@ -220,7 +226,7 @@ class ProductDetailsPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
         toolbar: {
             padding: 0,
         },

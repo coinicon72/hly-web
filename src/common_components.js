@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React
+// , { Component } 
+from 'react';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 import { Typography } from '@material-ui/core';

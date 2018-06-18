@@ -1,21 +1,27 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
 import {
-    AppBar, Toolbar, Button, IconButton, Snackbar, withStyles, Typography,
-    Select, Input, InputLabel, FormControl,
+    // AppBar, 
+    Toolbar, 
+    // Button, IconButton, Snackbar, 
+    withStyles, 
+    // Typography,
+    Select, 
+    // Input, 
+    InputLabel, FormControl,
 } from '@material-ui/core';
 
-import * as mdi from 'mdi-material-ui';
+// import * as mdi from 'mdi-material-ui';
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 //
 import DataTableBase from "./data_table_base"
@@ -90,10 +96,11 @@ class RepoPage extends React.PureComponent {
         this.doLoad = this.doLoad.bind(this)
 
         this.onChangedRepo = (e => {
-            const r = this.state.repoes.find(r => r.id == e.target.value)
+            const rid = parseInt(e.target.value, 10)
+            const r = this.state.repoes.find(r => r.id === rid)
             this.state.currentRepo = r
             this.forceUpdate()
-        }).bind(this)
+        })
 
         // this.doUpdate = ((r, c) => {
         //     let { changes } = this.state
@@ -150,9 +157,8 @@ class RepoPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
         const { repoes, currentRepo, } = this.state;
-        const { snackbarOpen, snackbarContent } = this.state;
 
         return currentRepo ? (
             <div className={classes.contentRoot}>
@@ -214,7 +220,7 @@ class RepoPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 

@@ -2,9 +2,9 @@
 
 // basic
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
+// import compose from 'recompose/compose';
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -15,8 +15,8 @@ import CommonStyles from "./common_styles";
 // import connect from 'react-redux/lib/connect/connect';
 
 // router
-import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { withRouter } from 'react-router'
+// import { Link } from 'react-router-dom'
 
 // icons
 import * as mdi from 'mdi-material-ui';
@@ -25,12 +25,23 @@ import * as mui from '@material-ui/icons';
 // ui
 import * as mu from '@material-ui/core';
 import {
-    Paper, Typography, TextField, Button, IconButton, MenuItem, Snackbar, Select, Toolbar, Divider, Tooltip, Chip,
-    Input, InputLabel, InputAdornment,
-    FormGroup, FormControlLabel, FormControl, FormHelperText,
-    Stepper, Step, StepLabel, Switch,
+    Paper, Typography, TextField, Button, IconButton,
+    // MenuItem, Snackbar, 
+    Select, Toolbar,
+    // Divider, 
+    Tooltip, Chip,
+    // Input, 
+    InputLabel,
+    // InputAdornment,
+    // FormGroup, FormControlLabel, 
+    FormControl,
+    // FormHelperText,
+    Stepper, Step, StepLabel,
+    // Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
-    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    Dialog, DialogActions, DialogContent,
+    // DialogContentText, 
+    DialogTitle,
 } from '@material-ui/core';
 
 import {
@@ -40,32 +51,36 @@ import {
     IntegratedSorting,
     FilteringState,
     IntegratedFiltering,
-    EditingState,
-    PagingState,
-    IntegratedPaging,
+    // EditingState,
+    // PagingState,
+    // IntegratedPaging,
     DataTypeProvider,
 } from '@devexpress/dx-react-grid';
 
 import {
     Grid,
-    Table as dxTable,
+    // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
     TableSelection,
-    PagingPanel,
+    // PagingPanel,
     // Toolbar,
-    TableEditRow,
-    TableEditColumn,
-    TableColumnResizing,
+    // TableEditRow,
+    // TableEditColumn,
+    // TableColumnResizing,
     TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
 //
 import axios from 'axios'
 
-import DataTableBase from "./data_table_base"
+// import DataTableBase from "./data_table_base"
 
-import { TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_EDIT, MODE_VIEW, API_BASE_URL, DATA_API_BASE_URL } from "./config"
+import {
+    TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_EDIT,
+    // MODE_VIEW, 
+    API_BASE_URL, DATA_API_BASE_URL
+} from "./config"
 
 //
 import { connect } from 'react-redux'
@@ -190,11 +205,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         // this.onDetails = ((id) => {
         //     alert(`details ${id}`)
-        // }).bind(this)
+        // })
 
         // this.onEdit = ((id) => {
         //     alert(`edit ${id}`)
-        // }).bind(this)
+        // })
 
 
         // basic info changed
@@ -202,13 +217,13 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.state.form[e.target.id] = e.target.value
             this.state.dirty = true
             this.forceUpdate()
-        }).bind(this)
+        })
 
         this.onChangedRepo = (e => {
             this.state.form.repo = { id: e.target.value }
             this.state.dirty = true
             this.forceUpdate()
-        }).bind(this)
+        })
 
 
         // select materials
@@ -224,7 +239,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             //
             this.setState({ dirty: true, changingItems: changingItems, selectMaterial: false, selection: [] })
-        }).bind(this)
+        })
 
 
         this.changeSelection = selection => this.setState({ selection });
@@ -242,7 +257,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.state.dirty = true
             this.forceUpdate();
             // }
-        }).bind(this)
+        })
 
 
         // item changed
@@ -254,7 +269,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.updateFormValue()
 
             // this.forceUpdate();
-        }).bind(this)
+        })
 
 
         this.handlePriceChange = ((e, mid, no) => {
@@ -265,7 +280,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.updateFormValue()
 
             // this.forceUpdate();
-        }).bind(this)
+        })
 
 
         this.updateFormValue = (e => {
@@ -277,9 +292,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.state.dirty = true
             this.state.form.amount = toFixedMoney(value);
             this.forceUpdate()
-        }).bind(this)
+        })
 
-        this.handleOrderRelatedChange = (e => this.setState({ orderRelated: e.target.checked })).bind(this)
+        this.handleOrderRelatedChange = (e => this.setState({ orderRelated: e.target.checked }))
 
 
         //
@@ -289,9 +304,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
             // const r = this.state.repoChangingReasons.find(i => i.id = this.state.reason)
             // if (r)
             //     this.setState({ orderRelated: r.orderRelated })
-            const rid = e.target.value
+            const rid = parseInt(e.target.value, 10)
 
-            const r = this.state.repoChangingReasons.find(i => i.id == rid)
+            const r = this.state.repoChangingReasons.find(i => i.id === rid)
             if (r) {
                 this.state.dirty = true
                 this.state.form.reason = { id: r.id }
@@ -299,7 +314,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 this.state.orderRelated = r.orderRelated
                 this.forceUpdate()
             }
-        }).bind(this)
+        })
 
         // 订单选择
         //
@@ -313,9 +328,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 })
                 .catch(e => this.props.showSnackbar(e.message));
 
-        }).bind(this)
+        })
 
-        this.cancelSelectOrder = (_ => this.setState({ showSelectOrder: false })).bind(this)
+        this.cancelSelectOrder = (_ => this.setState({ showSelectOrder: false }))
 
         this.changeOrderSelection = (selection => {
             let keys = Object.keys(selection)
@@ -325,18 +340,18 @@ class RepoChangingDetailsPage extends React.PureComponent {
             }
 
             this.setState({ orderSelection: selection });
-        }).bind(this)
+        })
 
 
         this.onSelectedOrder = (() => {
             const { orders, orderSelection } = this.state;
-            if (orderSelection.length == 0) return;
+            if (orderSelection.length === 0) return;
 
             //
             const order = orders[orderSelection[0]]
             this.state.form.order = order
             this.setState({ showSelectOrder: false })
-        }).bind(this)
+        })
 
         // saving
         this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
@@ -344,7 +359,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
         this.onSaveSuccess = (() => {
             this.setState({ showSavingDiag: false, activeStep: 0 })
             this.props.history.goBack();
-        }).bind(this)
+        })
 
 
         //
@@ -383,7 +398,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                         errors[`quantity_${item.material.id}`] = "无效的数量"
                     }
 
-                    if (type != TYPE_STOCK_OUT) {
+                    if (type !== TYPE_STOCK_OUT) {
                         if (!item.price || item.price <= 0) {
                             errors[`price_${item.material.id}`] = "无效的价格"
                         }
@@ -453,7 +468,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             //
             this.props.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
 
-        }).bind(this)
+        })
 
 
         this.processForm = (() => {
@@ -465,10 +480,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .then(p => {
                     const { repos, changingItems } = this.state
                     return p.map(pi => {
-                        let ci = changingItems.find(ci => ci.material.id == pi.materialId)
+                        let ci = changingItems.find(ci => ci.material.id === pi.materialId)
                         pi.material = ci.material
 
-                        let repo = repos.find(r => r.id == pi.repoId)
+                        let repo = repos.find(r => r.id === pi.repoId)
                         pi.repo = repo
 
                         return pi
@@ -492,7 +507,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => {
                     this.props.showSnackbar(e.message)
                 })
-        }).bind(this)
+        })
 
 
         this.cancelPreview = () => this.setState({ showPreviewDiag: false })
@@ -510,11 +525,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => {
                     this.props.showSnackbar(e.message)
                 })
-        }).bind(this)
+        })
 
 
         //
-        this.rejectForm = (() => this.setState({ showConfirmDiag: true, confirmMessage: "确定拒绝此申请吗？" })).bind(this)
+        this.rejectForm = (() => this.setState({ showConfirmDiag: true, confirmMessage: "确定拒绝此申请吗？" }))
 
 
         // confirm
@@ -529,7 +544,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => {
                     this.props.showSnackbar(e.message)
                 })
-        }).bind(this)
+        })
     }
 
     showSnackbar(msg: String) {
@@ -552,12 +567,14 @@ class RepoChangingDetailsPage extends React.PureComponent {
             // case TYPE_STOCK_IN_OUT:
             //     this.state.form.type = 0;
             //     break;
+            default:
+                break
         }
 
         //
         if (!id) id = 0
 
-        if (id == 0 || mode === MODE_ADD) {
+        if (id === 0 || mode === MODE_ADD) {
             this.state.mode = MODE_ADD
             this.state.form.applicant = user
             // this.state.dirty = f
@@ -638,7 +655,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             .then(j => {
                 // this.state.form.reason = j[0]
                 if (mode === MODE_ADD)
-                    this.state.form.reason = j.filter(r => r.type == this.state.form.type)[0]
+                    this.state.form.reason = j.filter(r => r.type === this.state.form.type)[0]
 
                 this.setState({ repoChangingReasons: j });
             })
@@ -646,18 +663,18 @@ class RepoChangingDetailsPage extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.state.mode == MODE_ADD && !prevProps.user && this.props.user) {
+        if (this.state.mode === MODE_ADD && !prevProps.user && this.props.user) {
             this.state.form.applicant = this.props.user
             this.forceUpdate()
         }
     }
 
     render() {
-        const { type, classes, width, user } = this.props
-        const { id } = this.props.match.params;
+        const { type, classes, } = this.props
+        // const { id } = this.props.match.params;
         const { mode, form, changingItems, materials } = this.state;
         const { dirty, selectMaterial, columns, selection } = this.state;
-        const { errors, snackbarOpen, snackbarContent } = this.state;
+        const { errors, } = this.state;
 
         let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
@@ -668,7 +685,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
         switch (type) {
 
             case TYPE_STOCK_IN: {
-                if (mode == MODE_ADD)
+                if (mode === MODE_ADD)
                     title = "填写入库单";
                 else
                     title = "编辑入库单";
@@ -676,7 +693,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             }
 
             case TYPE_STOCK_OUT: {
-                if (mode == MODE_ADD)
+                if (mode === MODE_ADD)
                     title = "填写出库单";
                 else
                     title = "编辑出库单";
@@ -685,7 +702,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             case TYPE_STOCK_IN_OUT: {
                 if (form) {
-                    if (form.type == 1)
+                    if (form.type === 1)
                         title = "处理入库单";
                     else
                         title = "处理出库单";
@@ -693,6 +710,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     title = "处理出/入库单";
                 break;
             }
+
+            default:
+                break
         }
 
         // actions
@@ -733,7 +753,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                             {type === TYPE_STOCK_IN_OUT ?
                                 <mu.Grid style={{ marginBottom: 16 }}>
-                                    {form.type == 1 ?
+                                    {form.type === 1 ?
                                         <Chip label="入库" style={{ color: 'white', backgroundColor: COLOR_STOCK_IN }} />
                                         :
                                         <Chip label="出库" style={{ color: 'white', backgroundColor: COLOR_STOCK_OUT }} />}
@@ -824,7 +844,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     >
                                         {
                                             this.state.repoChangingReasons
-                                                .filter(r => r.type == form.type)
+                                                .filter(r => r.type === form.type)
                                                 .map(r => <option key={r.id} value={r.id}>{r.reason}</option>)}
                                         {/* <option key="-1" value="">其他</option> */}
                                     </Select>
@@ -849,7 +869,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                 />
                             </mu.Grid>
 
-                            {form.type == -1 && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
+                            {form.type === -1 && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
                                 // <mu.Grid style={{ marginBottom: 16 }}>
                                 //     <FormControlLabel
                                 //         control={<Switch
@@ -862,7 +882,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                                 <mu.Grid >
                                     <Button onClick={this.selectOrder} disabled={disableEdit}>
-                                        <mdi.ClipboardText color="primary" />{type == TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
+                                        <mdi.ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
                                     </Button>
                                     {form.order ? <React.Fragment>
                                         <Chip label={form.order.no} style={{ marginLeft: 16 }} />
@@ -1160,7 +1180,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
         toolbar: {
             padding: 0,
         },

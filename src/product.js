@@ -1,19 +1,24 @@
 // @flow
 
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
 
 import compose from 'recompose/compose';
 import { withRouter } from 'react-router'
 
 //
 import { withStyles } from '@material-ui/core';
-import { Paper, Typography, Button, IconButton, Snackbar, Input, Select, Toolbar } from '@material-ui/core';
+import {
+    // Paper,
+    Typography, Button, 
+    // IconButton, Snackbar, Input, Select, 
+    Toolbar
+} from '@material-ui/core';
 
 // icons
 import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+// import * as mui from '@material-ui/icons';
 
 import axios from 'axios'
 
@@ -97,7 +102,7 @@ class ProductPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes } = this.props
 
         return (
             <div className={classes.contentRoot}>
@@ -128,7 +133,7 @@ class ProductPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
         subTitle: {
             fontSize: 18,
             opacity: .75,

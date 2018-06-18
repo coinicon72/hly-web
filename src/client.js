@@ -2,9 +2,9 @@
 
 // basic
 import React from 'react';
-import classNames from 'classnames';
-import PropTypes from 'prop-types';
-import compose from 'recompose/compose';
+// import classNames from 'classnames';
+// import PropTypes from 'prop-types';
+// import compose from 'recompose/compose';
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -12,17 +12,24 @@ import { withStyles } from '@material-ui/core';
 import CommonStyles from "./common_styles";
 
 // router
-import { withRouter } from 'react-router'
-import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
+// import { withRouter } from 'react-router'
+// import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
 //
-import { AppBar, Toolbar, Button, IconButton, Typography } from '@material-ui/core';
 import {
-    TableEditRow, TableEditColumn,
+    // AppBar,
+    Toolbar, Button, 
+    // IconButton, 
+    Typography
+} from '@material-ui/core';
+
+import {
+    TableEditRow, 
+    // TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui';
 
 import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+// import * as mui from '@material-ui/icons';
 
 //
 import axios from 'axios'
@@ -102,7 +109,7 @@ class ClientPage extends React.PureComponent {
                 return <LookupEditCell {...props} availableColumnValues={availableColumnValues} />;
             }
             return <TableEditRow.Cell {...props} />;
-        }).bind(this);
+        });
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
@@ -146,7 +153,7 @@ class ClientPage extends React.PureComponent {
     }
 
     render() {
-        const { classes, width } = this.props
+        const { classes, } = this.props
 
         return this.state.loaded ? (
             // <React.Fragment>
@@ -179,7 +186,7 @@ class ClientPage extends React.PureComponent {
 
 const styles = theme => ({
     ...CommonStyles(theme),
-    ... {
+    ...{
     },
 })
 
