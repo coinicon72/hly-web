@@ -48,9 +48,12 @@ const COLUMNS = [
     { name: 'id', title: '序号' },
     { name: "name", title: "简称" },
     { name: "fullName", title: "全称" },
-    { name: 'type', title: '类型' },
+    { name: 'type', title: '类型', getCellValue: row => (row.type && row.type.name) ? row.type.name : null },
     { name: 'contractNo', title: '合同编号' },
-    { name: 'settlementPolicy', title: '结算政策' },
+    { name: 'collectingPolicy', title: '应收结算政策' },
+    { name: 'collectingPeriod', title: '应收结算周期' },
+    { name: 'paymentPolicy', title: '应付结算政策' },
+    { name: 'paymentPeriod', title: '应付结算周期' },
     { name: "address", title: "地址" },
     { name: "deliveryAddress", title: "发货地址" },
     { name: "postCode", title: "邮编" },
@@ -70,7 +73,10 @@ const NEW_ROW_TEMPLATE = {
     fullName: '',
     type: undefined, //this.state.availableValues.type[0].name,
     contractNo: '',
-    settlementPolicy: '',
+    collectingPolicy: '月结',
+    collectingPeriod: 60,
+    paymentPolicy: '月结',
+    paymentPeriod: 60,
     address: '',
     deliveryAddress: '',
     postCode: '',
@@ -127,7 +133,7 @@ class ClientPage extends React.PureComponent {
     doLoad = () => {
         return axios.get(this.dataRepoApiUrl)
             .then(resp => resp.data._embedded[DATA_REPO])
-            .then(rs => rs.map(r => { if (r.type) r.type = r.type.name; return r; }))
+            // .then(rs => rs.map(r => { if (r.type) r.type = r.type.name; return r; }))
     }
 
     doAdd = (r) => {

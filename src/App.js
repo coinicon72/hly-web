@@ -68,10 +68,12 @@ import StockChangingDetailsPage from './repo_changing_details'
 import RepoPage from './repo'
 import RepoDetailsPage from './repo_details'
 import InventoryPage from './inventory'
+import OrganizaionPage from './organization'
 import UserPage from './user'
 import RolePage from './role'
 import UserRolePage from './user_role'
 import RolePrivilegePage from './role_privilege'
+import PaymentSettlementPage from './payment_settlement'
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
@@ -128,9 +130,6 @@ import { actionShowSnackbar, actionHideSnackbar } from "./redux/data_selection"
 //   loader: () => import("./boms"),
 //   loading: Loading,
 // });
-
-
-
 
 
 class App extends React.PureComponent<{ classes: any }, any> {
@@ -243,7 +242,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('sales:order'))
-      l.push(<Link to="/orders">
+      l.push(<Link key="/orders" to="/orders">
         <ListItem button>
           <ListItemIcon>
             <ClipboardText />
@@ -253,7 +252,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('production:product'))
-      l.push(<Link to="/product">
+      l.push(<Link key="/product" to="/product">
         <ListItem button>
           <ListItemIcon>
             <GroupWork />
@@ -276,7 +275,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     let l = []
 
     if (this.hasPrivilege('system:basic-data'))
-      l.push(<Link to="/basic_data/client_type">
+      l.push(<Link key="/basic_data/client_type" to="/basic_data/client_type">
         <ListItem button>
           <ListItemIcon>
             <FlagVariant />
@@ -286,7 +285,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('system:basic-data'))
-      l.push(<Link to="/basic_data/material_type">
+      l.push(<Link key="/basic_data/material_type" to="/basic_data/material_type">
         <ListItem button>
           <ListItemIcon>
             <FlagVariant />
@@ -296,7 +295,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('production:material'))
-      l.push(<Link to="/basic_data/material">
+      l.push(<Link key="/basic_data/material" to="/basic_data/material">
         <ListItem button>
           <ListItemIcon>
             <HexagonMultiple />
@@ -319,7 +318,17 @@ class App extends React.PureComponent<{ classes: any }, any> {
     let l = []
 
     if (this.hasPrivilege('system:user-management'))
-      l.push(<Link to="/user">
+      l.push(<Link key="/organizaion" to="/organizaion">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.AccountGroup />
+          </ListItemIcon>
+          <ListItemText primary="组织结构" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('system:user-management'))
+      l.push(<Link key="/user" to="/user">
         <ListItem button>
           <ListItemIcon>
             <mdi.AccountCircle />
@@ -329,7 +338,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('system:user-management'))
-      l.push(<Link to="/role">
+      l.push(<Link key="/role" to="/role">
         <ListItem button>
           <ListItemIcon>
             <mdi.AccountCircle />
@@ -339,7 +348,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('system:user-management'))
-      l.push(<Link to="/userRole">
+      l.push(<Link key="/userRole" to="/userRole">
         <ListItem button>
           <ListItemIcon>
             <mdi.AccountCircle />
@@ -349,7 +358,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('system:user-management'))
-      l.push(<Link to="/rolePrivilege">
+      l.push(<Link key="/rolePrivilege" to="/rolePrivilege">
         <ListItem button>
           <ListItemIcon>
             <mdi.AccountCircle />
@@ -372,7 +381,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     let l = []
 
     if (this.hasPrivilege('production:bom'))
-      l.push(<Link to="/boms">
+      l.push(<Link key="/boms" to="/boms">
         <ListItem button>
           <ListItemIcon>
             <mdi.FileMultiple />
@@ -395,7 +404,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     let l = []
 
     if (this.hasPrivilege('purchasing:plan'))
-      l.push(<Link to="/purchasingOrder">
+      l.push(<Link key="/purchasingOrder" to="/purchasingOrder">
         <ListItem button>
           <ListItemIcon>
             <mdi.LibraryBooks />
@@ -414,11 +423,44 @@ class App extends React.PureComponent<{ classes: any }, any> {
       : null
   }
 
+  accountingItems = _ => {
+    let l = []
+
+    if (this.hasPrivilege('accounting:settlement'))
+      l.push(<Link key="/paymentSettlement" to="/paymentSettlement">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.LibraryBooks />
+          </ListItemIcon>
+          <ListItemText primary="应付结算" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('accounting:settlement'))
+      l.push(<Link key="/collectingSettlement" to="/collectingSettlement">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.LibraryBooks />
+          </ListItemIcon>
+          <ListItemText primary="应收结算" />
+        </ListItem>
+      </Link>)
+
+    return l.length > 0 ?
+      <React.Fragment>
+        <Divider />
+        <List>
+          {l}
+        </List>
+      </React.Fragment >
+      : null
+  }
+
   stockItems = _ => {
     let l = []
 
     if (this.hasPrivilege('system:basic-data'))
-      l.push(<Link to="/repo">
+      l.push(<Link key="/repo" to="/repo">
         <ListItem button>
           <ListItemIcon>
             <mdi.Database />
@@ -430,7 +472,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:stock-in'))
       l.push(
         // <Tooltip key="key_stock_in" title="非库房人员申请">
-        <Link to={config.ROUTER_STOCK_IN}>
+        <Link key={config.ROUTER_STOCK_IN} to={config.ROUTER_STOCK_IN}>
           <ListItem button>
             <ListItemIcon>
               <mdi.DatabasePlus />
@@ -444,7 +486,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:stock-out'))
       l.push(
         // <Tooltip key="key_stock_out" title="非库房人员申请">
-        <Link to={config.ROUTER_STOCK_OUT}>
+        <Link key={config.ROUTER_STOCK_OUT} to={config.ROUTER_STOCK_OUT}>
           <ListItem button>
             <ListItemIcon>
               <mdi.DatabaseMinus />
@@ -458,7 +500,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:inventory'))
       l.push(
         // <Tooltip key="key_inventory" title="库房人员使用">
-        <Link to={config.ROUTER_STOCK_IN_OUT}>
+        <Link key={config.ROUTER_STOCK_IN_OUT} to={config.ROUTER_STOCK_IN_OUT}>
           <ListItem button>
             <ListItemIcon>
               <mdi.Database />
@@ -470,7 +512,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       )
 
     if (this.hasPrivilege('repo:inventory'))
-      l.push(<Link to="/repo_details">
+      l.push(<Link key="/repo_details" to="/repo_details">
         <ListItem button>
           <ListItemIcon>
             <mdi.DatabaseSearch />
@@ -480,7 +522,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('repo:inventory'))
-      l.push(<Link to="/inventory">
+      l.push(<Link key="/inventory" to="/inventory">
         <ListItem button>
           <ListItemIcon>
             <mdi.DatabaseSearch />
@@ -530,6 +572,12 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
         <Route path="/purchasingOrder" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划</Typography>} />
         <Route path="/purchasingOrderDetails" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划明细</Typography>} />
+        <Route path="/organizaion" component={({ type }) => <Typography variant="title" className={classes.appTitle}>组织结构</Typography>} />
+        <Route path="/user" component={({ type }) => <Typography variant="title" className={classes.appTitle}>员工</Typography>} />
+        <Route path="/role" component={({ type }) => <Typography variant="title" className={classes.appTitle}>岗位</Typography>} />
+        <Route path="/userRole" component={({ type }) => <Typography variant="title" className={classes.appTitle}>员工岗位</Typography>} />
+        <Route path="/rolePrivilege" component={({ type }) => <Typography variant="title" className={classes.appTitle}>岗位权限</Typography>} />
+        <Route path="/paymentSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付结算</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -611,8 +659,11 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/purchasingOrder" render={(props) => <PurchasingOrderPage {...props} user={this.state.user} />} />
         <Route path="/purchasingOrderDetails/:id?" render={(props) => <PurchasingOrderDetailsPage {...props} user={this.state.user} />} />
 
+        <Route path="/paymentSettlement" render={(props) => <PaymentSettlementPage {...props} user={this.state.user} />} />
+
         {/* {this.hasPrivilege('system:user-management') ? */}
         {/* <React.Fragment> */}
+        <Route path="/organizaion" component={OrganizaionPage} />
         <Route path="/user" component={UserPage} />
         <Route path="/role" component={RolePage} />
         <Route path="/userRole" component={UserRolePage} />
@@ -662,6 +713,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Divider />
         <List> */}
         {this.purchasingOrderItems()}
+
+        {this.accountingItems()}
 
         {this.stockItems()}
         {/* </List> */}
