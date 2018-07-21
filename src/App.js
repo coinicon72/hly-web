@@ -74,6 +74,9 @@ import RolePage from './role'
 import UserRolePage from './user_role'
 import RolePrivilegePage from './role_privilege'
 import PaymentSettlementPage from './payment_settlement'
+import PaymentSettlementDetailsPage from './payment_settlement_details'
+import CollectingSettlementPage from './collecting_settlement'
+import CollectingSettlementDetailsPage from './collecting_settlement_details'
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
@@ -578,6 +581,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/userRole" component={({ type }) => <Typography variant="title" className={classes.appTitle}>员工岗位</Typography>} />
         <Route path="/rolePrivilege" component={({ type }) => <Typography variant="title" className={classes.appTitle}>岗位权限</Typography>} />
         <Route path="/paymentSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付结算</Typography>} />
+        <Route path="/collectingSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收结算</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -660,6 +664,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/purchasingOrderDetails/:id?" render={(props) => <PurchasingOrderDetailsPage {...props} user={this.state.user} />} />
 
         <Route path="/paymentSettlement" render={(props) => <PaymentSettlementPage {...props} user={this.state.user} />} />
+        <Route path="/paymentSettlementDetails/:id?" render={(props) => <PaymentSettlementDetailsPage {...props} user={this.state.user} />} />
+        <Route path="/collectingSettlement" render={(props) => <CollectingSettlementPage {...props} user={this.state.user} />} />
+        <Route path="/collectingSettlementDetails/:id?" render={(props) => <CollectingSettlementDetailsPage {...props} user={this.state.user} />} />
 
         {/* {this.hasPrivilege('system:user-management') ? */}
         {/* <React.Fragment> */}

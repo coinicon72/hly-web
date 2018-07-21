@@ -24,11 +24,11 @@ import {
 
 
 // =============================================
-class PaymentSettlementPage extends React.PureComponent {
+class CollectingSettlementPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepo = "paymentSettlements";
+        this.dataRepo = "collectingSettlements";
         this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatus?status=0`;
 
         this.dataTable = null
@@ -63,11 +63,11 @@ class PaymentSettlementPage extends React.PureComponent {
             return <TableEditRow.Cell {...props} />;
         })//.bind(this);
 
-        this.addRowHandler = () => this.props.history.push('/paymentSettlementDetails');
+        this.addRowHandler = () => this.props.history.push('/collectingSettlementDetails');
 
         this.onRowDoubleClicked = (row) => {
             if (row)
-                this.props.history.push('/paymentSettlementDetails/' + row.id);
+                this.props.history.push('/collectingSettlementDetails/' + row.id);
         }
     
         this.doLoad = this.doLoad.bind(this)
@@ -143,4 +143,4 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(PaymentSettlementPage);
+export default withStyles(styles)(CollectingSettlementPage);

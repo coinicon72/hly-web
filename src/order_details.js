@@ -188,7 +188,7 @@ class OrderDetailsPage extends React.PureComponent {
 
 
         this.handlePriceChange = (e => {
-            let id = e.target.id.split("_")[1]
+            let id =  parseInt(e.target.id.split("_")[1])
             let item = this.state.orderItems.find(i => i.id.product === id)
             item.price = Number.parseFloat(e.target.value)
 
