@@ -67,7 +67,7 @@ import axios from 'axios'
 
 import { DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
-import { toFixedMoney } from "./utils"
+import { toFixedMoney, toDateString } from "./utils"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
@@ -438,7 +438,7 @@ class OrderDetailsPage extends React.PureComponent {
                                             <React.Fragment>
                                                 <Chip label={client.name} className={classes.chip} />
                                                 <Chip label={client.fullName} className={classes.chip} />
-                                                <Chip label={client.settlementPolicy} className={classes.chip} />
+                                                <Chip label={`${client.collectingPolicy}, ${client.collectingPeriod}天`} className={classes.chip} />
                                             </React.Fragment>
                                         ) : null
                                     )}
@@ -469,7 +469,7 @@ class OrderDetailsPage extends React.PureComponent {
                             <mu.Grid>
                                 <TextField type="date" required id="orderDate" error={!!errors['order.orderDate']}
                                     label="下单日期"
-                                    value={order.orderDate ? order.orderDate.split("T")[0] : ""}
+                                    value={order.orderDate ? toDateString(order.orderDate) : ""}
                                     margin="normal"
                                     onChange={e => this.handleOrderInfoChange(e)}
                                     InputLabelProps={{
@@ -480,7 +480,7 @@ class OrderDetailsPage extends React.PureComponent {
                                 <TextField type="date" required id="deliveryDate" error={!!errors['order.deliveryDate']}
                                     label="发货日期"
                                     style={{ marginleft: 32 }}
-                                    value={order.deliveryDate ? order.deliveryDate.split("T")[0] : ""}
+                                    value={order.deliveryDate ? toDateString(order.deliveryDate) : ""}
                                     margin="normal"
                                     onChange={e => this.handleOrderInfoChange(e)}
                                     InputLabelProps={{

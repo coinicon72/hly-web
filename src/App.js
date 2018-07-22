@@ -212,7 +212,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       const { cookies, token, user } = this.props
 
       if (token) {
-        cookies.set('token', token)
+        cookies.set('token', token, { path: '/' })
         // cookies.set('user', user)
 
         axios.defaults.headers.common['Authorization'] = token;
@@ -320,15 +320,23 @@ class App extends React.PureComponent<{ classes: any }, any> {
   userManagementItems = _ => {
     let l = []
 
-    if (this.hasPrivilege('system:user-management'))
-      l.push(<Link key="/organizaion" to="/organizaion">
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.AccountGroup />
-          </ListItemIcon>
-          <ListItemText primary="组织结构" />
-        </ListItem>
-      </Link>)
+    // if (this.hasPrivilege('system:user-management'))
+    //   l.push(<Link key="/organizaion" to="/organizaion">
+    //     <ListItem button>
+    //       <ListItemIcon>
+    //         <mdi.AccountGroup />
+    //       </ListItemIcon>
+    //       <ListItemText primary="组织结构" />
+    //     </ListItem>
+    //   </Link>)stem:user-management'))
+    //   l.push(<Link key="/organizaion" to="/organizaion">
+    //     <ListItem button>
+    //       <ListItemIcon>
+    //         <mdi.AccountGroup />
+    //       </ListItemIcon>
+    //       <ListItemText primary="组织结构" />
+    //     </ListItem>
+    //   </Link>)
 
     if (this.hasPrivilege('system:user-management'))
       l.push(<Link key="/user" to="/user">
@@ -440,12 +448,32 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </Link>)
 
     if (this.hasPrivilege('accounting:settlement'))
+      l.push(<Link key="/paymentProcess" to="/paymentProcess">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.LibraryBooks color='light-red' />
+          </ListItemIcon>
+          <ListItemText primary="应付处理" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('accounting:settlement'))
       l.push(<Link key="/collectingSettlement" to="/collectingSettlement">
         <ListItem button>
           <ListItemIcon>
             <mdi.LibraryBooks />
           </ListItemIcon>
           <ListItemText primary="应收结算" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('accounting:settlement'))
+      l.push(<Link key="/collectingProcess" to="/collectingProcess">
+        <ListItem button>
+          <ListItemIcon>
+            <mdi.LibraryBooks color='lightRed' />
+          </ListItemIcon>
+          <ListItemText primary="应收处理" />
         </ListItem>
       </Link>)
 
@@ -581,7 +609,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/userRole" component={({ type }) => <Typography variant="title" className={classes.appTitle}>员工岗位</Typography>} />
         <Route path="/rolePrivilege" component={({ type }) => <Typography variant="title" className={classes.appTitle}>岗位权限</Typography>} />
         <Route path="/paymentSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付结算</Typography>} />
+        <Route path="/paymentProcess" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付处理</Typography>} />
         <Route path="/collectingSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收结算</Typography>} />
+        <Route path="/collectingProcess" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收处理</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -664,8 +694,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/purchasingOrderDetails/:id?" render={(props) => <PurchasingOrderDetailsPage {...props} user={this.state.user} />} />
 
         <Route path="/paymentSettlement" render={(props) => <PaymentSettlementPage {...props} user={this.state.user} />} />
+        <Route path="/paymentProcess" render={(props) => <PaymentSettlementPage {...props} user={this.state.user} type='process' key='paymentProcess' />} />
         <Route path="/paymentSettlementDetails/:id?" render={(props) => <PaymentSettlementDetailsPage {...props} user={this.state.user} />} />
         <Route path="/collectingSettlement" render={(props) => <CollectingSettlementPage {...props} user={this.state.user} />} />
+        <Route path="/collectingProcess" render={(props) => <CollectingSettlementPage {...props} user={this.state.user} type='process' key='collectingProcess'  />} />
         <Route path="/collectingSettlementDetails/:id?" render={(props) => <CollectingSettlementDetailsPage {...props} user={this.state.user} />} />
 
         {/* {this.hasPrivilege('system:user-management') ? */}

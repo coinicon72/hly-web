@@ -27,7 +27,8 @@ import * as mui from '@material-ui/icons';
 // ui
 import {
     Paper, Typography, TextField, Button, IconButton,
-    // MenuItem, Snackbar, Select, Divider, Chip,
+    MenuItem, 
+    // Snackbar, Select, Divider, Chip,
     Toolbar, Tooltip,
     Grid,// as Grid,
     Input, InputLabel, InputAdornment,
@@ -73,7 +74,7 @@ import axios from 'axios'
 
 import { DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
-import { getTodayString, toFixedMoney } from "./utils"
+import { getTodayString, toFixedMoney, toDateString } from "./utils"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
@@ -117,6 +118,14 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
         // this.onEdit = ((id) => {
         //     alert(`edit ${id}`)
         // })
+
+        this.handleSelectClient = (e => {
+            const cid = parseInt(e.target.value, 10)
+            const client = this.state.clients.find(i => i.id === cid)
+            if (client != this.state.client) {
+                this.setState({ client })
+            }
+        })
 
         this.handleOrderInfoChange = (e => {
             this.state.order[e.target.id] = e.target.value;
@@ -201,7 +210,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                 value += i.quantity * i.vip
             })
 
-            this.state.order.vip = value;
+            this.state.order.value = value;
             this.state.dirty = true
             this.forceUpdate()
         })
@@ -218,19 +227,19 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
 
         this.saveOrder = (async () => {
             //
-            this.setState({ savingOrder: true, activeStep: 0 })
-            this.forceUpdate()
-
-            //
             let cancel = false;
             let errors = {};
+
+            //
+            this.setState({ savingOrder: true, activeStep: 0, errors })
+            this.forceUpdate()
 
 
             // step 1
             // this.setState({ activeStep: this.state.activeStep + 1 })
 
             //
-            let { order, orderItems } = this.state
+            let { order, orderItems, client } = this.state
 
             order.signer = { id: this.props.user.id }
 
@@ -243,7 +252,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             if (!order.date || order.date === "")
                 errors['order.date'] = "无效的签订日期"
 
-            if (!order.supplier)
+            if (!client || !client.id)
                 errors['order.supplier'] = "无效的供应商"
 
             if (orderItems.length <= 0) {
@@ -261,10 +270,8 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             }
 
             if (Object.keys(errors).length > 0) {
-                this.setState({
-                    savingOrder: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "有错误发生"
-                })
+                this.setState({ savingOrder: false, errors })
+                this.props.showSnackbar("有错误发生")
                 return;
             }
 
@@ -280,6 +287,8 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             //     // value: ,
             //     signer: { id: user.id }
             // }
+            order.supplier = { id: client.id }
+            order.date += ' 00:00:00'
 
             await axios.post(`${DATA_API_BASE_URL}purchasingOrders`, order)
                 .then(resp => resp.data)
@@ -341,8 +350,8 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                 .then(resp => resp.data)
                 .then(j => {
                     this.setState({ order: j });
-                    if (j._embedded && j._embedded.client)
-                        this.setState({ client: j._embedded.client });
+                    if (j._embedded && j._embedded.supplier)
+                        this.setState({ client: j._embedded.supplier });
 
                     return `${DATA_API_BASE_URL}/purchasingOrders/${id}/items`
                 })
@@ -368,27 +377,19 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             .then(j => this.state.materials = j)
             .catch(e => this.showSnackbar(e.message));
 
-        // load clients
-        // axios.get(`${DATA_API_BASE_URL}/clients`)
-        //     .then(resp => resp.data._embedded.clients)
-        //     .then(j => {
-        //         this.setState({ clients: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
-
-        // // load materials
-        // axios.get(`${DATA_API_BASE_URL}/materials`)
-        //     .then(resp => resp.data._embedded.materials)
-        //     .then(j => {
-        //         this.setState({ materials: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
+        // load suppliers
+        axios.get(`${DATA_API_BASE_URL}/clients/search/findByPaymentPolicyIsNotNull`)
+            .then(resp => resp.data._embedded.clients)
+            .then(clients => {
+                this.setState({ clients });
+            })
+            .catch(e => this.showSnackbar(e.message));
     }
 
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
-        const { dirty, mode, order, orderItems, materials, stockIn } = this.state;
+        const { dirty, mode, order, orderItems, materials, stockIn, clients, client } = this.state;
         const { showSelectMaterial, columns, selection } = this.state;
         const { errors } = this.state;
 
@@ -458,7 +459,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                             <Grid>
                                 <TextField type="date" required id="date" error={!!errors['order.date']}
                                     label="签订日期"
-                                    value={order.date ? order.date.split("T")[0] : ""}
+                                    value={order.date ? toDateString(order.date) : ""}
                                     margin="normal"
                                     onChange={e => this.handleOrderInfoChange(e)}
                                     InputLabelProps={{
@@ -468,7 +469,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                             </Grid>
 
                             <Grid>
-                                <TextField
+                                {/* <TextField
                                     id="supplier"
                                     required
                                     error={!!errors['order.supplier']}
@@ -488,6 +489,28 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 >
+                                </TextField> */}
+                                <TextField
+                                    required
+                                    select
+                                    error={!!errors['client']}
+                                    label="供应商"
+                                    style={{ width: 300 }}
+                                    // className={classNames(classes.margin, classes.textField)}
+                                    value={client ? client.id : ""}
+                                    onChange={e => this.handleSelectClient(e)}
+                                // SelectProps={{
+                                //     native: true,
+                                //     MenuProps: {
+                                //         className: classes.menu,
+                                //     },
+                                // }}
+                                >
+                                    {clients && clients.map(c => (
+                                        <MenuItem key={c.id} value={c.id}>
+                                            {c.fullName}
+                                        </MenuItem>
+                                    ))}
                                 </TextField>
                             </Grid>
 
@@ -512,7 +535,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography variant="title" className={classes.subTitle}>条目</Typography>
                         <Typography variant="title" className={classes.subTitle} style={{ marginLeft: 8, flex: 1, color: 'red' }}>{errors['orderItems'] ? errors['orderItems'] : null}</Typography>
-                        <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{order.vip ? `¥ ${toFixedMoney(order.vip)}` : '--'}</Typography>
+                        <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{order.value ? `¥ ${toFixedMoney(order.value)}` : '--'}</Typography>
                     </div>
                     <Paper className={classes.compactPaper}>
                         <Table>

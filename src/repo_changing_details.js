@@ -88,7 +88,7 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // import { store } from "./redux"
-import { toFixedMoney, getTodayString } from "./utils"
+import { toFixedMoney, getTodayString, toDateString } from "./utils"
 import { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
 import { CurrencyTypeProvider } from "./common_components"
 
@@ -172,8 +172,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 { name: 'id', title: '序号' },
                 { name: 'no', title: '订单编号' },
                 { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
-                { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
-                { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
+                { name: 'orderDate', title: '下单时间', getCellValue: row => toDateString(row.orderDate) },
+                { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
             ],
             orders: [], //
             orderSelection: [],
@@ -808,22 +808,6 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     onChange={e => this.handleInput(e)}
                                     InputLabelProps={{
                                         shrink: shrinkLabel,
-                                    }}
-                                />
-                            </mu.Grid> */}
-
-                            {/* <mu.Grid>
-                                <TextField type="date" 
-                                required 
-                                disabled
-                                id="orderDate" 
-                                // error={!!errors['order.orderDate']}
-                                    label="申请日期"
-                                    // value={order.orderDate ? order.orderDate.split("T")[0] : ""}
-                                    margin="normal"
-                                    // onChange={e => this.handleOrderInfoChange(e)}
-                                    InputLabelProps={{
-                                        shrink: true,
                                     }}
                                 />
                             </mu.Grid> */}

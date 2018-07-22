@@ -35,40 +35,10 @@ import axios from 'axios'
 // import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
-// import { store } from "./redux/redux"
+// import { toDateString } from "./utils"
 
 // =============================================
 const DATA_REPO = "orders";
-
-// const COLUMNS = [
-//     { name: 'id', title: '序号' },
-//     { name: 'no', title: '订单编号' },
-//     { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
-//     { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
-//     { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
-//     { name: 'value', title: '总额' },
-//     { name: 'tax', title: '是否含税', getCellValue: row => row.tax ? '是' : '否' },
-//     { name: 'comment', title: '备注' },
-//     // { name: 'actual_value', title: '' },
-//     // { name: 'metadata', title: '' },
-// ]
-
-// const EDITING_COLUMN_EXTENSIONS = [
-//     { columnName: 'id', editingEnabled: false },
-// ]
-
-// const NEW_ROW_TEMPLATE = {
-//     id: 0,
-//     actualValue: 0,
-//     comment: '',
-//     deliveryDate: '',
-//     metadata: '',
-//     no: '',
-//     orderDate: '',
-//     tax: true,
-//     value: 0,
-//     clientId: 0,
-// }
 
 class BomPage extends React.PureComponent {
     constructor(props) {
@@ -82,21 +52,6 @@ class BomPage extends React.PureComponent {
             snackbarContent: "",
         }
 
-        // this.dataRepoApiUrl = API_BASE_URL + DATA_REPO;
-
-        // this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
-
-        // this.changeAddedRowsCallback = (row => {
-        //     return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
-        // });
-
-        // this.onRowDoubleClicked = this.onRowDoubleClicked.bind(this)
-        // this.addRowHandler = () => this.props.history.push('/order');
-
-        // this.doLoad = this.doLoad.bind(this)
-        // this.doAdd = this.doAdd.bind(this)
-        // this.doUpdate = this.doUpdate.bind(this)
-        // this.doDelete = this.doDelete.bind(this)
         this.loadBoms = (async () => {
             axios.get(`${DATA_API_BASE_URL}/boms`)
                 .then(resp => resp.data._embedded.boms)

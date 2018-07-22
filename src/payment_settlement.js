@@ -36,6 +36,8 @@ class PaymentSettlementPage extends React.PureComponent {
         this.state = {
             loaded: false,
             availableValues: {},
+
+            status: 0,
         }
 
         this.editingColumnExtensions = [
@@ -80,6 +82,12 @@ class PaymentSettlementPage extends React.PureComponent {
     }
 
     doLoad = () => {
+        const { type } = this.props;
+        if (type === 'process') {
+            this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatus?status=1`;
+            // this.setState({ status: 1 })
+        }
+
         return axios.get(this.dataRepoApiUrl)//,
             .then(resp => resp.data._embedded[this.dataRepo])
     }

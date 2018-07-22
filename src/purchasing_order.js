@@ -25,6 +25,7 @@ import CommonStyles from "./common_styles"
 // import { CurrencyTypeProvider } from "./common_components"
 
 import DataTableBase from "./data_table_base"
+import { toDateString } from './utils'
 
 
 // =============================================
@@ -36,7 +37,7 @@ const COLUMNS = [
     { name: 'id', title: '序号' },
     { name: 'no', title: '订单号码' },
     { name: "tax", title: "含税" },
-    { name: "date", title: "签订日期", getCellValue: row => row.date ? row.date.split("T")[0] : null },
+    { name: "date", title: "签订日期", getCellValue: row => row.date ? toDateString(row.date) : null },
     { name: "supplier", title: "供应商" },
 ]
 

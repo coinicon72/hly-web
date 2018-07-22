@@ -76,7 +76,7 @@ import axios from 'axios'
 // import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
-import { toFixedMass } from "./utils"
+import { toFixedMass, toDateString } from "./utils"
 // import { store } from "./redux"
 
 
@@ -540,7 +540,7 @@ class BomDetailsPage extends React.PureComponent {
                                     <mu.Grid>
                                         <TextField type="date" disabled id="orderDate"
                                             label="下单日期"
-                                            value={order.orderDate ? order.orderDate.split("T")[0] : ""}
+                                            value={order.orderDate ? toDateString(order.orderDate) : ""}
                                             margin="normal"
                                             InputLabelProps={{
                                                 shrink: true,
@@ -550,7 +550,7 @@ class BomDetailsPage extends React.PureComponent {
                                         <TextField type="date" disabled id="deliveryDate"
                                             label="发货日期"
                                             style={{ marginleft: 32 }}
-                                            value={order.deliveryDate ? order.deliveryDate.split("T")[0] : ""}
+                                            value={order.deliveryDate ? toDateString(order.deliveryDate) : ""}
                                             margin="normal"
                                             InputLabelProps={{
                                                 shrink: true,

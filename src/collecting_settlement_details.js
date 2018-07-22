@@ -75,7 +75,7 @@ import axios from 'axios'
 
 import { API_BASE_URL, DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
-import { getTodayString, toFixedMoney } from "./utils"
+import { getTodayString, toFixedMoney, toDateString } from "./utils"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
@@ -310,34 +310,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                 .then(resp => resp.data._embedded.collectingSettlementItems)
                 .then(items => items.flatMap(i => i.order))
                 .then(orders => {
-                    // { id: { material: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
-                    // let fs = []
-                    // j.forEach(it => fs.push({ 'quantity': it.quantity, ...it._embedded.material }))
-                    // this.setState({ orderItems: fs });
                     this.setState({ orders })
-                    // return orders
                 })
-                // .then(j => axios.get(`${DATA_API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
-                // .then(resp => resp.data._embedded.boms)
-                // .then(boms => this.setState({ boms }))
                 .catch(e => this.props.showSnackbar(e.message));
         }
-
-        // load clients
-        // axios.get(`${DATA_API_BASE_URL}/clients`)
-        //     .then(resp => resp.data._embedded.clients)
-        //     .then(j => {
-        //         this.setState({ clients: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
-
-        // // load materials
-        // axios.get(`${DATA_API_BASE_URL}/materials`)
-        //     .then(resp => resp.data._embedded.materials)
-        //     .then(j => {
-        //         this.setState({ materials: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
     }
 
     render() {
@@ -427,9 +403,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                 <TableRow>
                                     <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>序号</TableCell>
                                     <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>订单编号</TableCell>
-                                    <TableCell padding="dense" style={{ width: '25%', whiteSpace: 'nowrap' }}>签订时间</TableCell>
-                                    <TableCell padding="dense" style={{ width: '25%', whiteSpace: 'nowrap' }}>发货时间</TableCell>
+                                    <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>签订时间</TableCell>
+                                    <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>发货时间</TableCell>
                                     <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>是否含税</TableCell>
+                                    <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>总价</TableCell>
                                     {mode === MODE_ADD ?
                                         <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                             {/* <Button variant="flat" disabled={!client} size="large" onClick={this.onAddOrders}>
@@ -444,9 +421,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                         <TableRow key={n.id}>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.id}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.no}</TableCell>
-                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.orderDate.split(/[T ]/)[0]}</TableCell>
-                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.deliveryDate.split(/[T ]/)[0]}</TableCell>
+                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{toDateString(n.orderDate)}</TableCell>
+                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{toDateString(n.deliveryDate)}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.tax ? '含税' : ''}</TableCell>
+                                            <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>¥ {n.value}</TableCell>
                                             {mode === MODE_ADD ?
                                                 <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                     <Tooltip title="删除">

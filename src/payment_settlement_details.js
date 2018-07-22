@@ -75,7 +75,7 @@ import axios from 'axios'
 
 import { API_BASE_URL, DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
-import { getTodayString, toFixedMoney } from "./utils"
+import { getTodayString, toFixedMoney, toDateString } from "./utils"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
@@ -208,7 +208,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
             // document.createdBy = { id: this.props.user.id }
             // document.createDate = getTodayString()
             if (!client)
-                errors['client'] = "未指定客户"
+                errors['client'] = "未指定供应商"
 
             if (!orders || orders.length < 0)
                 errors['orders'] = "未指定订单"
@@ -285,7 +285,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
 
             this.setState({ document: {} })
 
-            // load materials
+            // load suppliers
             axios.get(`${DATA_API_BASE_URL}/clients/search/findByPaymentPolicyIsNotNull`)
                 .then(resp => resp.data._embedded.clients)
                 .then(clients => {
@@ -363,7 +363,10 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                         {mode === MODE_ADD ?
                             <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
                             :
-                            <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<mdi.ClipboardCheck /></Button>
+                            document.status === 1 ?
+                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >付款完成<mdi.ClipboardCheck /></Button>
+                                :
+                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<mdi.ClipboardCheck /></Button>
                         }
                         {/* {mode === MODE_VIEW ? null :
                             } */}
@@ -413,6 +416,43 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                             <Grid style={{ marginTop: 16 }}>
                                 <Typography>结算单创建日期</Typography><Chip label={mode === MODE_ADD ? getTodayString() : document.createDate} className={classes.chip} />
                             </Grid>
+
+                            {mode === MODE_EDIT && document.status === 1 ? (
+                                <React.Fragment>
+                                    <Grid style={{ marginTop: 16 }}>
+                                        <TextField
+                                            disabled
+                                            label="应付"
+                                            style={{ width: 150 }}
+                                            InputProps={{
+                                                min: 0,
+                                                startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                            // className={classNames(classes.margin, classes.textField)}
+                                            value={document.value}
+                                        />
+                                    </Grid>
+                                    <Grid style={{ marginTop: 16 }}>
+                                        <TextField
+                                            label="实付"
+                                            numeric
+                                            style={{ width: 150 }}
+                                            InputProps={{
+                                                min: 0,
+                                                type: 'number',
+                                                startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                           // className={classNames(classes.margin, classes.textField)}
+                                            value={document.paidValue}
+                                            onChange={e => {
+                                                document.paidValue = e.target.value
+                                                this.setState({ document })
+                                            }}
+                                            
+                                        />
+                                    </Grid>
+                                </React.Fragment>
+                            ) : null}
                         </Grid>
                     </Paper>
 
@@ -426,9 +466,11 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                             <TableHead>
                                 <TableRow>
                                     <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>序号</TableCell>
-                                    <TableCell padding="dense" style={{ width: '30%', whiteSpace: 'nowrap' }}>订单编号</TableCell>
-                                    <TableCell padding="dense" style={{ width: '30%', whiteSpace: 'nowrap' }}>时间</TableCell>
-                                    <TableCell padding="dense" style={{ width: '25%', whiteSpace: 'nowrap' }}>是否含税</TableCell>
+                                    <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>订单编号</TableCell>
+                                    <TableCell padding="dense" style={{ width: '25%', whiteSpace: 'nowrap' }}>时间</TableCell>
+                                    <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>是否含税</TableCell>
+                                    <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>税率</TableCell>
+                                    <TableCell padding="dense" numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>总价</TableCell>
                                     {mode === MODE_ADD ?
                                         <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                             {/* <Button variant="flat" disabled={!client} size="large" onClick={this.onAddOrders}>
@@ -443,8 +485,10 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                         <TableRow key={n.id}>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.id}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.no}</TableCell>
-                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.date.split(/[T ]/)[0]}</TableCell>
+                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{toDateString(n.date)}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.tax ? '含税' : ''}</TableCell>
+                                            <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>{n.tax ? `${n.vat * 100}%` : null}</TableCell>
+                                            <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>¥ {n.value}</TableCell>
                                             {mode === MODE_ADD ?
                                                 <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                     <Tooltip title="删除">

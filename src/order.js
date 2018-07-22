@@ -40,7 +40,7 @@ import axios from 'axios'
 import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
-// import { store } from "./redux/redux"
+import { toDateString } from "./utils"
 
 
 // =============================================
@@ -50,8 +50,8 @@ const COLUMNS = [
     { name: 'id', title: '序号' },
     { name: 'no', title: '订单编号' },
     { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
-    { name: 'orderDate', title: '下单时间', getCellValue: row => row.orderDate.split("T")[0] },
-    { name: 'deliveryDate', title: '发货时间', getCellValue: row => row.deliveryDate.split("T")[0] },
+    { name: 'orderDate', title: '下单时间', getCellValue: row => toDateString(row.orderDate) },
+    { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
     { name: 'value', title: '总额' },
     { name: 'tax', title: '是否含税', getCellValue: row => row.tax ? '是' : '否' },
     { name: 'comment', title: '备注' },
