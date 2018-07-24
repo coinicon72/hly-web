@@ -451,7 +451,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/paymentProcess" to="/paymentProcess">
         <ListItem button>
           <ListItemIcon>
-            <mdi.LibraryBooks color='light-red' />
+            <mdi.LibraryBooks color='secondary' />
           </ListItemIcon>
           <ListItemText primary="应付处理" />
         </ListItem>
@@ -471,7 +471,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/collectingProcess" to="/collectingProcess">
         <ListItem button>
           <ListItemIcon>
-            <mdi.LibraryBooks color='lightRed' />
+            <mdi.LibraryBooks color='secondary' />
           </ListItemIcon>
           <ListItemText primary="应收处理" />
         </ListItem>

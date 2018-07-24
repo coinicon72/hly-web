@@ -13,7 +13,7 @@ import CommonStyles from "./common_styles";
 
 // router
 // import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom'
 
 //
 import { connect } from 'react-redux'
@@ -32,10 +32,12 @@ import {
     Chip,
     Toolbar, Tooltip,
     Grid,// as Grid,
-    Input, InputLabel, InputAdornment,
+    // Input, InputLabel, 
+    InputAdornment,
     // FormGroup, 
-    FormControlLabel, FormControl, FormHelperText,
-    Stepper, Step, StepLabel, Switch,
+    // FormControlLabel, FormControl, FormHelperText,
+    Stepper, Step, StepLabel, 
+    // Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
     Dialog, DialogActions, DialogContent, DialogTitle,
 } from '@material-ui/core';
@@ -273,6 +275,26 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                     .catch(e => this.props.showSnackbar(e.message));
             }
         }
+
+        this.processDocument = () => {
+            if (!this.state.document.paidValue) {
+                const errors = { paid: "无效的金额" }
+                this.setState({ errors })
+                this.props.showSnackbar("有错误发生")
+                return
+            } else {
+                this.setState({ errors: {} })
+            }
+
+            if (window.confirm("确认已付款？")) {
+                axios.patch(`${API_BASE_URL}/payment/${this.state.document.id}/finish`, { paidValue: this.state.document.paidValue })
+                    .then(_ => {
+                        this.props.showSnackbar("结算单已完成")
+                        this.props.history.goBack();
+                    })
+                    .catch(e => this.props.showSnackbar(e.message));
+            }
+        }
     }
 
     componentDidMount() {
@@ -343,11 +365,11 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
-        const { dirty, mode, clients, client, document, orders, stockIn } = this.state;
+        const { dirty, mode, clients, client, document, orders } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
         const { errors } = this.state;
 
-        let shrinkLabel = mode === MODE_EDIT ? true : undefined;
+        // let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
         const { savingDocument, activeStep } = this.state;
 
@@ -435,7 +457,8 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                     <Grid style={{ marginTop: 16 }}>
                                         <TextField
                                             label="实付"
-                                            numeric
+                                            numeric={true}
+                                            error={errors['paid'] ? true : false}
                                             style={{ width: 150 }}
                                             InputProps={{
                                                 min: 0,

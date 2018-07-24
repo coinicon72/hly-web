@@ -13,7 +13,7 @@ import CommonStyles from "./common_styles";
 
 // router
 // import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom'
 
 //
 import { connect } from 'react-redux'
@@ -32,10 +32,12 @@ import {
     Chip,
     Toolbar, Tooltip,
     Grid,// as Grid,
-    Input, InputLabel, InputAdornment,
+    // Input, InputLabel, 
+    InputAdornment,
     // FormGroup, 
-    FormControlLabel, FormControl, FormHelperText,
-    Stepper, Step, StepLabel, Switch,
+    // FormControlLabel, FormControl, FormHelperText,
+    Stepper, Step, StepLabel, 
+    // Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
     Dialog, DialogActions, DialogContent, DialogTitle,
 } from '@material-ui/core';
@@ -273,6 +275,26 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                     .catch(e => this.props.showSnackbar(e.message));
             }
         }
+
+        this.processDocument = () => {
+            if (!this.state.document.collectedValue) {
+                const errors = { collected: "无效的金额" }
+                this.setState({ errors })
+                this.props.showSnackbar("有错误发生")
+                return
+            } else {
+                this.setState({ errors: {} })
+            }
+
+            if (window.confirm("确认已收款？")) {
+                axios.patch(`${API_BASE_URL}/collecting/${this.state.document.id}/finish`, { collectedValue: this.state.document.collectedValue })
+                    .then(_ => {
+                        this.props.showSnackbar("结算单已完成")
+                        this.props.history.goBack();
+                    })
+                    .catch(e => this.props.showSnackbar(e.message));
+            }
+        }
     }
 
     componentDidMount() {
@@ -319,11 +341,11 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
-        const { dirty, mode, clients, client, document, orders, stockIn } = this.state;
+        const { dirty, mode, clients, client, document, orders, } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
         const { errors } = this.state;
 
-        let shrinkLabel = mode === MODE_EDIT ? true : undefined;
+        // let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
         const { savingDocument, activeStep } = this.state;
 
@@ -339,7 +361,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                         {mode === MODE_ADD ?
                             <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
                             :
-                            <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<mdi.ClipboardCheck /></Button>
+                            document.status === 1 ?
+                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >收款完成<mdi.ClipboardCheck /></Button>
+                                :
+                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<mdi.ClipboardCheck /></Button>
                         }
                         {/* {mode === MODE_VIEW ? null :
                             } */}
@@ -389,6 +414,44 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                             <Grid style={{ marginTop: 16 }}>
                                 <Typography>结算单创建日期</Typography><Chip label={mode === MODE_ADD ? getTodayString() : document.createDate} className={classes.chip} />
                             </Grid>
+ 
+                            {mode === MODE_EDIT && document.status === 1 ? (
+                                <React.Fragment>
+                                    <Grid style={{ marginTop: 16 }}>
+                                        <TextField
+                                            disabled
+                                            label="应收"
+                                            style={{ width: 150 }}
+                                            InputProps={{
+                                                min: 0,
+                                                startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                            // className={classNames(classes.margin, classes.textField)}
+                                            value={document.value}
+                                        />
+                                    </Grid>
+                                    <Grid style={{ marginTop: 16 }}>
+                                        <TextField
+                                            label="实收"
+                                            numeric={true}
+                                            error={errors['collected'] ? true : false}
+                                            style={{ width: 150 }}
+                                            InputProps={{
+                                                min: 0,
+                                                type: 'number',
+                                                startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                           // className={classNames(classes.margin, classes.textField)}
+                                            value={document.collectedValue}
+                                            onChange={e => {
+                                                document.collectedValue = e.target.value
+                                                this.setState({ document })
+                                            }}
+                                            
+                                        />
+                                    </Grid>
+                                </React.Fragment>
+                            ) : null}
                         </Grid>
                     </Paper>
 

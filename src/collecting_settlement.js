@@ -80,7 +80,13 @@ class CollectingSettlementPage extends React.PureComponent {
     }
 
     doLoad = () => {
-        return axios.get(this.dataRepoApiUrl)//,
+        const { type } = this.props;
+        if (type === 'process') {
+            this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatus?status=1`;
+            // this.setState({ status: 1 })
+        }
+
+      return axios.get(this.dataRepoApiUrl)//,
             .then(resp => resp.data._embedded[this.dataRepo])
     }
 
