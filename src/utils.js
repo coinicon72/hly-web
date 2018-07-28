@@ -10,16 +10,11 @@ export function toFixedMoney(v) {
     return toFixed(v, 2)
 }
 
-export function getTodayString() {
-    // const now = new Date();
-    // let m = now.getMonth() + 1;
-    // if (m < 10)
-    //     m = '0' + m;
-    // let d = now.getDate();
-    // if (d < 10)
-    //     d = '0' + d;
+export function getTodayDateTimeString() {
+    return toDateTimeString(new Date())
+}
 
-    // return `${now.getFullYear()}-${m}-${d}`
+export function getTodayString() {
     return toDateString(new Date())
 }
 
@@ -42,6 +37,26 @@ export function toDateString(date) {
     }
 
     return date
+}
+
+/**
+ * return date string, format: yyyy-MM-dd
+ * @param {Date} d 
+ */
+export function toDateTimeString(date) {
+    if (date instanceof Date) {
+        let h = date.getHours();
+        if (h < 10)
+            h = '0' + h;
+        let m = date.getMinutes();
+        if (m < 10)
+            m = '0' + m;
+        let s = date.getSeconds();
+        if (s < 10)
+            s = '0' + s;
+        return `${toDateString(date)} ${h}:${m}:${s}`
+    } else 
+        return null
 }
 
 // export function getTodayString() {

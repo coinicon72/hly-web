@@ -489,6 +489,7 @@ class DataTableBase extends React.PureComponent {
                             showEditCommand={this.props.showEditCommand === false ? false : true}
                             showDeleteCommand={this.props.showDeleteCommand === false ? false : true}
                             commandComponent={this.Command}
+                            padding="dense" 
                         />
                     }
                     {/* <TableSelection showSelectAll /> */}

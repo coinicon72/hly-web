@@ -552,15 +552,15 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </ListItem>
       </Link>)
 
-    if (this.hasPrivilege('repo:inventory'))
-      l.push(<Link key="/inventory" to="/inventory">
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.DatabaseSearch />
-          </ListItemIcon>
-          <ListItemText primary="盘点" />
-        </ListItem>
-      </Link>)
+    // if (this.hasPrivilege('repo:inventory'))
+    //   l.push(<Link key="/inventory" to="/inventory">
+    //     <ListItem button>
+    //       <ListItemIcon>
+    //         <mdi.DatabaseSearch />
+    //       </ListItemIcon>
+    //       <ListItemText primary="盘点" />
+    //     </ListItem>
+    //   </Link>)
 
     return l.length > 0 ?
       <React.Fragment>

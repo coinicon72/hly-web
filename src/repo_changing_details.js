@@ -88,7 +88,7 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // import { store } from "./redux"
-import { toFixedMoney, getTodayString, toDateString } from "./utils"
+import { toFixedMoney, getTodayString, getTodayDateTimeString, toDateString } from "./utils"
 import { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
 import { CurrencyTypeProvider } from "./common_components"
 
@@ -424,7 +424,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             // changingItems.forEach(i => value += i.quantity * i.price)
             if (doSubmit) {
                 form.status = 1
-                form.applyingDate = getTodayString()
+                form.applyingDate = getTodayDateTimeString()
             }
 
             await axios.post(`${DATA_API_BASE_URL}repoChangings`, form)

@@ -160,10 +160,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
 
 
         this.onDelete = ((id) => {
-            const { orderItems } = this.state;
-            let idx = orderItems.findIndex(v => v.id === id)
+            const { orders } = this.state;
+            let idx = orders.findIndex(v => v.id === id)
             if (idx >= 0) {
-                orderItems.splice(idx, 1);
+                orders.splice(idx, 1);
                 this.state.dirty = true
                 this.forceUpdate();
             }

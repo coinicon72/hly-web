@@ -6,7 +6,12 @@ import React from 'react';
 
 import axios from 'axios'
 
-import { withStyles, Typography } from '@material-ui/core';
+import {
+    withStyles, Typography,
+    Toolbar,
+    Select,
+    InputLabel, FormControl,
+} from '@material-ui/core';
 
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
@@ -33,7 +38,19 @@ const COLUMNS = [
     { name: "quantity", title: "库存" },
     { name: "price", title: "单价" },
     { name: "subtotal", title: "小计", getCellValue: row => toFixedMoney(row.quantity * row.price) },
+    { name: "place", title: "存放位置" },
 ]
+
+const EditingColumnExtensions = [
+    { columnName: 'code', editingEnabled: false },
+    { columnName: 'name', editingEnabled: false },
+    { columnName: 'type', editingEnabled: false },
+    { columnName: 'spec', editingEnabled: false },
+    { columnName: 'safeQuantity', editingEnabled: false },
+    { columnName: "quantity", editingEnabled: false },
+    { columnName: "price", editingEnabled: false },
+    { columnName: "subtotal", editingEnabled: false },
+];
 
 const SafeQuantityTypeProvider = props => (
     <DataTypeProvider
@@ -56,27 +73,78 @@ class RepoDetailsPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
+        this.state = {
+            repoes: [], // all repoes
+            currentRepo: null,
+        }
+
         this.dataRepoApiUrl = config.DATA_API_BASE_URL + DATA_REPO + DATA_FILTER;
 
-        this.doLoad = this.doLoad.bind(this)
+        this.doLoad = () => {
+            // return axios.get(this.dataRepoApiUrl)//,
+            //     .then(resp => resp.data._embedded[DATA_REPO])
+            return axios.get(`${config.DATA_API_BASE_URL}repoItems/search/findByRepo?repo=../../../repoes/${this.state.currentRepo.id}`)//,
+                .then(resp => resp.data._embedded['repoItems'])
+        }
+
+        this.doUpdate = (r, c) => {
+            return axios.patch(`${config.DATA_API_BASE_URL}repoItems/${r.id.repo}_${r.id.material}`, c)
+                .then(resp => resp.data)
+                // .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
+        }
+    
+        this.onChangedRepo = (e => {
+            const rid = parseInt(e.target.value, 10)
+            const r = this.state.repoes.find(r => r.id === rid)
+            this.state.currentRepo = r
+            this.forceUpdate()
+        })
     }
 
     componentDidMount() {
-    }
-
-    doLoad = () => {
-        return axios.get(this.dataRepoApiUrl)//,
-            .then(resp => resp.data._embedded[DATA_REPO])
+        return axios.get(`${config.DATA_API_BASE_URL}repoes`)//,
+            .then(resp => resp.data._embedded['repoes'])
+            .then(repoes => {
+                this.setState({ repoes, currentRepo: repoes[0] })
+            })
     }
 
     render() {
         const { classes } = this.props
+        const { repoes, currentRepo, } = this.state;
 
-        return (
+        return currentRepo ? (
             <div className={classes.contentRoot}>
+                <Toolbar className={classes.toolbar}>
+                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                    {/* <Typography variant="title" className={classes.toolbarTitle}></Typography> */}
+                    <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
+                        <Select
+                            native
+                            value={currentRepo ? currentRepo.id : null}
+                            onChange={this.onChangedRepo}
+                            inputProps={{
+                                name: 'repo',
+                                id: 'repo',
+                            }}
+                        >
+                            {repoes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                        </Select>
+                    </FormControl>
+
+                    {/* <Button onClick={this.saveInventory} color='primary' disabled={!this.state.changes || this.state.changes.length <= 0} style={{ fontSize: 18 }} ><mdi.ContentSave />保存</Button> */}
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                </Toolbar>
+
                 <DataTableBase columns={COLUMNS}
+                    editingColumnExtensions={EditingColumnExtensions}
+                    key={`repo${currentRepo.id}`}
                     doLoad={this.doLoad}
-                    disableEdit={true}
+                    // disableEdit={true}
+                    doUpdate={this.doUpdate}
+                    showAddCommand={false}
+                    showDeleteCommand={false}
                     providers={[
                         <SafeQuantityTypeProvider key='sqtp' for={["safeQuantity"]} />,
                         <QuantityTypeProvider key='qtp' for={["quantity"]} />,
@@ -84,7 +152,7 @@ class RepoDetailsPage extends React.PureComponent {
                     ]}
                 />
             </div>
-        )
+        ) : null
     }
 }
 
