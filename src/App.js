@@ -17,14 +17,14 @@ import {
   // Paper, Checkbox, 
   Snackbar,
   Menu, MenuItem,
-  List, ListItem, ListItemIcon, ListItemText
+  List, ListItem, ListItemIcon, ListItemText, Collapse,
 } from '@material-ui/core';
 
 // icons
 import * as mdi from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
-import { GroupWork } from '@material-ui/icons'
+import { GroupWork, ExpandLess, ExpandMore } from '@material-ui/icons'
 import {
   Menu as MenuIcon, AccountCircle,
   // ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, 
@@ -75,8 +75,10 @@ import UserRolePage from './user_role'
 import RolePrivilegePage from './role_privilege'
 import PaymentSettlementPage from './payment_settlement'
 import PaymentSettlementDetailsPage from './payment_settlement_details'
+import PaymentSettlementStatPage from './payment_settlement_stat'
 import CollectingSettlementPage from './collecting_settlement'
 import CollectingSettlementDetailsPage from './collecting_settlement_details'
+import CollectingSettlementStatPage from './collecting_settlement_stat'
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
@@ -145,6 +147,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
       anchor: 'left',
 
       basicDataMenu: false,
+      menuStatus: { 
+        collectingSettlement: false, 
+        paymentSettlement: false, 
+      },
     };
 
     this.handleDrawerToggle = this.handleDrawerToggle.bind(this);
@@ -180,6 +186,14 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
       return false
     })
+
+    this.handleMenuToggle = id => (() => {
+      const { menuStatus } = this.state
+      menuStatus[id] = !menuStatus[id]
+      const ns = {...menuStatus}
+
+      this.setState({ menuStatus: ns })
+    }).bind(this)
   }
 
   componentDidMount() {
@@ -435,47 +449,139 @@ class App extends React.PureComponent<{ classes: any }, any> {
   }
 
   accountingItems = _ => {
+    const { classes, } = this.props
+    const { menuStatus } = this.state
     let l = []
 
     if (this.hasPrivilege('accounting:settlement'))
-      l.push(<Link key="/paymentSettlement" to="/paymentSettlement">
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.LibraryBooks />
-          </ListItemIcon>
-          <ListItemText primary="应付结算" />
-        </ListItem>
-      </Link>)
+      l.push(<ListItem button onClick={this.handleMenuToggle('paymentSettlement')}>
+        <ListItemIcon>
+          <mdi.FileExport />
+        </ListItemIcon>
+        <ListItemText primary="应付" />
+        {menuStatus.paymentSettlement ? <ExpandLess /> : <ExpandMore />}
+      </ListItem>)
+
+    l.push(
+      <Collapse in={menuStatus.paymentSettlement} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          <Link key="/paymentSettlement" to="/paymentSettlement">
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <mdi.Check />
+              </ListItemIcon>
+              <ListItemText primary="结算" />
+            </ListItem>
+          </Link>
+          <Link key="/paymentProcess" to="/paymentProcess">
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <mdi.CheckboxMarkedOutline color='secondary' />
+              </ListItemIcon>
+              <ListItemText primary="处理" />
+            </ListItem>
+          </Link>
+          <Link key="/paymentStat" to="/paymentStat">
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <mdi.CheckboxMultipleMarkedOutline color='secondary' />
+              </ListItemIcon>
+              <ListItemText primary="汇总" />
+            </ListItem>
+          </Link>
+        </List>
+      </Collapse>
+    )
+    // if (this.hasPrivilege('accounting:settlement'))
+    //   l.push(<Link key="/paymentSettlement" to="/paymentSettlement">
+    //     <ListItem button>
+    //       <ListItemIcon>
+    //         <mdi.LibraryBooks />
+    //       </ListItemIcon>
+    //       <ListItemText primary="应付结算" />
+    //     </ListItem>
+    //   </Link>)
+
+    // if (this.hasPrivilege('accounting:settlement'))
+    //   l.push(<Link key="/paymentProcess" to="/paymentProcess">
+    //     <ListItem button>
+    //       <ListItemIcon>
+    //         <mdi.LibraryBooks color='secondary' />
+    //       </ListItemIcon>
+    //       <ListItemText primary="应付处理" />
+    //     </ListItem>
+    //   </Link>)
+
+    // if (this.hasPrivilege('accounting:settlement'))
+    //   l.push(<Link key="/paymentStat" to="/paymentStat">
+    //     <ListItem button>
+    //       <ListItemIcon>
+    //         <mdi.LibraryBooks color='secondary' />
+    //       </ListItemIcon>
+    //       <ListItemText primary="应付汇总" />
+    //     </ListItem>
+    //   </Link>)
+
 
     if (this.hasPrivilege('accounting:settlement'))
-      l.push(<Link key="/paymentProcess" to="/paymentProcess">
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.LibraryBooks color='secondary' />
-          </ListItemIcon>
-          <ListItemText primary="应付处理" />
-        </ListItem>
-      </Link>)
+      l.push(<ListItem button onClick={this.handleMenuToggle('collectingSettlement')}>
+        <ListItemIcon>
+          <mdi.FileImport />
+        </ListItemIcon>
+        <ListItemText primary="应收" />
+        {menuStatus.collectingSettlement ? <ExpandLess /> : <ExpandMore />}
+      </ListItem>)
 
-    if (this.hasPrivilege('accounting:settlement'))
-      l.push(<Link key="/collectingSettlement" to="/collectingSettlement">
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.LibraryBooks />
-          </ListItemIcon>
-          <ListItemText primary="应收结算" />
-        </ListItem>
-      </Link>)
+    l.push(
+      <Collapse in={menuStatus.collectingSettlement} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          <Link key="/collectingSettlement" to="/collectingSettlement">
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <mdi.Check />
+              </ListItemIcon>
+              <ListItemText primary="结算" />
+            </ListItem>
+          </Link>
+          <Link key="/collectingProcess" to="/collectingProcess">
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <mdi.CheckboxMarkedOutline color='secondary' />
+              </ListItemIcon>
+              <ListItemText primary="处理" />
+            </ListItem>
+          </Link>
+          <Link key="/collectingStat" to="/collectingStat">
+            <ListItem button className={classes.nested}>
+              <ListItemIcon>
+                <mdi.CheckboxMultipleMarkedOutline color='secondary' />
+              </ListItemIcon>
+              <ListItemText primary="汇总" />
+            </ListItem>
+          </Link>
+        </List>
+      </Collapse>
+    )
 
-    if (this.hasPrivilege('accounting:settlement'))
-      l.push(<Link key="/collectingProcess" to="/collectingProcess">
-        <ListItem button>
-          <ListItemIcon>
-            <mdi.LibraryBooks color='secondary' />
-          </ListItemIcon>
-          <ListItemText primary="应收处理" />
-        </ListItem>
-      </Link>)
+    // if (this.hasPrivilege('accounting:settlement'))
+    //     l.push(<Link key="/collectingSettlement" to="/collectingSettlement">
+    //       <ListItem button>
+    //         <ListItemIcon>
+    //           <mdi.LibraryBooks />
+    //         </ListItemIcon>
+    //         <ListItemText primary="应收结算" />
+    //       </ListItem>
+    //     </Link>)
+
+    //   if (this.hasPrivilege('accounting:settlement'))
+    //     l.push(<Link key="/collectingProcess" to="/collectingProcess">
+    //       <ListItem button>
+    //         <ListItemIcon>
+    //           <mdi.LibraryBooks color='secondary' />
+    //         </ListItemIcon>
+    //         <ListItemText primary="应收处理" />
+    //       </ListItem>
+    //     </Link>)
 
     return l.length > 0 ?
       <React.Fragment>
@@ -610,8 +716,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/rolePrivilege" component={({ type }) => <Typography variant="title" className={classes.appTitle}>岗位权限</Typography>} />
         <Route path="/paymentSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付结算</Typography>} />
         <Route path="/paymentProcess" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付处理</Typography>} />
+        <Route path="/paymentStat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应付汇总</Typography>} />
         <Route path="/collectingSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收结算</Typography>} />
         <Route path="/collectingProcess" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收处理</Typography>} />
+        <Route path="/collectingStat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收汇总</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -696,9 +804,11 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/paymentSettlement" render={(props) => <PaymentSettlementPage {...props} user={this.state.user} />} />
         <Route path="/paymentProcess" render={(props) => <PaymentSettlementPage {...props} user={this.state.user} type='process' key='paymentProcess' />} />
         <Route path="/paymentSettlementDetails/:id?" render={(props) => <PaymentSettlementDetailsPage {...props} user={this.state.user} />} />
+        <Route path="/paymentStat" render={(props) => <PaymentSettlementStatPage {...props} user={this.state.user} />} />
         <Route path="/collectingSettlement" render={(props) => <CollectingSettlementPage {...props} user={this.state.user} />} />
-        <Route path="/collectingProcess" render={(props) => <CollectingSettlementPage {...props} user={this.state.user} type='process' key='collectingProcess'  />} />
+        <Route path="/collectingProcess" render={(props) => <CollectingSettlementPage {...props} user={this.state.user} type='process' key='collectingProcess' />} />
         <Route path="/collectingSettlementDetails/:id?" render={(props) => <CollectingSettlementDetailsPage {...props} user={this.state.user} />} />
+        <Route path="/collectingStat" render={(props) => <CollectingSettlementStatPage {...props} user={this.state.user} />} />
 
         {/* {this.hasPrivilege('system:user-management') ? */}
         {/* <React.Fragment> */}
@@ -964,6 +1074,9 @@ const styles = theme => ({
   },
   'contentShift-right': {
     marginRight: 0,
+  },
+  nested: {
+    paddingLeft: theme.spacing.unit * 4,
   },
 });
 
