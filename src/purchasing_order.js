@@ -26,6 +26,7 @@ import CommonStyles from "./common_styles"
 
 import DataTableBase from "./data_table_base"
 import { toDateString } from './utils'
+import { TaxTypeEditor, TaxTypeProvider } from './common_components'
 
 
 // =============================================
@@ -40,36 +41,6 @@ const COLUMNS = [
     { name: "date", title: "签订日期", getCellValue: row => row.date ? toDateString(row.date) : null },
     { name: "supplier", title: "供应商" },
 ]
-
-
-const TaxTypeEditor = ({ value, onValueChange }) => (
-    <Select
-        native
-        input={<Input />}
-        value={value}
-        onChange={event => {
-            onValueChange(event.target.value)
-        }
-        }
-        style={{ width: '100%' }}
-    >
-        <option key="o-1" value=""></option>
-        <option key="o0" value={false}>不含税</option>
-        <option key="o1" value={true}>含税</option>
-    </Select>
-);
-
-// const BooleanTypeProvider = props => (
-const TaxTypeProvider = props => (
-    <DataTypeProvider
-        formatterComponent={
-            ({ row, value }) =>
-                value ? <Typography style={{ fontWeight: 'bold', color: 'red' }}>含税</Typography> : null
-        }
-        editorComponent={TaxTypeEditor}
-        {...props}
-    />
-);
 
 
 // =============================================

@@ -133,8 +133,8 @@ class CollectingSettlementStatPage extends React.PureComponent {
                         shrink: true,
                     }}
                 />
-                {/* <span style={{flex:1}} />
-                <Button href={`${EXPORT_BASE_URL}/collectingSettlements?from=${from}&to=${to}`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button> */}
+                <span style={{flex:1}} />
+                <Button href={`${EXPORT_BASE_URL}/collectingSettlements?from=${from}&to=${to}`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
             </Grid>
 
             <DataTableBase

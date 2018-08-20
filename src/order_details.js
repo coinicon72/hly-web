@@ -22,7 +22,8 @@ import * as mui from '@material-ui/icons';
 // ui
 import * as mu from '@material-ui/core';
 import {
-    Paper, Typography, TextField, Button, IconButton, MenuItem, Snackbar,
+    Paper, Typography, TextField, Button, IconButton, MenuItem,
+    // Snackbar,
     // Select, Divider,
     Toolbar, Tooltip, Chip,
     Input, InputLabel, InputAdornment,
@@ -65,9 +66,13 @@ import axios from 'axios'
 //
 // import DataTableBase from "./data_table_base"
 
-import { DATA_API_BASE_URL } from "./config"
+import { DATA_API_BASE_URL, MODE_VIEW } from "./config"
 // import { store } from "./redux"
 import { toFixedMoney, toDateString } from "./utils"
+
+//
+import { connect } from 'react-redux'
+import { actionShowSnackbar } from "./redux/data_selection"
 
 const MODE_ADD = 0;
 const MODE_EDIT = 1;
@@ -104,10 +109,6 @@ class OrderDetailsPage extends React.PureComponent {
 
             // errors
             errors: {},
-
-            //
-            snackbarOpen: false,
-            snackbarContent: "",
         }
 
         // this.onDetails = ((id) => {
@@ -118,40 +119,40 @@ class OrderDetailsPage extends React.PureComponent {
         //     alert(`edit ${id}`)
         // })
 
-        this.handleOrderInfoChange = (e => {
+        this.handleOrderInfoChange = e => {
             this.state.order[e.target.id] = e.target.value;
             this.forceUpdate()
-        })
+        }
 
 
-        this.onChangeTax = (e => {
+        this.onChangeTax = e => {
             this.state.order.tax = !this.state.order.tax
             this.forceUpdate()
-        })
+        }
 
 
-        this.handleSelectClient = (e => {
+        this.handleSelectClient = e => {
             const cid = parseInt(e.target.value, 10)
             let client = this.state.clients.find(i => i.id === cid)
             if (client)
                 this.setState({ client: client })
-        })
+        }
 
 
-        this.onAddProduct = (() => {
+        this.onAddProduct = () => {
             this.setState({ showSelectProduct: true })
-        })
+        }
 
 
-        this.cancelSelect = (() => {
+        this.cancelSelect = () => {
             this.setState({ showSelectProduct: false })
-        })
+        }
 
 
         this.changeSelection = selection => this.setState({ selection });
 
 
-        this.addProducts = (() => {
+        this.addProducts = () => {
             const { orderItems, products, selection } = this.state;
             Object.keys(selection).forEach(idx => {
                 let no = selection[idx];
@@ -163,20 +164,20 @@ class OrderDetailsPage extends React.PureComponent {
 
             //
             this.setState({ orderItems: orderItems, showSelectProduct: false, selection: [] })
-        })
+        }
 
 
-        this.onDelete = ((id) => {
+        this.onDelete = id => {
             const { orderItems } = this.state;
             let idx = orderItems.findIndex(v => v.id === id)
             if (idx >= 0) {
                 orderItems.splice(idx, 1);
                 this.forceUpdate();
             }
-        })
+        }
 
 
-        this.handleQuantityChange = (e => {
+        this.handleQuantityChange = e => {
             let id = parseInt(e.target.id.split("_")[1], 10)
             let item = this.state.orderItems.find(i => i.id.product === id)
             item.quantity = Number.parseFloat(e.target.value)
@@ -184,21 +185,21 @@ class OrderDetailsPage extends React.PureComponent {
             this.updateOrderValue()
 
             this.forceUpdate();
-        })
+        }
 
 
-        this.handlePriceChange = (e => {
-            let id =  parseInt(e.target.id.split("_")[1])
+        this.handlePriceChange = e => {
+            let id = parseInt(e.target.id.split("_")[1])
             let item = this.state.orderItems.find(i => i.id.product === id)
             item.price = Number.parseFloat(e.target.value)
 
             this.updateOrderValue()
 
             this.forceUpdate();
-        })
+        }
 
 
-        this.updateOrderValue = (e => {
+        this.updateOrderValue = e => {
             let value = 0
             this.state.orderItems.forEach(i => {
                 value += i.quantity * i.price
@@ -206,19 +207,19 @@ class OrderDetailsPage extends React.PureComponent {
 
             this.state.order.value = value;
             this.forceUpdate()
-        })
+        }
 
 
         //
         this.cancelSave = () => this.setState({ savingOrder: false, activeStep: 0 })
 
-        this.onSaveSuccess = (() => {
+        this.onSaveSuccess = () => {
             this.setState({ savingOrder: false, activeStep: 0 })
             this.props.history.goBack();
-        })
+        }
 
 
-        this.saveOrder = (async () => {
+        this.saveOrder = async () => {
             //
             this.setState({ savingOrder: true, activeStep: 0 })
             this.forceUpdate()
@@ -261,9 +262,11 @@ class OrderDetailsPage extends React.PureComponent {
 
             if (Object.keys(errors).length > 0) {
                 this.setState({
-                    savingOrder: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "有错误发生"
+                    savingOrder: false, errors: errors, 
+                    // snackbarOpen: true,
+                    // snackbarContent: "有错误发生"
                 })
+                this.props.showSnackbar("有错误发生")
                 return;
             }
 
@@ -286,9 +289,11 @@ class OrderDetailsPage extends React.PureComponent {
                 .catch(e => {
                     cancel = true;
                     this.setState({
-                        savingOrder: false, snackbarOpen: true,
-                        snackbarContent: e.message
+                        savingOrder: false, 
+                        // snackbarOpen: true,
+                        // snackbarContent: e.message
                     })
+                    this.props.showSnackbar(e.message)
                 })
 
             if (cancel) return;
@@ -309,9 +314,11 @@ class OrderDetailsPage extends React.PureComponent {
                     .catch(e => {
                         cancel = true;
                         this.setState({
-                            savingOrder: false, snackbarOpen: true,
-                            snackbarContent: e.message
+                            savingOrder: false, 
+                            // snackbarOpen: true,
+                            // snackbarContent: e.message
                         })
+                        this.props.showSnackbar(e.message)
                     })
             })
 
@@ -320,14 +327,33 @@ class OrderDetailsPage extends React.PureComponent {
             // step 5, done
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-        })
+        }
+
+        this.hasPrivilege = privilege => {
+            if (!this.props.user || !this.props.user.roles)
+                return false
+
+            const { roles } = this.props.user
+            return roles.flatMap(r => r.privileges)
+                .findIndex(p => privilege.startsWith(p.code)) >= 0
+            // for (let r of roles) {
+            //     for (let p of r.privileges) {
+            //         if (privilege.startsWith(p.code))
+            //             return true
+            //     }
+            // }
+
+            // return false
+        }
     }
 
-    showSnackbar(msg: String) {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
-    }
+    // showSnackbar(msg: String) {
+    //     this.setState({ snackbarOpen: true, snackbarContent: msg });
+    // }
 
     componentDidMount() {
+        // document.title = "订单详情";
+
         let { id } = this.props.match.params;
         if (!id) id = 0
 
@@ -360,7 +386,7 @@ class OrderDetailsPage extends React.PureComponent {
                 .then(j => axios.get(`${DATA_API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
                 .then(resp => resp.data._embedded.boms)
                 .then(boms => this.setState({ boms }))
-                .catch(e => this.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message));
         }
 
         // load clients
@@ -369,7 +395,7 @@ class OrderDetailsPage extends React.PureComponent {
             .then(j => {
                 this.setState({ clients: j });
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
 
         // load products
         axios.get(`${DATA_API_BASE_URL}/products`)
@@ -377,19 +403,25 @@ class OrderDetailsPage extends React.PureComponent {
             .then(j => {
                 this.setState({ products: j });
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
     }
 
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
-        const { mode, order, client, orderItems, products, clients, boms } = this.state;
+        const { order, client, orderItems, products, clients, boms } = this.state;
+        let { mode } = this.state;
         const { showSelectProduct, columns, selection } = this.state;
-        const { errors, snackbarOpen, snackbarContent } = this.state;
+        const { errors, } = this.state;
 
-        let shrinkLabel = mode === MODE_EDIT ? true : undefined;
+        if (mode === MODE_EDIT && order.status > 0)
+            mode = MODE_VIEW
+
+        let shrinkLabel = mode === MODE_EDIT || mode === MODE_VIEW ? true : undefined;
 
         const { savingOrder, activeStep } = this.state;
+
+        const schedulable = this.hasPrivilege('production:schedule') && order.status <= 1 && mode !== MODE_ADD
 
         return (
             // <Provider store={store}>
@@ -400,7 +432,7 @@ class OrderDetailsPage extends React.PureComponent {
                     <Toolbar className={classes.toolbar}>
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>订单详情</Typography>
-                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存订单<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT || mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存订单<mdi.ContentSave /></Button>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
@@ -444,7 +476,7 @@ class OrderDetailsPage extends React.PureComponent {
                                     )}
                             </mu.Grid>
                             <mu.Grid>
-                                <FormControl required error={!!errors['order.no']} aria-describedby="no-error-text">
+                                <FormControl disabled={mode === MODE_VIEW} required error={!!errors['order.no']} aria-describedby="no-error-text">
                                     <InputLabel htmlFor="no" shrink={shrinkLabel}>订单编号</InputLabel>
                                     <Input id="no"
                                         value={order.no}
@@ -454,6 +486,7 @@ class OrderDetailsPage extends React.PureComponent {
                                 </FormControl>
 
                                 <FormControlLabel
+                                    disabled={mode === MODE_VIEW}
                                     control={
                                         <Switch
                                             checked={!!order.tax}
@@ -462,12 +495,12 @@ class OrderDetailsPage extends React.PureComponent {
                                         />
                                     }
                                     label={!!order.tax ? "含税" : "不含税"}
-                                    style={{ marginleft: 32 }}
+                                    style={{ marginLeft: 32 }}
                                 />
                             </mu.Grid>
 
                             <mu.Grid>
-                                <TextField type="date" required id="orderDate" error={!!errors['order.orderDate']}
+                                <TextField type="date" disabled={mode === MODE_VIEW} required id="orderDate" error={!!errors['order.orderDate']}
                                     label="下单日期"
                                     value={order.orderDate ? toDateString(order.orderDate) : ""}
                                     margin="normal"
@@ -477,9 +510,10 @@ class OrderDetailsPage extends React.PureComponent {
                                     }}
                                 />
 
-                                <TextField type="date" required id="deliveryDate" error={!!errors['order.deliveryDate']}
+                                <TextField type="date" disabled={mode === MODE_VIEW}
+                                    required id="deliveryDate" error={!!errors['order.deliveryDate']}
                                     label="发货日期"
-                                    style={{ marginleft: 32 }}
+                                    style={{ marginLeft: 32 }}
                                     value={order.deliveryDate ? toDateString(order.deliveryDate) : ""}
                                     margin="normal"
                                     onChange={e => this.handleOrderInfoChange(e)}
@@ -489,7 +523,7 @@ class OrderDetailsPage extends React.PureComponent {
                                 />
                             </mu.Grid>
                             <mu.Grid>
-                                <TextField id="comment" error={!!errors['order.comment']} label="备注"
+                                <TextField id="comment" disabled={mode === MODE_VIEW} error={!!errors['order.comment']} label="备注"
                                     defaultValue=""
                                     value={order.comment}
                                     className={classes.textFieldWithoutWidth}
@@ -520,8 +554,10 @@ class OrderDetailsPage extends React.PureComponent {
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>单价</TableCell>
                                     <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                        <Button variant="flat" size="large" onClick={this.onAddProduct}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                        {mode === MODE_VIEW ? null :
+                                            <Button variant="flat" size="large" onClick={this.onAddProduct}>
+                                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                        }
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -534,11 +570,11 @@ class OrderDetailsPage extends React.PureComponent {
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.code}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.color}</TableCell>
                                             <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
-                                                <TextField type="number" required id={`quantity_${rid}`}
+                                                <TextField type="number" required disabled={mode === MODE_VIEW} id={`quantity_${rid}`}
                                                     value={n.quantity}
                                                     fullWidth
                                                     error={!!errors[`quantity_${rid}`]}
-                                                    margin="normal" 
+                                                    margin="normal"
                                                     InputProps={{
                                                         endAdornment: <InputAdornment position="end">kg</InputAdornment>
                                                     }}
@@ -546,7 +582,7 @@ class OrderDetailsPage extends React.PureComponent {
                                                 />
                                             </TableCell>
                                             <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
-                                                <TextField type="number" required id={`price_${rid}`}
+                                                <TextField type="number" required disabled={mode === MODE_VIEW} id={`price_${rid}`}
                                                     value={n.price}
                                                     fullWidth
                                                     error={!!errors[`price_${rid}`]}
@@ -560,11 +596,18 @@ class OrderDetailsPage extends React.PureComponent {
                                             </TableCell>
                                             <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.price)}`}</TableCell>
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
-                                                <Tooltip title="删除">
-                                                    <IconButton onClick={() => this.onDelete(n.id, no)}>
-                                                        <mui.Delete />
+                                                {mode === MODE_VIEW ? null :
+                                                    <Tooltip title="删除">
+                                                        <IconButton onClick={() => this.onDelete(n.id, no)}>
+                                                            <mui.Delete />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                }
+                                                {schedulable ? <Tooltip title="排产">
+                                                    <IconButton  component={Link} to={`/schedule_details/${order.id}_${rid}`}>
+                                                        <mdi.CalendarToday />
                                                     </IconButton>
-                                                </Tooltip>
+                                                </Tooltip> : null}
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -578,34 +621,23 @@ class OrderDetailsPage extends React.PureComponent {
                     </Paper>
 
 
-                    <Typography variant="title" className={classes.subTitle}>BOM</Typography>
+                    {/* {this.hasPrivilege('production:schedule') && order.status <= 1 ?
+                        <React.Fragment>
+                            <Typography variant="title" className={classes.subTitle}>排产</Typography>
 
-                    <Paper className={classes.paper}>
-                        {boms && boms.length > 0 ? (
-                            <React.Fragment>
-                                <Typography >BOM已生成</Typography>
-                                <Button variant="flat" size="large" component={Link} to={`/bom/view/${order.id}`}>
-                                    <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看BOM</Button>
-                            </React.Fragment>
-                        ) : <Button variant="flat" size="large" component={Link} to={`/bom/add/${order.id}`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成BOM</Button>}
-                    </Paper>
+                            <Paper className={classes.paper}>
+                                {boms && boms.length > 0 ? (
+                                    <React.Fragment>
+                                        <Typography >BOM已生成</Typography>
+                                        <Button variant="flat" size="large" component={Link} to={`/bom/view/${order.id}`}>
+                                            <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看BOM</Button>
+                                    </React.Fragment>
+                                ) : <Button variant="flat" size="large" component={Link} to={`/bom/add/${order.id}`}>
+                                        <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成BOM</Button>}
+                            </Paper>
+                        </React.Fragment>
+                        : null} */}
                 </div>
-
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                />
-
 
                 {/* dialog for add materials */}
                 <Dialog
@@ -714,5 +746,19 @@ const styles = theme => ({
     },
 })
 
+const mapStateToProps = state => ({
+    user: state.main.user,
+})
 
-export default withStyles(styles)(OrderDetailsPage);
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    mapStateToProps,
+    // null,
+    mapDispatchToProps
+)(OrderDetailsPage)
+
+export default withStyles(styles)(ConnectedComponent);

@@ -13,7 +13,7 @@ import {
     Input, InputLabel, InputAdornment,
     FormGroup,
     // FormControlLabel, 
-    FormControl, 
+    FormControl,
     // FormHelperText, FormLabel
 } from '@material-ui/core';
 
@@ -37,7 +37,7 @@ import {
 //
 import {
     // EXPORT_BASE_URL,
-    API_BASE_URL, 
+    API_BASE_URL,
     // DATA_API_BASE_URL
 } from "./config";
 
@@ -57,10 +57,12 @@ class LoginPage extends React.PureComponent {
             showPassword: false,
         }
 
-        // this.doLogin = (() => {
-        //     axios.post(`${API_BASE_URL}token?uid=${this.state.uid}&pwd=${this.state.pwd}`)
-        //     .then()
-        // }).bind(this)
+        this.tryLogin = _ => {
+            if (this.props.doLogin && this.state.uid && this.state.pwd)
+                this.props.doLogin(this.state.uid, this.state.pwd)
+
+            return false;
+        }
     }
 
     componentDidMount() {
@@ -80,46 +82,52 @@ class LoginPage extends React.PureComponent {
         // const { classes, width } = this.props
 
         return <div style={{ display: 'flex', flex: 1, justifyContent: 'center', padding: 24 }}>
-            <FormGroup>
-                <FormControl aria-describedby="no-error-text">
-                    <InputLabel htmlFor="uid">手机</InputLabel>
-                    <Input id="uid"
-                        value={this.state.uid}
-                        onChange={e => this.setState({ uid: e.target.value })}
-                    />
-                    {/* <FormHelperText id="no-error-text">{errors.revision}</FormHelperText> */}
-                </FormControl>
+            {/* <form>  */}
+                {/* onSubmit={this.tryLogin}> */}
+                <FormGroup>
+                    <FormControl aria-describedby="no-error-text">
+                        <InputLabel htmlFor="uid">手机</InputLabel>
+                        <Input id="uid"
+                            value={this.state.uid}
+                            onChange={e => this.setState({ uid: e.target.value })}
+                            // inputProps={{ onkeyup: "this.tryLogin()" }}
+                        />
+                        {/* <FormHelperText id="no-error-text">{errors.revision}</FormHelperText> */}
+                    </FormControl>
 
-                <FormControl style={{ marginTop: 16 }}>
-                    <InputLabel htmlFor="adornment-password">密码</InputLabel>
-                    <Input
-                        id="adornment-password"
-                        type={this.state.showPassword ? 'text' : 'password'}
-                        value={this.state.pwd}
-                        onChange={e => this.setState({ pwd: e.target.value })}
-                        endAdornment={
-                            <InputAdornment position="end">
-                                <IconButton
-                                    // aria-label="Toggle password visibility"
-                                    onClick={_ => this.setState({ showPassword: !this.state.showPassword })}
-                                // onMouseDown={this.handleMouseDownPassword}
-                                >
-                                    {this.state.showPassword ? <mdi.EyeOff /> : <mdi.Eye />}
-                                </IconButton>
-                            </InputAdornment>
-                        }
-                    />
-                </FormControl>
+                    <FormControl style={{ marginTop: 16 }}>
+                        <InputLabel htmlFor="adornment-password">密码</InputLabel>
+                        <Input
+                            id="adornment-password"
+                            type={this.state.showPassword ? 'text' : 'password'}
+                            value={this.state.pwd}
+                            onChange={e => this.setState({ pwd: e.target.value })}
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        // aria-label="Toggle password visibility"
+                                        onClick={_ => this.setState({ showPassword: !this.state.showPassword })}
+                                    // onMouseDown={this.handleMouseDownPassword}
+                                    >
+                                        {this.state.showPassword ? <mdi.EyeOff /> : <mdi.Eye />}
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                            // inputProps={{ onkeyup: "this.tryLogin()" }}
+                        />
+                    </FormControl>
 
-                <Button
-                    style={{ alignSelf: 'flex-end', marginTop: 16 }}
-                    disabled={!this.state.uid || !this.state.pwd}
-                    onClick={() => this.props.doLogin && this.props.doLogin(this.state.uid, this.state.pwd)}
-                // onClick={() => this.props.showSnackbar("test")}
-                >登录<mdi.LoginVariant /></Button>
+                    <Button
+                        type="submit"
+                        style={{ alignSelf: 'flex-end', marginTop: 16 }}
+                        disabled={!this.state.uid || !this.state.pwd}
+                        onClick={() => this.props.doLogin && this.props.doLogin(this.state.uid, this.state.pwd)}
+                    // onClick={() => this.props.showSnackbar("test")}
+                    >登录<mdi.LoginVariant /></Button>
 
-                {this.props.loginError ? <p style={{ color: 'red', marginTop: 16 }}>{this.props.loginError.message}</p> : null}
-            </FormGroup>
+                    {this.props.loginError ? <p style={{ color: 'red', marginTop: 16 }}>{this.props.loginError.message}</p> : null}
+                </FormGroup>
+            {/* </form> */}
         </div>
     }
 }

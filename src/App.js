@@ -79,6 +79,8 @@ import PaymentSettlementStatPage from './payment_settlement_stat'
 import CollectingSettlementPage from './collecting_settlement'
 import CollectingSettlementDetailsPage from './collecting_settlement_details'
 import CollectingSettlementStatPage from './collecting_settlement_stat'
+import ScheduleDetails from './schedule_details'
+
 
 // import DAC from "./dimension_aware_component"
 import * as config from "./config"
@@ -147,9 +149,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
       anchor: 'left',
 
       basicDataMenu: false,
-      menuStatus: { 
-        collectingSettlement: false, 
-        paymentSettlement: false, 
+      menuStatus: {
+        collectingSettlement: false,
+        paymentSettlement: false,
       },
     };
 
@@ -177,20 +179,22 @@ class App extends React.PureComponent<{ classes: any }, any> {
         return false
 
       const { roles } = this.state.user
-      for (let r of roles) {
-        for (let p of r.privileges) {
-          if (privilege.startsWith(p.code))
-            return true
-        }
-      }
+      return roles.flatMap(r => r.privileges)
+        .findIndex(p => privilege.startsWith(p.code)) >= 0
+      // for (let r of roles) {
+      //   for (let p of r.privileges) {
+      //     if (privilege.startsWith(p.code))
+      //       return true
+      //   }
+      // }
 
-      return false
+      // return false
     })
 
     this.handleMenuToggle = id => (() => {
       const { menuStatus } = this.state
       menuStatus[id] = !menuStatus[id]
-      const ns = {...menuStatus}
+      const ns = { ...menuStatus }
 
       this.setState({ menuStatus: ns })
     }).bind(this)
@@ -245,48 +249,18 @@ class App extends React.PureComponent<{ classes: any }, any> {
     this.setState({ openDrawer: !this.state.openDrawer });
   }
 
-  salesItems = _ => {
-    let l = []
+  // salesItems = _ => {
+  //   let l = []
 
-    if (this.hasPrivilege('sales:client'))
-      l.push(<Link key="/client" to="/client">
-        <ListItem button>
-          <ListItemIcon>
-            <ClipboardAccount />
-          </ListItemIcon>
-          <ListItemText primary="客户" />
-        </ListItem>
-      </Link>)
-
-    if (this.hasPrivilege('sales:order'))
-      l.push(<Link key="/orders" to="/orders">
-        <ListItem button>
-          <ListItemIcon>
-            <ClipboardText />
-          </ListItemIcon>
-          <ListItemText primary="订单" />
-        </ListItem>
-      </Link>)
-
-    if (this.hasPrivilege('production:product'))
-      l.push(<Link key="/product" to="/product">
-        <ListItem button>
-          <ListItemIcon>
-            <GroupWork />
-          </ListItemIcon>
-          <ListItemText primary="产品" />
-        </ListItem>
-      </Link>)
-
-    return l.length > 0 ?
-      <React.Fragment>
-        <Divider />
-        <List>
-          {l}
-        </List>
-      </React.Fragment >
-      : null
-  }
+  //   return l.length > 0 ?
+  //     <React.Fragment>
+  //       <Divider />
+  //       <List>
+  //         {l}
+  //       </List>
+  //     </React.Fragment >
+  //     : null
+  // }
 
   basicDataItems = _ => {
     let l = []
@@ -318,6 +292,26 @@ class App extends React.PureComponent<{ classes: any }, any> {
             <HexagonMultiple />
           </ListItemIcon>
           <ListItemText primary="材料" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('production:product'))
+      l.push(<Link key="/product" to="/product">
+        <ListItem button>
+          <ListItemIcon>
+            <GroupWork />
+          </ListItemIcon>
+          <ListItemText primary="产品" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('sales:client'))
+      l.push(<Link key="/client" to="/client">
+        <ListItem button>
+          <ListItemIcon>
+            <ClipboardAccount />
+          </ListItemIcon>
+          <ListItemText primary="客户" />
         </ListItem>
       </Link>)
 
@@ -404,6 +398,16 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
   manufactionItems = _ => {
     let l = []
+
+    if (this.hasPrivilege('sales:order'))
+      l.push(<Link key="/orders" to="/orders">
+        <ListItem button>
+          <ListItemIcon>
+            <ClipboardText />
+          </ListItemIcon>
+          <ListItemText primary="订单" />
+        </ListItem>
+      </Link>)
 
     if (this.hasPrivilege('production:bom'))
       l.push(<Link key="/boms" to="/boms">
@@ -720,6 +724,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/collectingSettlement" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收结算</Typography>} />
         <Route path="/collectingProcess" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收处理</Typography>} />
         <Route path="/collectingStat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收汇总</Typography>} />
+        <Route path="/schedule_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>排产</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -820,6 +825,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         {/* </React.Fragment>
           : null} */}
 
+        <Route path="/schedule_details/:id?" component={ScheduleDetails} />
+
         <Route component={HomePage} />
       </Switch>
 
@@ -845,19 +852,18 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </div>
         {/* <Divider />
         <List> */}
-        {this.salesItems()}
-        {/* </List>
-        <Divider />
-        <List> */}
-        {this.userManagementItems()}
+        {/* {this.salesItems()} */}
         {/* </List>
         <Divider />
         <List> */}
         {this.basicDataItems()}
+        {this.manufactionItems()}
         {/* </List>
         <Divider />
         <List> */}
-        {this.manufactionItems()}
+        {/* </List>
+        <Divider />
+        <List> */}
         {/* </List>
         <Divider />
         <List> */}
@@ -866,6 +872,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         {this.accountingItems()}
 
         {this.stockItems()}
+        {this.userManagementItems()}
         {/* </List> */}
       </div>
     );

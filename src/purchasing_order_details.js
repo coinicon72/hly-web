@@ -436,7 +436,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                         />
                                     }
                                     label={!!order.tax ? "含税" : "不含税"}
-                                    style={{ marginleft: 32 }}
+                                    style={{ marginLeft: 32 }}
                                 />
 
                                 <FormControl

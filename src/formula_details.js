@@ -456,7 +456,7 @@ class AddFourmulaPage extends React.PureComponent {
                                         />
                                     }
                                     label="自动生成修订版本号"
-                                    style={{ marginleft: 16 }}
+                                    style={{ marginLeft: 16 }}
                                 />
                             </mu.Grid>
                             <mu.Grid>

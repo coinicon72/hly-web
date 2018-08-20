@@ -31,7 +31,7 @@ import * as mu from '@material-ui/core';
 import {
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, 
-    Snackbar,
+    // Snackbar,
     // Select, 
     Toolbar, Divider, Tooltip, Chip,
     Input, InputLabel, InputAdornment,
@@ -71,6 +71,10 @@ import {
 
 //
 import axios from 'axios'
+
+//
+import { connect } from 'react-redux'
+import { actionShowSnackbar } from "./redux/data_selection"
 
 
 // import DataTableBase from "./data_table_base"
@@ -187,10 +191,12 @@ class BomDetailsPage extends React.PureComponent {
             mode: MODE_VIEW,
 
             order: null,
-            orderItems: [], // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
+            orderItem: null, // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
             // client: null,
 
-            orders: [],
+            schedule: {},
+
+            // orders: [],
 
             //
             showSelectOrder: false,
@@ -209,15 +215,11 @@ class BomDetailsPage extends React.PureComponent {
 
             // errors
             errors: {},
-
-            //
-            snackbarOpen: false,
-            snackbarContent: "",
         }
 
 
         // =============================================
-        this.onRedux = (() => {
+        this.onRedux = () => {
             const { errors } = store.getState()
             this.state.errors = {}
 
@@ -226,7 +228,7 @@ class BomDetailsPage extends React.PureComponent {
             }
 
             this.forceUpdate()
-        })
+        }
 
 
         // 显示 订单选择对话框
@@ -237,7 +239,7 @@ class BomDetailsPage extends React.PureComponent {
                     .then(j => {
                         this.setState({ orders: j });
                     })
-                    .catch(e => this.showSnackbar(e.message));
+                    .catch(e => this.props.showSnackbar(e.message));
             }
 
             store.dispatch(actionValidData({}))
@@ -246,9 +248,9 @@ class BomDetailsPage extends React.PureComponent {
 
 
         // 取消显示 订单选择对话框
-        this.cancelSelect = (() => {
+        this.cancelSelect = () => {
             this.setState({ showSelectOrder: false })
-        })
+        }
 
 
         // 订单选择发送变化 （在 订单选择对话框 内）
@@ -264,7 +266,7 @@ class BomDetailsPage extends React.PureComponent {
 
 
         // 确定了 订单选择
-        this.onSelectedOrder = (() => {
+        this.onSelectedOrder = () => {
             const { orders, selection } = this.state;
             if (selection.length === 0) return;
 
@@ -278,20 +280,20 @@ class BomDetailsPage extends React.PureComponent {
 
                     store.dispatch(actionSelectOrder(order.id))
                 })
-                .catch(e => this.showSnackbar(e.message));
-        })
+                .catch(e => this.props.showSnackbar(e.message));
+        }
 
 
         //
         this.cancelSave = () => this.setState({ showSavingBom: false, activeStep: 0 })
 
-        this.onSaveSuccess = (() => {
+        this.onSaveSuccess = () => {
             this.setState({ showSavingBom: false, activeStep: 0 })
             this.props.history.goBack();
-        })
+        }
 
 
-        this.saveBom = (async () => {
+        this.saveBom = async () => {
             //
             this.setState({ showSavingBom: true, activeStep: 0 })
             this.forceUpdate()
@@ -308,15 +310,15 @@ class BomDetailsPage extends React.PureComponent {
             this.setState({ activeStep: 0 })
 
             const { boms } = store.getState()
-            let { order, orderItems } = this.state
+            let { order, orderItem } = this.state
 
             if (!order || !order.no || order.no === "")
                 errors['order'] = "无效的订单"
             else {
-                if (!orderItems || orderItems.length <= 0) {
+                if (!orderItem || orderItem.length <= 0) {
                     errors['order'] = "订单中没有产品明细"
                 } else {
-                    orderItems.forEach(oi => {
+                    orderItem.forEach(oi => {
                         // product id
                         const pid = oi.id.product
 
@@ -343,9 +345,9 @@ class BomDetailsPage extends React.PureComponent {
                 store.dispatch(actionValidData(errors))
 
                 this.setState({
-                    showSavingBom: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "有错误发生"
+                    showSavingBom: false, errors: errors
                 })
+                this.props.showSnackbar("有错误发生")
                 return;
             }
 
@@ -398,9 +400,11 @@ class BomDetailsPage extends React.PureComponent {
                     .catch(e => {
                         cancel = true;
                         this.setState({
-                            showSavingBom: false, snackbarOpen: true,
-                            snackbarContent: e.message
+                            showSavingBom: false,
+                            // snackbarOpen: true,
+                            // snackbarContent: e.message
                         })
+                        this.props.showSnackbar(e.message)
                     })
             })
 
@@ -411,16 +415,12 @@ class BomDetailsPage extends React.PureComponent {
             // done
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-        })
-    }
-
-    showSnackbar(msg: String) {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
+        }
     }
 
     componentDidMount() {
         let { mode, id } = this.props.match.params;
-        if (!id) id = 0
+        // if (!id) id = 0
 
         // if ((mode == MODE_EDIT || mode == MODE_VIEW) && id > 0) {
         //     this.state.mode = mode
@@ -437,27 +437,31 @@ class BomDetailsPage extends React.PureComponent {
         //         .then(j => {
         //             this.setState({ orderItems: j })
         //         })
-        //         .catch(e => this.showSnackbar(e.message));
+        //         .catch(e => this.props.showSnackbar(e.message));
         // }
         // else
         // {
         //     this.setState({mode})
         // }
-        this.setState({ mode })
+        // this.setState({ mode })
 
-        if (id > 0) {
-            axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
+        if (id) {
+            axios.get(`${DATA_API_BASE_URL}/orderItems/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
-                    this.state.order = j
-                    return `${j._links.self.href}/items`
+                    this.setState({ orderItem: j })
                 })
-                .then(url => axios.get(url))
-                .then(resp => resp.data._embedded.orderItems)
-                .then(j => {
-                    this.setState({ orderItems: j })
+                .then(_ => axios.get(`${DATA_API_BASE_URL}/orderItems/${id}/order`))
+                .then(resp => resp.data)
+                .then(order => {
+                    this.setState({ order })
                 })
-                .catch(e => this.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message))
+                .then(_ => axios.get(`${DATA_API_BASE_URL}/producingSchedules/${id}`))
+                .then(resp => resp.data)
+                .then(schedule => {
+                    this.setState({ schedule })
+                })
         }
 
 
@@ -470,7 +474,7 @@ class BomDetailsPage extends React.PureComponent {
         //     .then(j => {
         //         this.setState({ products: j });
         //     })
-        //     .catch(e => this.showSnackbar(e.message));
+        //     .catch(e => this.props.showSnackbar(e.message));
     }
 
     componentWillUnmount() {
@@ -481,16 +485,16 @@ class BomDetailsPage extends React.PureComponent {
     render() {
         const { classes, } = this.props
         const orderId = this.props.match.params.id;
-        const { mode, order, orderItems, orders } = this.state;
+        const { mode, order, orderItem, schedule } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
-        const { errors, snackbarOpen, snackbarContent } = this.state;
+        const { errors } = this.state;
 
         // let shrinkLabel = mode === MODE_EDIT ? true : undefined;
-        let title = '生成BOM单'
-        if (mode === MODE_VIEW)
-            title = '查看BOM单'
-        else if (mode === MODE_EDIT)
-            title = '编辑BOM单'
+        let title = '排产计划'
+        // if (schedule === MODE_VIEW)
+        //     title = '查看排产计划'
+        // else if (mode === MODE_EDIT)
+        //     title = '编辑排产计划'
 
         const { showSavingBom, activeStep } = this.state;
 
@@ -503,19 +507,19 @@ class BomDetailsPage extends React.PureComponent {
                     <Toolbar className={classes.toolbar}>
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
-                        <Button onClick={() => this.saveBom()} disabled={mode === MODE_VIEW || !order} color='secondary' style={{ fontSize: 18 }} >保存BOM单<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveBom()} disabled={Object.keys(schedule).length === 0 || store.getState().boms.length === 0} color='secondary' style={{ fontSize: 18 }} >保存排产<mdi.ContentSave /></Button>
 
-                        {
+                        {/* {
                             mode === MODE_ADD ? null :
                                 <Button href={`${EXPORT_BASE_URL}/boms/${orderId}`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
-                        }
+                        } */}
                     </Toolbar>
 
-                    <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 8, alignItems: 'center' }}>
+                    {/* <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 8, alignItems: 'center' }}>
                         <Button onClick={this.selectOrder} color='primary' style={{ fontSize: 18 }}
                             disabled={mode === MODE_VIEW}><mdi.ClipboardText />选择订单</Button>
-                        <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors.order}</Typography>
-                    </div>
+                        <Typography className={classes.error} style={{ marginleft: '1em' }}>{errors.order}</Typography>
+                    </div> */}
 
                     {order ? (
                         <React.Fragment>
@@ -574,72 +578,67 @@ class BomDetailsPage extends React.PureComponent {
                             </Paper>
 
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>BOM</Typography>
+                                <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>排产</Typography>
 
-                                {orderItems && orderItems.map(i => <BomSheet key={i.id.product} orderItem={i} mode={mode} />)}
+                                <Paper className={classes.paper}>
+                                    <mu.Grid container direction='column' alignItems="stretch">
+
+                                        <mu.Grid>
+                                            <TextField type="date" id="scheduleDate"
+                                                required
+                                                label="计划生产日期"
+                                                value={schedule.scheduleDate ? toDateString(schedule.scheduleDate) : ""}
+                                                onChange={e => {
+                                                    schedule.scheduleDate = e.target.value
+                                                    this.setState({ schedule: {...schedule} })
+                                                }}
+                                                margin="normal"
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                            />
+
+                                            <TextField type="date" id="producingDate"
+                                                label="实际生产日期"
+                                                style={{ marginLeft: 32 }}
+                                                value={schedule.producingDate ? toDateString(schedule.producingDate) : ""}
+                                                onChange={e => {
+                                                    schedule.producingDate = e.target.value
+                                                    this.setState({ schedule: {...schedule} })
+                                                }}
+                                                margin="normal"
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                            />
+                                        </mu.Grid>
+
+                                        <mu.Grid>
+                                            <TextField id="line" label="生产线"
+                                                value={schedule.line}
+                                                className={classes.textFieldWithoutWidth}
+                                                fullWidth
+                                                rowsMax="4"
+                                                margin="normal"
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                            />
+                                        </mu.Grid>
+                                    </mu.Grid>
+                                </Paper>
+
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>产品</Typography>
+
+                                {orderItem && <BomSheet key={orderItem.id.product} orderItem={orderItem} mode={MODE_EDIT} />}
 
                             </div>
                         </React.Fragment>
                     ) : null}
-
                 </div>
-
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                />
-
-
-                {/* dialog for select order */}
-                <Dialog
-                    open={showSelectOrder}
-                    onClose={this.cancelSelect}
-                    // className={classes.dialog}
-                    classes={{ paper: classes.dialog }}
-                >
-                    <DialogTitle>选择订单</DialogTitle>
-                    <DialogContent>
-                        <Paper>
-                            <Grid
-                                rows={orders}
-                                columns={columns}
-                            >
-                                <SelectionState
-                                    selection={selection}
-                                    onSelectionChange={this.changeSelection}
-                                />
-                                <IntegratedSelection />
-
-                                <SortingState
-                                    defaultSorting={[{ columnName: 'no', direction: 'asc' }]}
-                                />
-                                <IntegratedSorting />
-
-                                <FilteringState defaultFilters={[]} />
-                                <IntegratedFiltering />
-
-                                <VirtualTable height={500} messages={{ noData: "没有数据" }} />
-
-                                <TableHeaderRow showSortingControls />
-                                <TableFilterRow />
-                                <TableSelection showSelectAll={false} selectByRowClick={true} />
-                            </Grid>
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelSelect} color="primary">取消</Button>
-                        <Button disabled={selection.length > 0 ? false : true} onClick={this.onSelectedOrder} color="secondary">添加</Button>
-                    </DialogActions>
-                </Dialog>
 
 
                 {/* dialog for save bom */}
@@ -698,7 +697,7 @@ class BomSheet extends React.PureComponent {
 
         // ============================================================
         // redux, manually subsiribe for now, try to use connect() next
-        this.onRedux = (() => {
+        this.onRedux = () => {
             const { product } = this.props.orderItem.id
             const { errors } = store.getState()
 
@@ -723,12 +722,12 @@ class BomSheet extends React.PureComponent {
             }
 
             this.forceUpdate()
-        })
+        }
 
         //
-        this.cancelSelect = (() => {
+        this.cancelSelect = () => {
             this.setState({ showSelectFormula: false })
-        })
+        }
 
 
         this.changeSelection = selection => {
@@ -742,7 +741,7 @@ class BomSheet extends React.PureComponent {
         }
 
 
-        this.onSelectedFormula = (() => {
+        this.onSelectedFormula = () => {
             const { orderItem } = this.props
             const { formulas, selection } = this.state;
             if (selection.length === 0) return;
@@ -766,11 +765,11 @@ class BomSheet extends React.PureComponent {
                     formula.total_quantity = tq
                     this.setState({ formula: formula, formulaItems: j, showSelectFormula: false, })
                 })
-                .catch(e => this.showSnackbar(e.message));
-        })
+                .catch(e => this.props.showSnackbar(e.message));
+        }
 
 
-        this.updateMaterialQuantity = ((mid, quantity, calcQuantity) => {
+        this.updateMaterialQuantity = (mid, quantity, calcQuantity) => {
             const { orderItem } = this.props
             let { formula, formulaItems } = this.state
 
@@ -787,14 +786,14 @@ class BomSheet extends React.PureComponent {
             formula.total_quantity = parseFloat(tq.toFixed(3))
 
             this.forceUpdate();
-        })
+        }
 
-        this.handleQuantityChange = (e => {
-            const mid = e.target.id.split("_")[1]
+        this.handleQuantityChange = e => {
+            const mid = Number.parseInt(e.target.id.split("_")[1])
             const value = Number.parseFloat(e.target.value)
 
             this.updateMaterialQuantity(mid, value)
-        })
+        }
     }
 
     componentDidMount() {
@@ -846,16 +845,11 @@ class BomSheet extends React.PureComponent {
                         this.forceUpdate()
                     })
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
     }
 
     componentWillUnmount() {
         this.state.reduxSubscribe()
-    }
-
-
-    showSnackbar(msg: String) {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
     }
 
     render() {
@@ -863,7 +857,7 @@ class BomSheet extends React.PureComponent {
         const { orderItem, mode } = this.props
         const { product, formula, formulas, formulaItems } = this.state
         const { showSelectFormula, selection } = this.state
-        const { errors, snackbarOpen, snackbarContent } = this.state;
+        const { errors } = this.state;
 
         return (
             <React.Fragment>
@@ -952,20 +946,6 @@ class BomSheet extends React.PureComponent {
                     </Table>
                 </Paper>
 
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    // ContentProps={{
-                    //     'aria-describedby': 'message-id',
-                    // }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                />
-
                 {/* dialog for add materials */}
                 <Dialog
                     open={showSelectFormula}
@@ -1050,7 +1030,7 @@ const styles = theme => ({
             fontSize: 16,
             opacity: .75,
             margin: `0 0 ${theme.spacing.unit * 1}px 0`,
-            // marginLeft: 0,
+            // marginleft: 0,
             // marginBottom: ,
         },
 
@@ -1080,9 +1060,29 @@ const styles = theme => ({
 })
 
 
+// const mapStateToProps = state => ({
+//     user: state.main.user,
+// })
+
 BomSheet = withStyles(styles)(BomSheet);
 
-export default withStyles(styles)(BomDetailsPage);
+const mapDispatchToProps = dispatch => ({
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedBomSheet = connect(
+    // mapStateToProps,
+    null,
+    mapDispatchToProps
+)(BomSheet)
+
+const ConnectedBomDetailsPage = connect(
+    // mapStateToProps,
+    null,
+    mapDispatchToProps
+)(BomDetailsPage)
+
+export default withStyles(styles)(ConnectedBomDetailsPage);
 
 // BomSheet = compose(connect(mapStateToBomSheetProps, mapDispatchToProps), withStyles(styles))(BomSheet);
 
