@@ -97,10 +97,10 @@ const actionSelectOrder = (order) => {
     }
 }
 
-const actionSelectFormula = (product, formula) => {
+const actionSelectFormula = (product, formula, bomId) => {
     return {
         type: SELECT_FORMULA,
-        ...{ product, formula },
+        ...{ product, formula, bomId },
     }
 }
 
@@ -133,12 +133,12 @@ function bomReducer(state = initState, action) {
             break;
 
         case SELECT_FORMULA: {
-            let { product, formula } = action
+            let { product, formula, bomId } = action
 
             newState.boms = newState.boms.filter(i => i.product !== product)
             // let bi = newState.bomItems.find(i => i.product == product && i.formula == formula)
             // if (!bi) 
-            newState.boms.push({ product, formula, materials: [] })
+            newState.boms.push({ id: bomId, product, formula, materials: [] })
             break;
         }
 
@@ -180,10 +180,10 @@ const MODE_ADD = 'add';
 const MODE_EDIT = 'edit';
 const MODE_VIEW = 'view';
 
-const savingSteps = ['检查数据', '保存BOM', "完成"]
+const savingSteps = ['检查数据', '保存排产', '保存BOM', "完成"]
 
 // =============================================
-class BomDetailsPage extends React.PureComponent {
+class SchedulePage extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -307,46 +307,47 @@ class BomDetailsPage extends React.PureComponent {
 
             // ========================================================
             // step 1
-            this.setState({ activeStep: 0 })
+            let activeStep = 0
+            this.setState({ activeStep })
 
             const { boms } = store.getState()
             let { order, orderItem } = this.state
+            let { schedule } = this.state
 
             if (!order || !order.no || order.no === "")
                 errors['order'] = "无效的订单"
             else {
-                if (!orderItem || orderItem.length <= 0) {
-                    errors['order'] = "订单中没有产品明细"
+                if (!orderItem) {
+                    errors['order'] = "没有选择产品"
                 } else {
-                    orderItem.forEach(oi => {
-                        // product id
-                        const pid = oi.id.product
+                    const pid = orderItem.id.product
 
-                        // find bom from redux store
-                        const bi = boms.find(bi => bi.product === pid)
+                    // find bom from redux store
+                    const bi = boms.find(bi => bi.product === pid)
 
-                        if (!bi)
-                            errors[`formula_${pid}`] = "未选择配方"
-                        else if (bi.length <= 0)
-                            errors[`formula_${pid}`] = "配方为空"
-                        else {
-                            bi.materials.forEach(mi => {
-                                if (!mi.quantity || mi.quantity <= 0) {
-                                    errors[`material_${pid}_${mi.material}`] = "无效的材料数量"
-                                }
-                            })
-                        }
-                    })
+                    if (!bi)
+                        errors[`formula_${pid}`] = "未选择配方"
+                    else if (bi.length <= 0)
+                        errors[`formula_${pid}`] = "配方为空"
+                    else {
+                        bi.materials.forEach(mi => {
+                            if (!mi.quantity || mi.quantity <= 0) {
+                                errors[`material_${pid}_${mi.material}`] = "无效的材料数量"
+                            }
+                        })
+                    }
                 }
+            }
+
+            if (!schedule || !schedule.scheduleDate) {
+                errors[`scheduleDate`] = "未设置计划日期"
             }
 
             if (Object.keys(errors).length > 0) {
 
                 store.dispatch(actionValidData(errors))
 
-                this.setState({
-                    showSavingBom: false, errors: errors
-                })
+                this.setState({ showSavingBom: false, errors })
                 this.props.showSnackbar("有错误发生")
                 return;
             }
@@ -354,7 +355,41 @@ class BomDetailsPage extends React.PureComponent {
 
             // ========================================================
             // step 2
-            this.setState({ activeStep: this.state.activeStep + 1 })
+            activeStep ++
+            this.setState({ activeStep })
+            // this.state.activeStep += 1
+            // this.forceUpdate()
+
+            // if (!schedule.id) {
+            const { id } = this.props.match.params;
+            const oid = Number.parseInt(id.split('_')[0])
+            const pid = Number.parseInt(id.split('_')[1])
+
+            // { "id": { "order": 2, "product": 2 }, "order": { "id": 2 }, "product": { "id": 2 }, "scheduleDate": "2018-08-24" }
+            schedule.id = { order: oid, product: pid }
+            schedule.order = { id: oid }
+            schedule.product = { id: pid }
+            // }
+
+            axios.post(`${DATA_API_BASE_URL}producingSchedules`, schedule)
+                .then(_ => axios.patch(`${DATA_API_BASE_URL}orders/${schedule.order.id}`, { status: 1 }))
+                .catch(e => {
+                    cancel = true;
+                    this.setState({
+                        showSavingBom: false,
+                    })
+                    this.props.showSnackbar(e.message)
+                })
+
+            if (cancel) return;
+
+
+            // ========================================================
+            // step 3
+            activeStep ++
+            this.setState({ activeStep })
+            // this.state.activeStep += 1
+            // this.forceUpdate()
 
             boms.forEach(bi => {
 
@@ -368,35 +403,53 @@ class BomDetailsPage extends React.PureComponent {
                             "product": bi.product
                         },
                         "order": {
-                            "id": 0
+                            "id": order.id
                         },
                         "product": {
-                            "id": 0
+                            "id": bi.product
                         }
                     }
                 }
 
-                axios.post(`${DATA_API_BASE_URL}boms`, bom)
-                    .then(resp => resp.data)
-                    .then(j => {
-                        bom.id = j.id
-                        return j.id
-                    })
-                    .then(bid => {
-                        const { materials } = bi
-                        materials.forEach(m => {
-
-                            let bi = {
-                                "id": { "bom": 0, "material": 0 },
-                                "bom": { "id": bid },
-                                "material": { "id": m.material },
-                                "quantity": m.quantity,
-                                "calcQuantity": m.calc_quantity
-                            }
-
-                            axios.post(`${DATA_API_BASE_URL}bomItems`, bi)
+                let action = null;
+                if (bi.id) {
+                    // bom exists, 
+                    if (bi.formula === orderItem._embedded.bom.formula.id)
+                        action = new Promise((resolve, reject) => resolve(bi.id))
+                    else
+                        // formula changed
+                        action = axios.delete(`${DATA_API_BASE_URL}boms/${bi.id}`)
+                            .then(_ =>
+                                axios.post(`${DATA_API_BASE_URL}boms`, bom)
+                                    .then(resp => resp.data)
+                                    .then(j => {
+                                        bom.id = j.id
+                                        return j.id
+                                    })
+                            )
+                } else
+                    action = axios.post(`${DATA_API_BASE_URL}boms`, bom)
+                        .then(resp => resp.data)
+                        .then(j => {
+                            bom.id = j.id
+                            return j.id
                         })
+
+                action.then(bid => {
+                    const { materials } = bi
+                    materials.forEach(m => {
+
+                        let bi = {
+                            "id": { "bom": bid, "material": m.material },
+                            "bom": { "id": bid },
+                            "material": { "id": m.material },
+                            "quantity": m.quantity,
+                            "calcQuantity": m.calc_quantity
+                        }
+
+                        axios.post(`${DATA_API_BASE_URL}bomItems`, bi)
                     })
+                })
                     .catch(e => {
                         cancel = true;
                         this.setState({
@@ -413,39 +466,19 @@ class BomDetailsPage extends React.PureComponent {
 
             // ========================================================
             // done
-            this.setState({ activeStep: this.state.activeStep + 1 })
-
+            activeStep ++
+            this.setState({ activeStep })
+            // this.state.activeStep += 1
+            // this.forceUpdate()
         }
     }
 
     componentDidMount() {
         let { mode, id } = this.props.match.params;
-        // if (!id) id = 0
-
-        // if ((mode == MODE_EDIT || mode == MODE_VIEW) && id > 0) {
-        //     this.state.mode = mode
-
-        //     // load order
-        //     axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
-        //         .then(resp => resp.data)
-        //         .then(j => {
-        //             this.state.order = j
-        //             return j._links.items.href
-        //         })
-        //         .then(url => axios.get(url))
-        //         .then(resp => resp.data._embedded.orderItems)
-        //         .then(j => {
-        //             this.setState({ orderItems: j })
-        //         })
-        //         .catch(e => this.props.showSnackbar(e.message));
-        // }
-        // else
-        // {
-        //     this.setState({mode})
-        // }
-        // this.setState({ mode })
 
         if (id) {
+            // const oid = Number.parseInt(id.split('_')[0])
+            // const pid = Number.parseInt(id.split('_')[1])
             axios.get(`${DATA_API_BASE_URL}/orderItems/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
@@ -460,7 +493,13 @@ class BomDetailsPage extends React.PureComponent {
                 .then(_ => axios.get(`${DATA_API_BASE_URL}/producingSchedules/${id}`))
                 .then(resp => resp.data)
                 .then(schedule => {
-                    this.setState({ schedule })
+                    // "id": {"order":2, "product": 2}, "order": {"id": 2}, "product": {"id": 2}, 
+                    // schedule.id.order = oid
+                    // schedule.id.product = pid
+                    // schedule.order = {id: oid}
+                    // schedule.product = {id: pid}
+
+                    this.setState({ schedule, mode: MODE_EDIT })
                 })
         }
 
@@ -590,8 +629,9 @@ class BomDetailsPage extends React.PureComponent {
                                                 value={schedule.scheduleDate ? toDateString(schedule.scheduleDate) : ""}
                                                 onChange={e => {
                                                     schedule.scheduleDate = e.target.value
-                                                    this.setState({ schedule: {...schedule} })
+                                                    this.setState({ schedule: { ...schedule } })
                                                 }}
+                                                error={!!errors['scheduleDate']}
                                                 margin="normal"
                                                 InputLabelProps={{
                                                     shrink: true,
@@ -604,7 +644,7 @@ class BomDetailsPage extends React.PureComponent {
                                                 value={schedule.producingDate ? toDateString(schedule.producingDate) : ""}
                                                 onChange={e => {
                                                     schedule.producingDate = e.target.value
-                                                    this.setState({ schedule: {...schedule} })
+                                                    this.setState({ schedule: { ...schedule } })
                                                 }}
                                                 margin="normal"
                                                 InputLabelProps={{
@@ -616,6 +656,10 @@ class BomDetailsPage extends React.PureComponent {
                                         <mu.Grid>
                                             <TextField id="line" label="生产线"
                                                 value={schedule.line}
+                                                onChange={e => {
+                                                    schedule.line = e.target.value
+                                                    this.setState({ schedule: { ...schedule } })
+                                                }}
                                                 className={classes.textFieldWithoutWidth}
                                                 fullWidth
                                                 rowsMax="4"
@@ -821,7 +865,7 @@ class BomSheet extends React.PureComponent {
 
                 bom.formula.createDate = bom.formula.createDate.split('.')[0].replace("T", " ")
                 this.state.formula = bom.formula
-                store.dispatch(actionSelectFormula(bom.orderItem.id.product, bom.formula.id))
+                store.dispatch(actionSelectFormula(bom.orderItem.id.product, bom.formula.id, bom.id))
 
                 axios.get(`${DATA_API_BASE_URL}/formulas/${bom.formula.id}/items`)
                     .then(resp => resp.data._embedded.formulaItems)
@@ -1070,19 +1114,19 @@ const mapDispatchToProps = dispatch => ({
     showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
 })
 
-const ConnectedBomSheet = connect(
+BomSheet = connect(
     // mapStateToProps,
     null,
     mapDispatchToProps
 )(BomSheet)
 
-const ConnectedBomDetailsPage = connect(
+const ConnectedSchedulePage = connect(
     // mapStateToProps,
     null,
     mapDispatchToProps
-)(BomDetailsPage)
+)(SchedulePage)
 
-export default withStyles(styles)(ConnectedBomDetailsPage);
+export default withStyles(styles)(ConnectedSchedulePage);
 
 // BomSheet = compose(connect(mapStateToBomSheetProps, mapDispatchToProps), withStyles(styles))(BomSheet);
 

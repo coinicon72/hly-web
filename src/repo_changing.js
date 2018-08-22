@@ -20,9 +20,10 @@ import { actionShowSnackbar } from "./redux/data_selection"
 //
 import * as config from "./config"
 
-import CommonStyles, { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
+import CommonStyles from "./common_styles"
 
-import { CurrencyTypeProvider } from "./common_components"
+import { CurrencyTypeProvider, RepoChangingTypeProvider } from "./common_components"
+import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
 
 import DataTableBase from "./data_table_base"
 // const DataTableBase = Loadable({
@@ -36,6 +37,7 @@ const DATA_REPO = "repoChangings";
 
 const COLUMNS_OUT = [
     { name: 'id', title: '序号' },
+    { name: 'no', title: '单号'},
     { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
     { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
@@ -50,23 +52,15 @@ const COLUMNS_IN = [
 
 const COLUMNS_IN_OUT = [
     { name: 'id', title: '序号' },
-    { name: 'type', title: '类型', getCellValue: row => row.type === 1 ? "入库" : "出库" },
+    { name: 'no', title: '单号'},
+    { name: 'type', title: '类型' },
     { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
     { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
     { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate.split('T')[0] },
     { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
-    { name: "amount", title: "总额", getCellValue: row => row.type === 1 ? row.amount : "" },
+    { name: "amount", title: "总额", getCellValue: row => row.type === REPO_CHANGING_TYPE_IN ? row.amount : "" },
 ]
-
-
-const ChangingTypeProvider = props => (
-    <DataTypeProvider
-        formatterComponent={({ row, value }) =>
-            <Typography key={row.type} style={row.type === 1 ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value}</Typography>}
-        {...props}
-    />
-);
 
 
 // =============================================
@@ -117,16 +111,16 @@ class RepoChangingPage extends React.PureComponent {
         switch (type) {
             case config.TYPE_STOCK_IN:
                 if (user)
-                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=1&status=0&user=../../../users/${user.id}`;
+                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=${REPO_CHANGING_TYPE_IN}&status=0&user=../../../users/${user.id}`;
                 else
-                    this.state.dataFilter = "/search/findByTypeAndStatus?type=1&status=-1";
+                    this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_IN}&status=-1`;
                 this.state.columns = COLUMNS_IN;
                 break;
             case config.TYPE_STOCK_OUT:
                 if (user)
-                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=-1&status=0&user=../../../users/${user.id}`;
+                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=${REPO_CHANGING_TYPE_OUT}&status=0&user=../../../users/${user.id}`;
                 else
-                    this.state.dataFilter = "/search/findByTypeAndStatus?type=-1&status=-1";
+                    this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_OUT}&status=-1`;
                 this.state.columns = COLUMNS_OUT;
                 break;
             case config.TYPE_STOCK_IN_OUT:
@@ -188,7 +182,7 @@ class RepoChangingPage extends React.PureComponent {
                     disableEdit={type === config.TYPE_STOCK_IN_OUT}
                     clickHandler={this.onRowDoubleClicked}
                     providers={[
-                        <ChangingTypeProvider for={['type']} />,
+                        <RepoChangingTypeProvider for={['type']} />,
                         <CurrencyTypeProvider for={['amount']} />,
                     ]}
                 />

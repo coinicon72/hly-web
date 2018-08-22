@@ -80,6 +80,7 @@ import CollectingSettlementPage from './collecting_settlement'
 import CollectingSettlementDetailsPage from './collecting_settlement_details'
 import CollectingSettlementStatPage from './collecting_settlement_stat'
 import ScheduleDetails from './schedule_details'
+import RepoChangingReasonPage from './repo_changing_reason'
 
 
 // import DAC from "./dimension_aware_component"
@@ -282,6 +283,16 @@ class App extends React.PureComponent<{ classes: any }, any> {
             <FlagVariant />
           </ListItemIcon>
           <ListItemText primary="材料分类" />
+        </ListItem>
+      </Link>)
+
+    if (this.hasPrivilege('system:basic-data'))
+      l.push(<Link key="/basic_data/repo_changing_reason" to="/basic_data/repo_changing_reason">
+        <ListItem button>
+          <ListItemIcon>
+            <FlagVariant />
+          </ListItemIcon>
+          <ListItemText primary="出入库原因" />
         </ListItem>
       </Link>)
 
@@ -703,6 +714,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/basic_data/client_type" component={() => <Typography variant="title" className={classes.appTitle}>客户类型</Typography>} />
         <Route path="/basic_data/material_type" component={() => <Typography variant="title" className={classes.appTitle}>材料分类</Typography>} />
         <Route path="/basic_data/material" component={() => <Typography variant="title" className={classes.appTitle}>材料</Typography>} />
+        <Route path="/basic_data/repo_changing_reason" component={({ type }) => <Typography variant="title" className={classes.appTitle}>出入库原因</Typography>} />
         <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
         <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
         <Route path={config.ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
@@ -782,6 +794,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <React.Fragment> */}
         <Route path="/basic_data/client_type" component={ClientTypePage} />
         <Route path="/basic_data/material_type" component={MaterialTypePage} />
+        <Route path="/basic_data/repo_changing_reason" component={RepoChangingReasonPage} />
         {/* </React.Fragment>
           : null} */}
 

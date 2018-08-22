@@ -19,6 +19,10 @@ import {
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 import { Typography } from '@material-ui/core';
 
+import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
+
+import { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
+
 export const CurrencyTypeProvider = props => (
     <DataTypeProvider
         formatterComponent={({ value }) => value ? <Typography>¥ {value}</Typography> : null}
@@ -52,6 +56,36 @@ export const TaxTypeProvider = props => (
                 value ? <Typography style={{ fontWeight: 'bold', color: 'red' }}>含税</Typography> : null
         }
         editorComponent={TaxTypeEditor}
+        {...props}
+    />
+);
+
+
+export const BooleanTypeEditor = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)
+        }
+        }
+        style={{ width: '100%' }}
+    >
+        <option key="o-1" value=""></option>
+        <option key="o0" value={false}>否</option>
+        <option key="o1" value={true}>是</option>
+    </Select>
+);
+
+// const BooleanTypeProvider = props => (
+export const BooleanTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={
+            ({ row, value }) =>
+                value ? '是' : null
+        }
+        editorComponent={BooleanTypeEditor}
         {...props}
     />
 );
@@ -92,5 +126,45 @@ export const OrderStatusProvider = props => (
             }}
         editorComponent={OrderStatusEditor}
         {...props}
+    />
+);
+
+
+
+export const RepoChangingTypeEditor = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)
+        }
+        }
+        style={{ width: '100%' }}
+    >
+        <option key="o-1" value=""></option>
+        <option key="o0" value={REPO_CHANGING_TYPE_IN}>入库</option>
+        <option key="o1" value={REPO_CHANGING_TYPE_OUT}>出库</option>
+    </Select>
+);
+
+// const BooleanTypeProvider = props => (
+// export const ReasonTypeProvider = props => (
+//     <DataTypeProvider
+//         formatterComponent={
+//             ({ row, value }) =>
+//                 value === REPO_CHANGING_TYPE_IN ? '入库' : '出库'
+//         }
+//         editorComponent={ReasonTypeEditor}
+//         {...props}
+//     />
+// );
+
+export const RepoChangingTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={({ row, value }) =>
+            <Typography key={value} style={value === REPO_CHANGING_TYPE_IN ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value === REPO_CHANGING_TYPE_IN ? '入库' : '出库'}</Typography>}
+            editorComponent={RepoChangingTypeEditor}
+            {...props}
     />
 );

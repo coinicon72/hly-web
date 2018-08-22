@@ -262,7 +262,7 @@ class OrderDetailsPage extends React.PureComponent {
 
             if (Object.keys(errors).length > 0) {
                 this.setState({
-                    savingOrder: false, errors: errors, 
+                    savingOrder: false, errors, 
                     // snackbarOpen: true,
                     // snackbarContent: "有错误发生"
                 })

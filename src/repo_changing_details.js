@@ -91,6 +91,7 @@ import { actionShowSnackbar } from "./redux/data_selection"
 import { toFixedMoney, getTodayString, getTodayDateTimeString, toDateString } from "./utils"
 import { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
 import { CurrencyTypeProvider } from "./common_components"
+import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
 
 // const TYPE_STOCK_IN = "in";
 // const TYPE_STOCK_OUT = "out";
@@ -290,7 +291,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             })
 
             this.state.dirty = true
-            this.state.form.amount = toFixedMoney(value);
+            this.state.form.value = toFixedMoney(value);
             this.forceUpdate()
         })
 
@@ -388,7 +389,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             form.applicant = user
             // if (!form.applicant || form.applicant == "")
-            //     errors['form.applicant'] = "无效的申请人"
+            //     errors['form.applicant'] = "无效的制单人"
+
+            if (!form.no || form.no == "")
+                errors['form.no'] = "无效的单号"
 
             if (changingItems.length <= 0) {
                 errors['changingItems'] = "没有材料"
@@ -411,7 +415,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 //     showSavingDiag: false, errors: errors, snackbarOpen: true,
                 //     snackbarContent: "有错误发生"
                 // })
-                this.setState({ showSavingDiag: false })
+                this.setState({ showSavingDiag: false, errors: errors })
                 this.props.showSnackbar("有错误发生")
                 return
             }
@@ -473,7 +477,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         this.processForm = (() => {
             const { form } = this.state
-            const url = form.type === 1 ? `${API_BASE_URL}previewStockIn/${form.id}` : `${API_BASE_URL}previewStockOut/${form.id}`
+            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}previewStockIn/${form.id}` : `${API_BASE_URL}previewStockOut/${form.id}`
 
             axios.get(url)
                 .then(resp => resp.data)
@@ -492,10 +496,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .then(p => {
                     this.setState({
                         previewData: p,
-                        previewColumns: form.type === 1 ? PREVIEW_STOCK_IN_COLUMNS : PREVIEW_STOCK_OUT_COLUMNS,
+                        previewColumns: form.type === REPO_CHANGING_TYPE_IN ? PREVIEW_STOCK_IN_COLUMNS : PREVIEW_STOCK_OUT_COLUMNS,
                         showPreviewDiag: true,
                         applyChangingCountdown: APPLY_CHANGING_COUNTDOWN,
-                        canApplyChanging: form.type === 1 || p.every(pi => pi.fulfilled)
+                        canApplyChanging: form.type === REPO_CHANGING_TYPE_IN || p.every(pi => pi.fulfilled)
                     })
 
                     this.state.countdownTimer = window.setInterval(() => {
@@ -514,7 +518,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         this.onApplyChanging = (() => {
             const { form } = this.state
-            const url = form.type === 1 ? `${API_BASE_URL}applyStockIn/${form.id}` : `${API_BASE_URL}applyStockOut/${form.id}`
+            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}applyStockIn/${form.id}` : `${API_BASE_URL}applyStockOut/${form.id}`
 
             axios.post(url, { comment: '' })
                 .then(r => {
@@ -535,7 +539,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
         // confirm
         this.cancelConfirm = () => this.setState({ showConfirmDiag: false })
 
-        this.onConfirm = (() => {
+        this.onConfirm = () => {
             this.setState({ showConfirmDiag: false })
 
             let { form } = this.state
@@ -544,7 +548,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => {
                     this.props.showSnackbar(e.message)
                 })
-        })
+        }
     }
 
     showSnackbar(msg: String) {
@@ -557,11 +561,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         switch (type) {
             case TYPE_STOCK_IN:
-                this.state.form.type = 1;
+                this.state.form.type = REPO_CHANGING_TYPE_IN;
                 break;
 
             case TYPE_STOCK_OUT:
-                this.state.form.type = -1;
+                this.state.form.type = REPO_CHANGING_TYPE_OUT;
                 break;
 
             // case TYPE_STOCK_IN_OUT:
@@ -702,7 +706,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             case TYPE_STOCK_IN_OUT: {
                 if (form) {
-                    if (form.type === 1)
+                    if (form.type === REPO_CHANGING_TYPE_IN)
                         title = "处理入库单";
                     else
                         title = "处理出库单";
@@ -753,7 +757,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                             {type === TYPE_STOCK_IN_OUT ?
                                 <mu.Grid style={{ marginBottom: 16 }}>
-                                    {form.type === 1 ?
+                                    {form.type === REPO_CHANGING_TYPE_IN ?
                                         <Chip label="入库" style={{ color: 'white', backgroundColor: COLOR_STOCK_IN }} />
                                         :
                                         <Chip label="出库" style={{ color: 'white', backgroundColor: COLOR_STOCK_OUT }} />}
@@ -768,10 +772,27 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     disabled//={disableEdit}
                                     // select
                                     // error={!!errors['form.applicant']}
-                                    label="申请人"
-                                    style={{ width: 300 }}
+                                    label="制单人"
+                                    style={{ width: 200 }}
                                     value={form.applicant ? form.applicant.name : ""}
                                     // onChange={e => this.handleInput(e)}
+                                    InputLabelProps={{
+                                        shrink: shrinkLabel,
+                                    }}
+                                />
+                            </mu.Grid>
+
+                            <mu.Grid style={{ marginBottom: 16 }}>
+                                <TextField
+                                    id="no"
+                                    required
+                                    // disabled//={disableEdit}
+                                    // select
+                                    error={!!errors['form.no']}
+                                    label="单号"
+                                    style={{ width: 200 }}
+                                    value={form.no}
+                                    onChange={e => this.handleInput(e)}
                                     InputLabelProps={{
                                         shrink: shrinkLabel,
                                     }}
@@ -853,7 +874,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                 />
                             </mu.Grid>
 
-                            {form.type === -1 && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
+                            {form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
                                 // <mu.Grid style={{ marginBottom: 16 }}>
                                 //     <FormControlLabel
                                 //         control={<Switch
@@ -883,7 +904,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                         {type === TYPE_STOCK_IN ? (
                             <React.Fragment>
                                 <div style={{ display: 'inline-flex', flex: 1 }} />
-                                <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{form.amount ? `¥ ${toFixedMoney(form.amount)}` : '--'}</Typography>
+                                <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{form.value ? `¥ ${toFixedMoney(form.value)}` : '--'}</Typography>
                             </React.Fragment>) : null}
                     </div>
                     <Paper className={classes.compactPaper}>
@@ -895,7 +916,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>类型</TableCell>
                                     <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>规格</TableCell>
                                     <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>数量</TableCell>
-                                    {form.type === -1 ? null : (
+                                    {form.type === REPO_CHANGING_TYPE_OUT ? null : (
                                         <React.Fragment>
                                             <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>价格</TableCell>
                                             <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>小计</TableCell>
@@ -939,7 +960,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                 />
                                             </TableCell>
 
-                                            {form.type === -1 ? null : (
+                                            {form.type === REPO_CHANGING_TYPE_OUT ? null : (
                                                 <React.Fragment>
                                                     <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                         <TextField type="number" required id={`price_${m.id}`}

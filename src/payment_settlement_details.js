@@ -216,7 +216,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                 errors['orders'] = "未指定订单"
 
             if (Object.keys(errors).length > 0) {
-                this.setState({ savingDocument: false, errors: errors })
+                this.setState({ savingDocument: false, errors })
                 this.props.showSnackbar("有错误发生")
                 return;
             }
