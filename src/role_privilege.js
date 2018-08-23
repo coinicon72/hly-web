@@ -98,7 +98,7 @@ class RolePrivilegePage extends React.PureComponent {
             // const i = role.privileges.findIndex(r => r.id === pid)
 
             // if (i < 0) {
-            //     axios.post(role._links.privileges.href, `${API_BASE_URL}privileges/${pid}`, {
+            //     axios.post(role._links.privileges.href, `${API_BASE_URL}/privileges/${pid}`, {
             //         headers: {
             //             'Content-Type': 'text/uri-list',
             //         }
@@ -147,7 +147,7 @@ class RolePrivilegePage extends React.PureComponent {
                 const pid = privilege.id
 
                 if (isAdd) {
-                    await axios.post(role._links.privileges.href, `${API_BASE_URL}privileges/${pid}`,
+                    await axios.post(role._links.privileges.href, `${API_BASE_URL}/privileges/${pid}`,
                         { headers: { 'Content-Type': 'text/uri-list' } })
                         .then(_ => {
                             let i = role.privileges.findIndex(r => r.id === pid)
@@ -175,13 +175,13 @@ class RolePrivilegePage extends React.PureComponent {
     }
 
     componentDidMount() {
-        axios.get(DATA_API_BASE_URL + '/privileges?sort=code&size=1000')
+        axios.get(`${DATA_API_BASE_URL}/privileges?sort=code&size=1000`)
             .then(resp => resp.data._embedded['privileges'])
             .then(privileges => {
                 this.setState({ privileges })
             })
 
-        axios.get(DATA_API_BASE_URL + '/roles')
+        axios.get(`${DATA_API_BASE_URL}/roles`)
             .then(resp => resp.data._embedded['roles'])
             .then(roles => this.setState({ roles }))
     }
@@ -314,7 +314,7 @@ const mapDispatchToProps = dispatch => ({
     // doLogin: (uid, pwd) => {
     //     dispatch(actionLogging())
 
-    //     axios.post(`${API_BASE_URL}token?uid=${uid}&pwd=${pwd}`)
+    //     axios.post(`${API_BASE_URL}/token?uid=${uid}&pwd=${pwd}`)
     //         .then(r => r.data)
     //         .then(r => {
     //             dispatch(actionLoggedIn(r.data, r.extra))

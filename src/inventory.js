@@ -26,7 +26,7 @@ import {
 //
 import DataTableBase from "./data_table_base"
 
-import * as config from "./config"
+import {DATA_API_BASE_URL} from "./config"
 import { toFixedMoney } from './utils';
 import { CurrencyTypeProvider } from "./common_components"
 
@@ -81,7 +81,7 @@ class RepoPage extends React.PureComponent {
             snackbarContent: "",
         }
 
-        // this.dataRepoApiUrl = config.DATA_API_BASE_URL + DATA_REPO + DATA_FILTER;
+        // this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}` + DATA_FILTER;
 
         this.editingColumnExtensions = [
             { columnName: 'id', editingEnabled: false },
@@ -126,7 +126,7 @@ class RepoPage extends React.PureComponent {
         //     let { changes } = this.state
         //     let data = changes.map(ci => ({ id: ci.id, ...ci.change }))
 
-        //     axios.patch(`${config.API_BASE_URL}inventory`, data)
+        //     axios.patch(`${API_BASE_URL}/inventory`, data)
         //         .then(r => {
         //             this.setState({ changes: [] })
         //             this.showSnackbar("已保存")
@@ -140,7 +140,7 @@ class RepoPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        return axios.get(`${config.DATA_API_BASE_URL}repoes`)//,
+        return axios.get(`${DATA_API_BASE_URL}/repoes`)//,
             .then(resp => resp.data._embedded['repoes'])
             .then(repoes => {
                 this.setState({ repoes, currentRepo: repoes[0] })
@@ -148,7 +148,7 @@ class RepoPage extends React.PureComponent {
     }
 
     doLoad = () => {
-        return axios.get(`${config.DATA_API_BASE_URL}repoItems/search/findByRepo?repo=../../../repoes/${this.state.currentRepo.id}`)//,
+        return axios.get(`${DATA_API_BASE_URL}/repoItems/search/findByRepo?repo=../../../repoes/${this.state.currentRepo.id}`)//,
             .then(resp => resp.data._embedded['repoItems'])
         // .then(resp => {
         //     this.state.data = resp.data._embedded[DATA_REPO]

@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 //
-import * as config from "./config"
+import {API_BASE_URL, DATA_API_BASE_URL} from "./config"
 
 import CommonStyles from "./common_styles"
 
@@ -53,7 +53,7 @@ class PurchasingOrderPage extends React.PureComponent {
             // dataRepoApiUrl: "",
             columns: [],
 
-            dataRepoApiUrl: config.API_BASE_URL + DATA_REPO,
+            dataRepoApiUrl: `${API_BASE_URL}/${DATA_REPO}`,
             // ready4UI: false,
         }
 
@@ -83,7 +83,7 @@ class PurchasingOrderPage extends React.PureComponent {
     // }
 
     doLoad = () => {
-        return axios.get(`${config.DATA_API_BASE_URL}purchasingOrders/search/findBySigner?signer=../../../users/${this.props.user.id}`)//,
+        return axios.get(`${DATA_API_BASE_URL}/purchasingOrders/search/findBySigner?signer=../../../users/${this.props.user.id}`)//,
             .then(resp => resp.data._embedded[DATA_REPO])
     }
 

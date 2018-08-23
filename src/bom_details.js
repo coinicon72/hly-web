@@ -374,7 +374,7 @@ class BomDetailsPage extends React.PureComponent {
                     }
                 }
 
-                axios.post(`${DATA_API_BASE_URL}boms`, bom)
+                axios.post(`${DATA_API_BASE_URL}/boms`, bom)
                     .then(resp => resp.data)
                     .then(j => {
                         bom.id = j.id
@@ -392,7 +392,7 @@ class BomDetailsPage extends React.PureComponent {
                                 "calcQuantity": m.calc_quantity
                             }
 
-                            axios.post(`${DATA_API_BASE_URL}bomItems`, bi)
+                            axios.post(`${DATA_API_BASE_URL}/bomItems`, bi)
                         })
                     })
                     .catch(e => {

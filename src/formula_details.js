@@ -187,7 +187,7 @@ class AddFourmulaPage extends React.PureComponent {
 
             // step 0: generate/check revision
             let latestRev = await axios
-                .get(`${DATA_API_BASE_URL}formulas/search/getLatestRevision?id=${this.state.product.id}`)
+                .get(`${DATA_API_BASE_URL}/formulas/search/getLatestRevision?id=${this.state.product.id}`)
                 .then(resp => resp.data)
                 .catch(e => {
                     cancel = true;
@@ -249,7 +249,7 @@ class AddFourmulaPage extends React.PureComponent {
             // // step 2
             // this.setState({ activeStep: this.state.activeStep + 1 })
 
-            // let savedFormula = await axios.post(`${API_BASE_URL}formulas`,
+            // let savedFormula = await axios.post(`${API_BASE_URL}/formulas`,
             //     {
             //         product: { id: this.state.product.id },
             //         ...this.state.basicInfo
@@ -282,7 +282,7 @@ class AddFourmulaPage extends React.PureComponent {
                 formula: f
             }
 
-            await axios.post(`${DATA_API_BASE_URL}produceConditions`, pc)
+            await axios.post(`${DATA_API_BASE_URL}/produceConditions`, pc)
                 .then(resp => resp.data)
                 .then(j => this.state.basicInfo.id = j.id)
                 .catch(e => {
@@ -306,7 +306,7 @@ class AddFourmulaPage extends React.PureComponent {
                     material: item
                 }
 
-                axios.post(`${DATA_API_BASE_URL}formulaItems`, fi)
+                axios.post(`${DATA_API_BASE_URL}/formulaItems`, fi)
                     // .then(resp => resp.data)
                     // .then(j => {
                     // })

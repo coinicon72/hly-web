@@ -36,7 +36,7 @@ class OrganizationPage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "organizations";
-        this.dataRepoApiUrl = DATA_API_BASE_URL + this.dataRepo;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}`;
 
         this.state = {
             loaded: false,
@@ -266,7 +266,7 @@ const mapDispatchToProps = dispatch => ({
     // doLogin: (uid, pwd) => {
     //     dispatch(actionLogging())
 
-    //     axios.post(`${API_BASE_URL}token?uid=${uid}&pwd=${pwd}`)
+    //     axios.post(`${API_BASE_URL}/token?uid=${uid}&pwd=${pwd}`)
     //         .then(r => r.data)
     //         .then(r => {
     //             dispatch(actionLoggedIn(r.data, r.extra))

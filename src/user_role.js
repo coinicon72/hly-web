@@ -84,7 +84,7 @@ class UserRolePage extends React.PureComponent {
             const i = user.roles.findIndex(r => r.id === rid)
 
             if (i < 0) {
-                axios.post(user._links.roles.href, `${API_BASE_URL}roles/${rid}`, {
+                axios.post(user._links.roles.href, `${API_BASE_URL}/roles/${rid}`, {
                     headers: {
                         'Content-Type': 'text/uri-list',
                     }
@@ -106,11 +106,11 @@ class UserRolePage extends React.PureComponent {
     }
 
     componentDidMount() {
-        axios.get(DATA_API_BASE_URL + '/users')
+        axios.get(`${DATA_API_BASE_URL}/users`)
             .then(resp => resp.data._embedded['users'])
             .then(users => this.setState({ users }))
 
-        axios.get(DATA_API_BASE_URL + '/roles')
+        axios.get(`${DATA_API_BASE_URL}/roles`)
             .then(resp => resp.data._embedded['roles'])
             .then(roles => this.setState({ roles }))
     }

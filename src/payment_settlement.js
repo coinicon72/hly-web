@@ -29,7 +29,7 @@ class PaymentSettlementPage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "paymentSettlements";
-        this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatus?status=0`;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatus?status=0`;
 
         this.dataTable = null
 
@@ -84,7 +84,7 @@ class PaymentSettlementPage extends React.PureComponent {
     doLoad = () => {
         const { type } = this.props;
         if (type === 'process') {
-            this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatus?status=1`;
+            this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatus?status=1`;
             // this.setState({ status: 1 })
         }
 

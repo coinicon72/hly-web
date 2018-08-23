@@ -31,7 +31,7 @@ class PaymentSettlementStatPage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "paymentSettlements";
-        this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatus?status=0`;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatus?status=0`;
 
         this.dataTable = null
 
@@ -88,7 +88,7 @@ class PaymentSettlementStatPage extends React.PureComponent {
         this.doLoad = () => {
             const { from, to } = this.state
 
-            this.dataRepoApiUrl = DATA_API_BASE_URL + `${this.dataRepo}/search/findByStatusAndConfirmedDateBetween?status=2&from=${from}&to=${to}`;
+            this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatusAndConfirmedDateBetween?status=2&from=${from}&to=${to}`;
 
             return axios.get(this.dataRepoApiUrl)//,
                 .then(resp => resp.data._embedded[this.dataRepo])

@@ -16,7 +16,7 @@ import {
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 //
-import * as config from "./config"
+import {DATA_API_BASE_URL} from "./config"
 
 import CommonStyles from "./common_styles";
 import { toFixedMoney } from './utils';
@@ -78,17 +78,17 @@ class RepoDetailsPage extends React.PureComponent {
             currentRepo: null,
         }
 
-        this.dataRepoApiUrl = config.DATA_API_BASE_URL + DATA_REPO + DATA_FILTER;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}${DATA_FILTER}`;
 
         this.doLoad = () => {
             // return axios.get(this.dataRepoApiUrl)//,
             //     .then(resp => resp.data._embedded[DATA_REPO])
-            return axios.get(`${config.DATA_API_BASE_URL}repoItems/search/findByRepo?repo=../../../repoes/${this.state.currentRepo.id}`)//,
+            return axios.get(`${DATA_API_BASE_URL}/repoItems/search/findByRepo?repo=../../../repoes/${this.state.currentRepo.id}`)//,
                 .then(resp => resp.data._embedded['repoItems'])
         }
 
         this.doUpdate = (r, c) => {
-            return axios.patch(`${config.DATA_API_BASE_URL}repoItems/${r.id.repo}_${r.id.material}`, c)
+            return axios.patch(`${DATA_API_BASE_URL}/repoItems/${r.id.repo}_${r.id.material}`, c)
                 .then(resp => resp.data)
                 // .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
         }
@@ -102,7 +102,7 @@ class RepoDetailsPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        return axios.get(`${config.DATA_API_BASE_URL}repoes`)//,
+        return axios.get(`${DATA_API_BASE_URL}/repoes`)
             .then(resp => resp.data._embedded['repoes'])
             .then(repoes => {
                 this.setState({ repoes, currentRepo: repoes[0] })

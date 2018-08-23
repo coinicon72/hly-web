@@ -134,7 +134,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                 this.state.orders = []
                 this.forceUpdate()
 
-                axios.get(`${DATA_API_BASE_URL}orders/search/findByClientAndStatus?client=../../clients/${this.state.client.id}&status=0`)
+                axios.get(`${DATA_API_BASE_URL}/orders/search/findByClientAndStatus?client=../../clients/${this.state.client.id}&status=0`)
                     .then(r => r.data._embedded.orders)
                     .then(orders => this.setState({ orders }))
             }
@@ -227,7 +227,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
 
             document.client = { id: client.id }
 
-            await axios.post(`${DATA_API_BASE_URL}collectingSettlements`, document)
+            await axios.post(`${DATA_API_BASE_URL}/collectingSettlements`, document)
                 .then(resp => resp.data)
                 .then(j => document.id = j.id)
                 .catch(e => {
@@ -250,7 +250,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                     order: { id: p.id }
                 }
 
-                axios.post(`${DATA_API_BASE_URL}collectingSettlementItems`, fi)
+                axios.post(`${DATA_API_BASE_URL}/collectingSettlementItems`, fi)
                     .catch(e => {
                         cancel = true;
                         this.setState({ savingDocument: false })

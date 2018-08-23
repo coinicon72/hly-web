@@ -290,7 +290,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             order.supplier = { id: client.id }
             order.date += ' 00:00:00'
 
-            await axios.post(`${DATA_API_BASE_URL}purchasingOrders`, order)
+            await axios.post(`${DATA_API_BASE_URL}/purchasingOrders`, order)
                 .then(resp => resp.data)
                 .then(j => order.id = j.id)
                 .catch(e => {
@@ -315,7 +315,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                     material: { id: p.id.material }
                 }
 
-                axios.post(`${DATA_API_BASE_URL}purchasingOrderItems`, fi)
+                axios.post(`${DATA_API_BASE_URL}/purchasingOrderItems`, fi)
                     .catch(e => {
                         cancel = true;
                         this.setState({ savingOrder: false })

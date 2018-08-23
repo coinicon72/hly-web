@@ -48,7 +48,7 @@ class RepoChangingReasonPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}`;
 
         this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
 

@@ -84,7 +84,11 @@ import RepoChangingReasonPage from './repo_changing_reason'
 
 
 // import DAC from "./dimension_aware_component"
-import * as config from "./config"
+import {
+  ROUTER_STOCK_IN, ROUTER_STOCK_OUT, ROUTER_STOCK_IN_OUT,
+  TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, 
+  API_BASE_URL
+} from "./config"
 
 import { actionLogout, actionUpdateUserInfo } from "./redux/redux"
 import { actionShowSnackbar, actionHideSnackbar } from "./redux/data_selection"
@@ -217,7 +221,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (token) {
       axios.defaults.headers.common['Authorization'] = token;
 
-      axios.get(`${config.API_BASE_URL}user`)
+      axios.get(`${API_BASE_URL}/user`)
         .then(r => r.data.data)
         .then(user => {
           this.setState({ user })
@@ -235,7 +239,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         // cookies.set('user', user)
 
         axios.defaults.headers.common['Authorization'] = token;
-        // axios.get(`${config.API_BASE_URL}user`)
+        // axios.get(`${API_BASE_URL}/user`)
         //   .then(r => r.data.data)
         //   .then(user => this.setState({ user }))
       }
@@ -624,7 +628,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:stock-in'))
       l.push(
         // <Tooltip key="key_stock_in" title="非库房人员申请">
-        <Link key={config.ROUTER_STOCK_IN} to={config.ROUTER_STOCK_IN}>
+        <Link key={ROUTER_STOCK_IN} to={ROUTER_STOCK_IN}>
           <ListItem button>
             <ListItemIcon>
               <mdi.DatabasePlus />
@@ -638,7 +642,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:stock-out'))
       l.push(
         // <Tooltip key="key_stock_out" title="非库房人员申请">
-        <Link key={config.ROUTER_STOCK_OUT} to={config.ROUTER_STOCK_OUT}>
+        <Link key={ROUTER_STOCK_OUT} to={ROUTER_STOCK_OUT}>
           <ListItem button>
             <ListItemIcon>
               <mdi.DatabaseMinus />
@@ -652,7 +656,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:inventory'))
       l.push(
         // <Tooltip key="key_inventory" title="库房人员使用">
-        <Link key={config.ROUTER_STOCK_IN_OUT} to={config.ROUTER_STOCK_IN_OUT}>
+        <Link key={ROUTER_STOCK_IN_OUT} to={ROUTER_STOCK_IN_OUT}>
           <ListItem button>
             <ListItemIcon>
               <mdi.Database />
@@ -717,9 +721,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/basic_data/repo_changing_reason" component={({ type }) => <Typography variant="title" className={classes.appTitle}>出入库原因</Typography>} />
         <Route path="/bom/*" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
         <Route path="/boms" component={() => <Typography variant="title" className={classes.appTitle}>BOM - 物料清单</Typography>} />
-        <Route path={config.ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
-        <Route path={config.ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
-        <Route path={config.ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
+        <Route path={ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
+        <Route path={ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
+        <Route path={ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
         <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
@@ -806,12 +810,12 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
         <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
         <Route path="/boms" component={BomsPage} />
-        <Route path={`${config.ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={config.TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
-        <Route path={config.ROUTER_STOCK_IN} render={(props) => <StockChangingPage {...props} key={config.ROUTER_STOCK_IN} type={config.TYPE_STOCK_IN} user={this.state.user} />} />
-        <Route path={`${config.ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={config.TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
-        <Route path={config.ROUTER_STOCK_OUT} render={(props) => <StockChangingPage {...props} key={config.ROUTER_STOCK_OUT} type={config.TYPE_STOCK_OUT} user={this.state.user} />} />
-        <Route path={`${config.ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockChangingDetailsPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
-        <Route path={config.ROUTER_STOCK_IN_OUT} render={(props) => <StockChangingPage {...props} key={config.ROUTER_STOCK_IN_OUT} type={config.TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path={`${ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
+        <Route path={ROUTER_STOCK_IN} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_IN} type={TYPE_STOCK_IN} user={this.state.user} />} />
+        <Route path={`${ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
+        <Route path={ROUTER_STOCK_OUT} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_OUT} type={TYPE_STOCK_OUT} user={this.state.user} />} />
+        <Route path={`${ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockChangingDetailsPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path={ROUTER_STOCK_IN_OUT} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
         <Route path="/repo_details" component={RepoDetailsPage} />
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />

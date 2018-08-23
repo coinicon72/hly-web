@@ -29,7 +29,7 @@ class RolePage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "roles";
-        this.dataRepoApiUrl = DATA_API_BASE_URL + this.dataRepo;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}`;
 
         this.dataTable = null
 

@@ -371,8 +371,8 @@ class SchedulePage extends React.PureComponent {
             schedule.product = { id: pid }
             // }
 
-            axios.post(`${DATA_API_BASE_URL}producingSchedules`, schedule)
-                .then(_ => axios.patch(`${DATA_API_BASE_URL}orders/${schedule.order.id}`, { status: 1 }))
+            axios.post(`${DATA_API_BASE_URL}/producingSchedules`, schedule)
+                .then(_ => axios.patch(`${DATA_API_BASE_URL}/orders/${schedule.order.id}`, { status: 1 }))
                 .catch(e => {
                     cancel = true;
                     this.setState({
@@ -418,9 +418,9 @@ class SchedulePage extends React.PureComponent {
                         action = new Promise((resolve, reject) => resolve(bi.id))
                     else
                         // formula changed
-                        action = axios.delete(`${DATA_API_BASE_URL}boms/${bi.id}`)
+                        action = axios.delete(`${DATA_API_BASE_URL}/boms/${bi.id}`)
                             .then(_ =>
-                                axios.post(`${DATA_API_BASE_URL}boms`, bom)
+                                axios.post(`${DATA_API_BASE_URL}/boms`, bom)
                                     .then(resp => resp.data)
                                     .then(j => {
                                         bom.id = j.id
@@ -428,7 +428,7 @@ class SchedulePage extends React.PureComponent {
                                     })
                             )
                 } else
-                    action = axios.post(`${DATA_API_BASE_URL}boms`, bom)
+                    action = axios.post(`${DATA_API_BASE_URL}/boms`, bom)
                         .then(resp => resp.data)
                         .then(j => {
                             bom.id = j.id
@@ -447,7 +447,7 @@ class SchedulePage extends React.PureComponent {
                             "calcQuantity": m.calc_quantity
                         }
 
-                        axios.post(`${DATA_API_BASE_URL}bomItems`, bi)
+                        axios.post(`${DATA_API_BASE_URL}/bomItems`, bi)
                     })
                 })
                     .catch(e => {

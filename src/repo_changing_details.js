@@ -165,7 +165,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             repo: null, // id of repository
 
             repoChangingReasons: [],
-            reason: null, // id of reason
+            // reason: null, // id of reason
 
             //
             showSelectOrder: false,
@@ -295,8 +295,6 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.forceUpdate()
         })
 
-        this.handleOrderRelatedChange = (e => this.setState({ orderRelated: e.target.checked }))
-
 
         //
         this.changedReason = (e => {
@@ -310,7 +308,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             const r = this.state.repoChangingReasons.find(i => i.id === rid)
             if (r) {
                 this.state.dirty = true
-                this.state.form.reason = { id: r.id }
+                this.state.form.reason = { id: r.id, orderRelated: r.orderRelated }
                 // this.setState({ orderRelated: r.orderRelated })
                 this.state.orderRelated = r.orderRelated
                 this.forceUpdate()
@@ -325,6 +323,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             axios.get(`${DATA_API_BASE_URL}/orders`)
                 .then(resp => resp.data._embedded.orders)
                 .then(j => {
+                    this.state.errors['form.order'] == null;
                     this.setState({ orders: j });
                 })
                 .catch(e => this.props.showSnackbar(e.message));
@@ -394,6 +393,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
             if (!form.no || form.no == "")
                 errors['form.no'] = "无效的单号"
 
+            if (form.reason.orderRelated && (!form.order || !form.order.id))
+                errors['form.order'] = "未选择订单"
+
             if (changingItems.length <= 0) {
                 errors['changingItems'] = "没有材料"
             } else {
@@ -403,7 +405,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     }
 
                     if (type !== TYPE_STOCK_OUT) {
-                        if (!item.price || item.price <= 0) {
+                        if (item.material.category === 0 && (!item.price || item.price <= 0)) {
                             errors[`price_${item.material.id}`] = "无效的价格"
                         }
                     }
@@ -431,7 +433,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 form.applyingDate = getTodayDateTimeString()
             }
 
-            await axios.post(`${DATA_API_BASE_URL}repoChangings`, form)
+            await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
                 .then(resp => resp.data)
                 .then(j => form.id = j.id)
                 .catch(e => {
@@ -456,7 +458,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     price: p.price,
                 }
 
-                axios.post(`${DATA_API_BASE_URL}repoChangingItems`, fi)
+                axios.post(`${DATA_API_BASE_URL}/repoChangingItems`, fi)
                     .catch(e => {
                         cancel = true;
                         this.setState({ showSavingDiag: false })
@@ -477,7 +479,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         this.processForm = (() => {
             const { form } = this.state
-            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}previewStockIn/${form.id}` : `${API_BASE_URL}previewStockOut/${form.id}`
+            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/previewStockIn/${form.id}` : `${API_BASE_URL}/previewStockOut/${form.id}`
 
             axios.get(url)
                 .then(resp => resp.data)
@@ -518,7 +520,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         this.onApplyChanging = (() => {
             const { form } = this.state
-            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}applyStockIn/${form.id}` : `${API_BASE_URL}applyStockOut/${form.id}`
+            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/applyStockIn/${form.id}` : `${API_BASE_URL}/applyStockOut/${form.id}`
 
             axios.post(url, { comment: '' })
                 .then(r => {
@@ -543,7 +545,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.setState({ showConfirmDiag: false })
 
             let { form } = this.state
-            axios.patch(`${DATA_API_BASE_URL}repoChangings/${form.id}`, { status: -1 })
+            axios.patch(`${DATA_API_BASE_URL}/repoChangings/${form.id}`, { status: -1 })
                 .then(() => this.props.history.goBack())
                 .catch(e => {
                     this.props.showSnackbar(e.message)
@@ -875,16 +877,6 @@ class RepoChangingDetailsPage extends React.PureComponent {
                             </mu.Grid>
 
                             {form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
-                                // <mu.Grid style={{ marginBottom: 16 }}>
-                                //     <FormControlLabel
-                                //         control={<Switch
-                                //             checked={this.state.orderRelated}
-                                //             onChange={this.handleOrderRelatedChange}
-                                //             value={1}
-                                //         />}
-                                //         label="订单相关" />
-                                // </mu.Grid>
-
                                 <mu.Grid >
                                     <Button onClick={this.selectOrder} disabled={disableEdit}>
                                         <mdi.ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
@@ -892,7 +884,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     {form.order ? <React.Fragment>
                                         <Chip label={form.order.no} style={{ marginLeft: 16 }} />
                                         <Chip label={form.order._embedded.client.name} style={{ marginLeft: 8 }} />
-                                    </React.Fragment> : null}
+                                    </React.Fragment> : 
+                                    (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
                                 </mu.Grid>
                                 : null}
                         </mu.Grid>
@@ -965,7 +958,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                     <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                         <TextField type="number" required id={`price_${m.id}`}
                                                             value={n.price}
-                                                            disabled={disableEdit}
+                                                            disabled={disableEdit || m.category === 1}
                                                             fullWidth
                                                             error={!!errors[`price_${m.id}`]}
                                                             margin="normal" inputProps={{ min: 0 }}
@@ -1020,7 +1013,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     // className={classes.dialog}
                     classes={{ paper: classes.dialog }}
                 >
-                    <DialogTitle>添加材料</DialogTitle>
+                    <DialogTitle>添加材料/产品</DialogTitle>
                     <DialogContent>
                         {/* <DialogContentText>请选择材料</DialogContentText> */}
                         <Paper>

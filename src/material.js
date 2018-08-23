@@ -27,7 +27,7 @@ class MaterialPage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "materials";
-        this.dataRepoApiUrl = DATA_API_BASE_URL + this.dataRepo;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}`;
 
         this.dataTable = null
 
@@ -80,14 +80,14 @@ class MaterialPage extends React.PureComponent {
 
     componentDidMount() {
         let dataRepo = "materialTypes"
-        axios.get(DATA_API_BASE_URL + dataRepo)
+        axios.get(`${DATA_API_BASE_URL}/${dataRepo}/search/findByIdGreaterThan?id=0`)
             .then(r => r.data._embedded[dataRepo])
             .then(j => this.setState({ availableValues: { 'type': j }, loaded: true }))
         // .catch(e => this.showSanckbar(e.message));
     }
 
     doLoad = () => {
-        return axios.get(this.dataRepoApiUrl)//,
+        return axios.get(`${DATA_API_BASE_URL}/${this.dataRepo}/search/findByCategory?category=0`)//,
             .then(resp => resp.data._embedded[this.dataRepo])
             .then(rs => rs.map(r => { if (r.type) r.type = r.type.name; return r; }))
         // .then(j => this.setState({ rows: j }))

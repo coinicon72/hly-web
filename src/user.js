@@ -36,7 +36,7 @@ class UserPage extends React.PureComponent {
         super(props);
 
         this.dataRepo = "users";
-        this.dataRepoApiUrl = DATA_API_BASE_URL + this.dataRepo;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}`;
 
         this.dataTable = null
 
@@ -98,12 +98,8 @@ class UserPage extends React.PureComponent {
     }
 
     doUpdate = (r, c) => {
-        // let v = this.state.availableValues['type'].find(v => v.name === c.type)
-        // if (v && c.type) c.type = "../materialTypes/" + v.id
-
         return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
             .then(resp => resp.data)
-        //     .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
     }
 
     doDelete = (r) => {

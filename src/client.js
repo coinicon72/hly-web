@@ -92,7 +92,7 @@ class ClientPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}`;
 
         this.state = {
             loaded: false,
@@ -125,7 +125,7 @@ class ClientPage extends React.PureComponent {
 
     componentDidMount() {
         let dataRepo = "clientTypes"
-        axios.get(DATA_API_BASE_URL + dataRepo)
+        axios.get(`${DATA_API_BASE_URL}/${dataRepo}`)
             .then(r => r.data._embedded[dataRepo])
             .then(j => this.setState({ availableValues: { 'type': j }, loaded: true }))
     }

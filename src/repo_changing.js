@@ -18,7 +18,10 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 //
-import * as config from "./config"
+import {
+    TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT,
+    DATA_API_BASE_URL
+} from "./config"
 
 import CommonStyles from "./common_styles"
 
@@ -37,7 +40,7 @@ const DATA_REPO = "repoChangings";
 
 const COLUMNS_OUT = [
     { name: 'id', title: '序号' },
-    { name: 'no', title: '单号'},
+    { name: 'no', title: '单号' },
     { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
     { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
@@ -52,7 +55,7 @@ const COLUMNS_IN = [
 
 const COLUMNS_IN_OUT = [
     { name: 'id', title: '序号' },
-    { name: 'no', title: '单号'},
+    { name: 'no', title: '单号' },
     { name: 'type', title: '类型' },
     { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
     { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
@@ -75,14 +78,6 @@ class RepoChangingPage extends React.PureComponent {
 
             ready4UI: false,
         }
-
-        // this.state.dataRepoApiUrl = config.API_BASE_URL + DATA_REPO + DATA_FILTER;
-
-        // this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
-
-        // this.changeAddedRowsCallback = (row => {
-        //     return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
-        // });
 
         this.doLoad = this.doLoad.bind(this)
         this.doAdd = this.doAdd.bind(this)
@@ -109,21 +104,21 @@ class RepoChangingPage extends React.PureComponent {
         //     user = { id: -1 }
 
         switch (type) {
-            case config.TYPE_STOCK_IN:
+            case TYPE_STOCK_IN:
                 if (user)
                     this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=${REPO_CHANGING_TYPE_IN}&status=0&user=../../../users/${user.id}`;
                 else
                     this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_IN}&status=-1`;
                 this.state.columns = COLUMNS_IN;
                 break;
-            case config.TYPE_STOCK_OUT:
+            case TYPE_STOCK_OUT:
                 if (user)
                     this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=${REPO_CHANGING_TYPE_OUT}&status=0&user=../../../users/${user.id}`;
                 else
                     this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_OUT}&status=-1`;
                 this.state.columns = COLUMNS_OUT;
                 break;
-            case config.TYPE_STOCK_IN_OUT:
+            case TYPE_STOCK_IN_OUT:
                 this.state.dataFilter = "/search/findStockInOutByStatus?status=1";
                 this.state.columns = COLUMNS_IN_OUT;
                 break;
@@ -131,7 +126,7 @@ class RepoChangingPage extends React.PureComponent {
             default:
                 break
         }
-        this.setState({ dataRepoApiUrl: config.DATA_API_BASE_URL + DATA_REPO + this.state.dataFilter, ready4UI: true });
+        this.setState({ dataRepoApiUrl: `${DATA_API_BASE_URL}/${DATA_REPO}` + this.state.dataFilter, ready4UI: true });
     }
 
     doLoad = () => {
@@ -155,7 +150,7 @@ class RepoChangingPage extends React.PureComponent {
 
     onRowDoubleClicked = (row) => {
         if (row) {
-            if (this.props.type === config.TYPE_STOCK_IN_OUT)
+            if (this.props.type === TYPE_STOCK_IN_OUT)
                 this.props.history.push(`${this.props.match.path}/${row.id}`);
             else
                 this.props.history.push(`${this.props.match.path}/edit/${row.id}`);
@@ -179,7 +174,7 @@ class RepoChangingPage extends React.PureComponent {
                     doDelete={this.doDelete}
                     addHandler={this.addRowHandler}
                     showEditCommand={false}
-                    disableEdit={type === config.TYPE_STOCK_IN_OUT}
+                    disableEdit={type === TYPE_STOCK_IN_OUT}
                     clickHandler={this.onRowDoubleClicked}
                     providers={[
                         <RepoChangingTypeProvider for={['type']} />,

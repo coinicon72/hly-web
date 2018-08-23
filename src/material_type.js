@@ -38,7 +38,7 @@ class MaterialTypePage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}`;
 
         this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
 
@@ -56,7 +56,7 @@ class MaterialTypePage extends React.PureComponent {
     }
 
     doLoad = () => {
-        return axios.get(this.dataRepoApiUrl)//,
+        return axios.get(`${this.dataRepoApiUrl}/search/findByIdGreaterThan?id=0`)//,
             .then(resp => resp.data._embedded[DATA_REPO])
     }
 

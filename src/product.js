@@ -11,7 +11,7 @@ import { withRouter } from 'react-router'
 import { withStyles } from '@material-ui/core';
 import {
     // Paper,
-    Typography, Button, 
+    Typography, Button,
     // IconButton, Snackbar, Input, Select, 
     Toolbar
 } from '@material-ui/core';
@@ -59,7 +59,7 @@ class ProductPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.dataRepoApiUrl = DATA_API_BASE_URL + DATA_REPO;
+        this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}`;
 
         this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
 
@@ -82,7 +82,9 @@ class ProductPage extends React.PureComponent {
     }
 
     doAdd = (r) => {
-        return axios.post(this.dataRepoApiUrl, r)
+        return axios.post(`${DATA_API_BASE_URL}/materials`, { code: r.code, name: r.code, safeQuantity: 0, category: 1, type: {id: 0} })
+            .then(resp => resp.data)
+            .then(m => axios.post(this.dataRepoApiUrl, { ...r, id: m.id }))
             .then(resp => resp.data)
     }
 
