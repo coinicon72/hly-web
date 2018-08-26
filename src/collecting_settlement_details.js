@@ -74,13 +74,14 @@ import axios from 'axios'
 
 
 // import DataTableBase from "./data_table_base"
+import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
 
 import { API_BASE_URL, DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
 import { getTodayString, toFixedMoney, toDateString } from "./utils"
 
-const MODE_ADD = 0;
-const MODE_EDIT = 1;
+// const MODE_ADD = 0;
+// const MODE_EDIT = 1;
 
 const savingSteps = ['检查输入数据', '保存基本信息', "保存明细", "完成"];
 
@@ -217,7 +218,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
 
             if (Object.keys(errors).length > 0) {
                 this.setState({ savingDocument: false, errors })
-                this.props.showSnackbar("有错误发生")
+                this.props.showSnackbar("发现错误，请检查数据输入")
                 return;
             }
 
@@ -280,7 +281,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             if (!this.state.document.collectedValue) {
                 const errors = { collected: "无效的金额" }
                 this.setState({ errors })
-                this.props.showSnackbar("有错误发生")
+                this.props.showSnackbar("发现错误，请检查数据输入")
                 return
             } else {
                 this.setState({ errors: {} })

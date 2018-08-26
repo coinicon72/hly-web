@@ -3,4 +3,4 @@
 import React from 'react';
 
 export default (props) => 
-    <span>Loading...</span>
+    <span>加载中...</span>

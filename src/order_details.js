@@ -65,17 +65,25 @@ import axios from 'axios'
 
 //
 // import DataTableBase from "./data_table_base"
+import Loading from "./loading-component"
+import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
+import { DATA_API_BASE_URL } from "./config"
 
-import { DATA_API_BASE_URL, MODE_VIEW } from "./config"
 // import { store } from "./redux"
 import { toFixedMoney, toDateString } from "./utils"
+import {
+    ORDER_STATUS_PRODUCING,
+    ORDER_STATUS_DELIVERED,
+    ORDER_STATUS_SETTLED,
+    ORDER_STATUS_COLLECTED,
+} from "./common"
 
 //
 import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
-const MODE_ADD = 0;
-const MODE_EDIT = 1;
+// const MODE_ADD = 0;
+// const MODE_EDIT = 1;
 
 const savingSteps = ['检查输入数据', '保存基本信息', "保存明细", "完成"];
 
@@ -88,9 +96,9 @@ class OrderDetailsPage extends React.PureComponent {
             order: {},
             orderItems: [], // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
             client: null,
-            boms: [],
+            deliverySheets: [],
 
-            products: [],
+            products: null,
             clients: [],
 
             //
@@ -262,11 +270,11 @@ class OrderDetailsPage extends React.PureComponent {
 
             if (Object.keys(errors).length > 0) {
                 this.setState({
-                    savingOrder: false, errors, 
+                    savingOrder: false, errors,
                     // snackbarOpen: true,
-                    // snackbarContent: "有错误发生"
+                    // snackbarContent: "发现错误，请检查数据输入"
                 })
-                this.props.showSnackbar("有错误发生")
+                this.props.showSnackbar("发现错误，请检查数据输入")
                 return;
             }
 
@@ -289,7 +297,7 @@ class OrderDetailsPage extends React.PureComponent {
                 .catch(e => {
                     cancel = true;
                     this.setState({
-                        savingOrder: false, 
+                        savingOrder: false,
                         // snackbarOpen: true,
                         // snackbarContent: e.message
                     })
@@ -314,7 +322,7 @@ class OrderDetailsPage extends React.PureComponent {
                     .catch(e => {
                         cancel = true;
                         this.setState({
-                            savingOrder: false, 
+                            savingOrder: false,
                             // snackbarOpen: true,
                             // snackbarContent: e.message
                         })
@@ -383,9 +391,9 @@ class OrderDetailsPage extends React.PureComponent {
                     this.setState({ orderItems: j })
                     return j
                 })
-                .then(j => axios.get(`${DATA_API_BASE_URL}/boms/search/findByOrderId?oid=${id}`))
-                .then(resp => resp.data._embedded.boms)
-                .then(boms => this.setState({ boms }))
+                .then(j => axios.get(`${DATA_API_BASE_URL}/deliverySheets/search/findByOrderId?id=${id}`))
+                .then(resp => resp.data._embedded.deliverySheets)
+                .then(deliverySheets => this.setState({ deliverySheets }))
                 .catch(e => this.props.showSnackbar(e.message));
         }
 
@@ -409,21 +417,21 @@ class OrderDetailsPage extends React.PureComponent {
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
-        const { order, client, orderItems, products, clients, boms } = this.state;
+        const { order, client, orderItems, products, clients, deliverySheets } = this.state;
         let { mode } = this.state;
         const { showSelectProduct, columns, selection } = this.state;
         const { errors, } = this.state;
 
-        if (mode === MODE_EDIT && order.status > 0)
+        if (mode === MODE_EDIT && order.status >= ORDER_STATUS_PRODUCING)
             mode = MODE_VIEW
 
         let shrinkLabel = mode === MODE_EDIT || mode === MODE_VIEW ? true : undefined;
 
         const { savingOrder, activeStep } = this.state;
 
-        const schedulable = this.hasPrivilege('production:schedule') && order.status <= 1 && mode !== MODE_ADD
+        const schedulable = this.hasPrivilege('production:schedule') && order.status <= ORDER_STATUS_PRODUCING && mode !== MODE_ADD
 
-        return (
+        return ( order && products ? 
             // <Provider store={store}>
             <React.Fragment>
 
@@ -432,7 +440,7 @@ class OrderDetailsPage extends React.PureComponent {
                     <Toolbar className={classes.toolbar}>
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>订单详情</Typography>
-                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT || mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存订单<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存订单<mdi.ContentSave /></Button>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
@@ -604,7 +612,7 @@ class OrderDetailsPage extends React.PureComponent {
                                                     </Tooltip>
                                                 }
                                                 {schedulable ? <Tooltip title="排产">
-                                                    <IconButton  component={Link} to={`/schedule_details/${order.id}_${rid}`}>
+                                                    <IconButton component={Link} to={`/schedule_details/${order.id}_${rid}`}>
                                                         <mdi.CalendarToday />
                                                     </IconButton>
                                                 </Tooltip> : null}
@@ -621,22 +629,18 @@ class OrderDetailsPage extends React.PureComponent {
                     </Paper>
 
 
-                    {/* {this.hasPrivilege('production:schedule') && order.status <= 1 ?
+                    {this.hasPrivilege('production:schedule') && order.status >= ORDER_STATUS_PRODUCING ?
                         <React.Fragment>
-                            <Typography variant="title" className={classes.subTitle}>排产</Typography>
+                            <Typography variant="title" className={classes.subTitle}>出库单</Typography>
 
                             <Paper className={classes.paper}>
-                                {boms && boms.length > 0 ? (
-                                    <React.Fragment>
-                                        <Typography >BOM已生成</Typography>
-                                        <Button variant="flat" size="large" component={Link} to={`/bom/view/${order.id}`}>
-                                            <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看BOM</Button>
-                                    </React.Fragment>
-                                ) : <Button variant="flat" size="large" component={Link} to={`/bom/add/${order.id}`}>
-                                        <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成BOM</Button>}
+                                <Button variant="flat" disabled={order.status >= ORDER_STATUS_COLLECTED} size="large" component={Link} to={`/delivery_sheet_details/add/${order.id}`}>
+                                    <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成出库单</Button>
+                                <Button variant="flat" disabled={deliverySheets.length <= 0} size="large" component={Link} to={`/delivery_sheet/${order.id}`}>
+                                    <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看出库单 ({deliverySheets.length})</Button>
                             </Paper>
                         </React.Fragment>
-                        : null} */}
+                        : null}
                 </div>
 
                 {/* dialog for add materials */}
@@ -708,6 +712,7 @@ class OrderDetailsPage extends React.PureComponent {
                 </Dialog>
 
             </React.Fragment>
+            : <Loading />
             // </Provider>
         )
     }

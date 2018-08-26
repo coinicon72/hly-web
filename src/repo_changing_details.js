@@ -78,7 +78,8 @@ import axios from 'axios'
 
 import {
     TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_EDIT,
-    // MODE_VIEW, 
+} from "./common"
+import {
     API_BASE_URL, DATA_API_BASE_URL
 } from "./config"
 
@@ -161,8 +162,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
             selection: [],
 
             //
-            repos: [], // all repositories
-            repo: null, // id of repository
+            repoes: [], // all repositories
+            // repo: null, // id of repository
 
             repoChangingReasons: [],
             // reason: null, // id of reason
@@ -214,21 +215,22 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
 
         // basic info changed
-        this.handleInput = (e => {
+        this.handleInput = e => {
             this.state.form[e.target.id] = e.target.value
             this.state.dirty = true
             this.forceUpdate()
-        })
+        }
 
-        this.onChangedRepo = (e => {
-            this.state.form.repo = { id: e.target.value }
+        this.onChangedRepo = e => {
+            const repoId = parseInt(e.target.value, 10)
+            this.state.form.repo = this.state.repoes.find(r => r.id === repoId)
             this.state.dirty = true
             this.forceUpdate()
-        })
+        }
 
 
         // select materials
-        this.addMaterials = (() => {
+        this.addMaterials = () => {
             const { changingItems, materials, selection } = this.state;
             Object.keys(selection).forEach(idx => {
                 let no = selection[idx];
@@ -240,7 +242,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             //
             this.setState({ dirty: true, changingItems: changingItems, selectMaterial: false, selection: [] })
-        })
+        }
 
 
         this.changeSelection = selection => this.setState({ selection });
@@ -415,10 +417,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             if (Object.keys(errors).length > 0) {
                 // this.setState({
                 //     showSavingDiag: false, errors: errors, snackbarOpen: true,
-                //     snackbarContent: "有错误发生"
+                //     snackbarContent: "发现错误，请检查数据输入"
                 // })
                 this.setState({ showSavingDiag: false, errors: errors })
-                this.props.showSnackbar("有错误发生")
+                this.props.showSnackbar("发现错误，请检查数据输入")
                 return
             }
 
@@ -484,12 +486,12 @@ class RepoChangingDetailsPage extends React.PureComponent {
             axios.get(url)
                 .then(resp => resp.data)
                 .then(p => {
-                    const { repos, changingItems } = this.state
+                    const { repoes, changingItems } = this.state
                     return p.map(pi => {
                         let ci = changingItems.find(ci => ci.material.id === pi.materialId)
                         pi.material = ci.material
 
-                        let repo = repos.find(r => r.id === pi.repoId)
+                        let repo = repoes.find(r => r.id === pi.repoId)
                         pi.repo = repo
 
                         return pi
@@ -685,6 +687,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
         let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
         const { showSavingDiag, activeStep } = this.state;
+
+        let filteredMaterials = materials.filter(m => form.repo.type === m.category)
 
         // title
         let title = "";
@@ -1018,7 +1022,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                         {/* <DialogContentText>请选择材料</DialogContentText> */}
                         <Paper>
                             <Grid
-                                rows={materials}
+                                rows={filteredMaterials}
                                 columns={columns}
                             >
                                 <SelectionState

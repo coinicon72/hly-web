@@ -20,6 +20,8 @@ import { actionShowSnackbar } from "./redux/data_selection"
 //
 import {
     TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT,
+} from "./common"
+import {
     DATA_API_BASE_URL
 } from "./config"
 

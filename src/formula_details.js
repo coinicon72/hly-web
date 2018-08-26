@@ -65,15 +65,13 @@ import {
 import axios from 'axios'
 
 // import DataTableBase from "./data_table_base"
+import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
 
 import { DATA_API_BASE_URL } from "./config"
 
 import { getTodayString } from "./utils"
 // import { store } from "./redux/redux"
 
-const MODE_ADD = "add"
-const MODE_VIEW = "view"
-const MODE_EDIT = "edit"
 
 // =============================================
 class AddFourmulaPage extends React.PureComponent {
@@ -206,7 +204,7 @@ class AddFourmulaPage extends React.PureComponent {
                     errors['revision'] = "错误的版本号"
                     this.setState({
                         savingFormula: false, errors: errors, snackbarOpen: true,
-                        snackbarContent: "有错误发生"
+                        snackbarContent: "发现错误，请检查数据输入"
                     })
                     return;
                 }
@@ -240,7 +238,7 @@ class AddFourmulaPage extends React.PureComponent {
             if (Object.keys(errors).length > 0) {
                 this.setState({
                     savingFormula: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "有错误发生"
+                    snackbarContent: "发现错误，请检查数据输入"
                 })
                 return;
             }

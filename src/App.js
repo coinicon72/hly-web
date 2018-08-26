@@ -81,12 +81,17 @@ import CollectingSettlementDetailsPage from './collecting_settlement_details'
 import CollectingSettlementStatPage from './collecting_settlement_stat'
 import ScheduleDetails from './schedule_details'
 import RepoChangingReasonPage from './repo_changing_reason'
+import DeliverySheetPage from './delivery_sheet'
+import DeliverySheetDetailsPage from './delivery_sheet_details'
 
 
 // import DAC from "./dimension_aware_component"
 import {
   ROUTER_STOCK_IN, ROUTER_STOCK_OUT, ROUTER_STOCK_IN_OUT,
-  TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, 
+  TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT,
+} from "./common"
+
+import {
   API_BASE_URL
 } from "./config"
 
@@ -434,6 +439,16 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </ListItem>
       </Link>)
 
+    // if (this.hasPrivilege('production:bom'))
+    l.push(<Link key="/delivery_sheet" to="/delivery_sheet">
+      <ListItem button>
+        <ListItemIcon>
+          <mdi.FileMultiple />
+        </ListItemIcon>
+        <ListItemText primary="发货单" />
+      </ListItem>
+    </Link>)
+
     return l.length > 0 ?
       <React.Fragment>
         <Divider />
@@ -741,6 +756,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/collectingProcess" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收处理</Typography>} />
         <Route path="/collectingStat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>应收汇总</Typography>} />
         <Route path="/schedule_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>排产</Typography>} />
+        <Route path="/delivery_sheet" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单</Typography>} />
+        <Route path="/delivery_sheet_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单明细</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
       </Switch>
 
@@ -843,6 +860,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
           : null} */}
 
         <Route path="/schedule_details/:id?" component={ScheduleDetails} />
+
+        <Route path="/delivery_sheet/:oid?" component={DeliverySheetPage} />
+        <Route path="/delivery_sheet_details/:mode/:id" component={DeliverySheetDetailsPage} />
 
         <Route component={HomePage} />
       </Switch>

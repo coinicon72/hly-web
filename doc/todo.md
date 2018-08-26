@@ -1,2 +1,4 @@
 - [ ] enter to log in
 - [ ] production schedule: create bom from order, may only include part of order
+- [ ] confirm order status
+- [ ] under which condition, we can't create delivery sheet? order status = ORDER_STATUS_PRODUCING / ORDER_STATUS_DELIVERED ?

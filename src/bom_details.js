@@ -74,6 +74,7 @@ import axios from 'axios'
 
 
 // import DataTableBase from "./data_table_base"
+import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { toFixedMass, toDateString } from "./utils"
@@ -172,10 +173,6 @@ const store = createStore(bomReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && win
 
 
 // ====================================================
-const MODE_ADD = 'add';
-const MODE_EDIT = 'edit';
-const MODE_VIEW = 'view';
-
 const savingSteps = ['检查数据', '保存BOM', "完成"]
 
 // =============================================
@@ -344,7 +341,7 @@ class BomDetailsPage extends React.PureComponent {
 
                 this.setState({
                     showSavingBom: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "有错误发生"
+                    snackbarContent: "发现错误，请检查数据输入"
                 })
                 return;
             }
