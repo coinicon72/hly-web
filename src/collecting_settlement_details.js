@@ -21,8 +21,10 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import {
+    ArrowLeft, ContentSave, ClipboardCheck, 
+} from 'mdi-material-ui';
+import { Delete } from '@material-ui/icons';
 
 // ui
 import {
@@ -36,7 +38,7 @@ import {
     InputAdornment,
     // FormGroup, 
     // FormControlLabel, FormControl, FormHelperText,
-    Stepper, Step, StepLabel, 
+    Stepper, Step, StepLabel,
     // Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
     Dialog, DialogActions, DialogContent, DialogTitle,
@@ -54,9 +56,9 @@ import {
     // IntegratedPaging,
 } from '@devexpress/dx-react-grid';
 
-import * as dx from '@devexpress/dx-react-grid-material-ui'
+// import * as dx from '@devexpress/dx-react-grid-material-ui'
 import {
-    // Grid as dxGrid,
+    Grid as dxGrid,
     // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
@@ -357,15 +359,15 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{mode === MODE_ADD ? "新增应收结算" : "应收结算详情"}</Typography>
                         {mode === MODE_ADD ?
-                            <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
+                            <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<ContentSave /></Button>
                             :
                             document.status === 1 ?
-                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >收款完成<mdi.ClipboardCheck /></Button>
+                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >收款完成<ClipboardCheck /></Button>
                                 :
-                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<mdi.ClipboardCheck /></Button>
+                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<ClipboardCheck /></Button>
                         }
                         {/* {mode === MODE_VIEW ? null :
                             } */}
@@ -415,7 +417,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                             <Grid style={{ marginTop: 16 }}>
                                 <Typography>结算单创建日期</Typography><Chip label={mode === MODE_ADD ? getTodayString() : document.createDate} className={classes.chip} />
                             </Grid>
- 
+
                             {mode === MODE_EDIT && document.status === 1 ? (
                                 <React.Fragment>
                                     <Grid style={{ marginTop: 16 }}>
@@ -442,13 +444,13 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                                 type: 'number',
                                                 startAdornment: <InputAdornment position="start">¥</InputAdornment>
                                             }}
-                                           // className={classNames(classes.margin, classes.textField)}
+                                            // className={classNames(classes.margin, classes.textField)}
                                             value={document.collectedValue}
                                             onChange={e => {
                                                 document.collectedValue = e.target.value
                                                 this.setState({ document })
                                             }}
-                                            
+
                                         />
                                     </Grid>
                                 </React.Fragment>
@@ -474,7 +476,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                     {mode === MODE_ADD ?
                                         <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                             {/* <Button variant="flat" disabled={!client} size="large" onClick={this.onAddOrders}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button> */}
+                                            <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button> */}
                                         </TableCell> : null
                                     }
                                 </TableRow>
@@ -493,7 +495,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                                 <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                     <Tooltip title="删除">
                                                         <IconButton onClick={() => this.onDelete(n.id, no)}>
-                                                            <mui.Delete />
+                                                            <Delete />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </TableCell> : null
@@ -505,7 +507,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>
                 </div>
@@ -520,7 +522,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                     <DialogTitle>选择订单</DialogTitle>
                     <DialogContent>
                         <Paper>
-                            <dx.Grid
+                            <dxGrid
                                 rows={orders}
                                 columns={columns}
                             >
@@ -543,7 +545,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                 <TableHeaderRow showSortingControls />
                                 <TableFilterRow />
                                 <TableSelection showSelectAll selectByRowClick={true} />
-                            </dx.Grid>
+                            </dxGrid>
                         </Paper>
                     </DialogContent>
                     <DialogActions>

@@ -19,11 +19,11 @@ import CommonStyles from "./common_styles";
 // import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ClipboardCheckOutline, CloseOctagonOutline, ContentSave, ArrowLeft, ClipboardText, PlusCircleOutline, } from 'mdi-material-ui';
+import { Delete } from '@material-ui/icons';
 
 // ui
-import * as mu from '@material-ui/core';
+import { Grid as muGrid } from '@material-ui/core';
 import {
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, Snackbar, 
@@ -395,7 +395,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             if (!form.no || form.no == "")
                 errors['form.no'] = "无效的单号"
 
-            if (form.reason.orderRelated && (!form.order || !form.order.id))
+            if (form.reason.orderRelated === 1 && (!form.order || !form.order.id))
                 errors['form.order'] = "未选择订单"
 
             if (changingItems.length <= 0) {
@@ -591,7 +591,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
         }
         else //if (id > 0) 
         {
-            this.state.mode = MODE_EDIT
+            this.state.mode = mode //MODE_EDIT
             // this.state.dirty = false
 
             axios.get(`${DATA_API_BASE_URL}/repoChangings/${id}`)
@@ -688,7 +688,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         const { showSavingDiag, activeStep } = this.state;
 
-        let filteredMaterials = materials.filter(m => form.repo.type === m.category)
+        let filteredMaterials = materials.filter(m => form.repo && form.repo.type === m.category)
 
         // title
         let title = "";
@@ -729,16 +729,16 @@ class RepoChangingDetailsPage extends React.PureComponent {
         const actions = type === TYPE_STOCK_IN_OUT ?
             <React.Fragment>
                 <Tooltip title="受理此表单并开始处理">
-                    <Button onClick={() => this.processForm()} color='primary' style={{ fontSize: 18 }} >处理<mdi.ClipboardCheckOutline /></Button></Tooltip>
+                    <Button onClick={() => this.processForm()} color='primary' style={{ fontSize: 18 }} >处理<ClipboardCheckOutline /></Button></Tooltip>
                 <Tooltip title="拒绝受理此表单">
-                    <Button onClick={() => this.rejectForm()} color='secondary' style={{ fontSize: 18 }} >拒绝<mdi.CloseOctagonOutline /></Button></Tooltip>
+                    <Button onClick={() => this.rejectForm()} color='secondary' style={{ fontSize: 18 }} >拒绝<CloseOctagonOutline /></Button></Tooltip>
             </React.Fragment>
             :
             <React.Fragment>
                 <Tooltip title="保存表单">
-                    <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button></Tooltip>
+                    <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<ContentSave /></Button></Tooltip>
                 <Tooltip title="保存表单，然后提交给仓库管理员">
-                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={!dirty && mode === MODE_ADD} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<mdi.ContentSave /></Button></Tooltip>
+                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={!dirty && mode === MODE_ADD} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
             </React.Fragment>
 
         // enable edit
@@ -751,7 +751,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
                         {actions}
                     </Toolbar>
@@ -759,19 +759,19 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
                     <Paper className={classes.paper}>
-                        <mu.Grid container direction='column' alignItems="stretch">
+                        <muGrid container direction='column' alignItems="stretch">
 
                             {type === TYPE_STOCK_IN_OUT ?
-                                <mu.Grid style={{ marginBottom: 16 }}>
+                                <muGrid style={{ marginBottom: 16 }}>
                                     {form.type === REPO_CHANGING_TYPE_IN ?
                                         <Chip label="入库" style={{ color: 'white', backgroundColor: COLOR_STOCK_IN }} />
                                         :
                                         <Chip label="出库" style={{ color: 'white', backgroundColor: COLOR_STOCK_OUT }} />}
-                                </mu.Grid>
+                                </muGrid>
                                 : null
                             }
 
-                            <mu.Grid style={{ marginBottom: 16 }}>
+                            <muGrid style={{ marginBottom: 16 }}>
                                 <TextField
                                     id="applicant"
                                     // required
@@ -786,9 +786,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
+                            </muGrid>
 
-                            <mu.Grid style={{ marginBottom: 16 }}>
+                            <muGrid style={{ marginBottom: 16 }}>
                                 <TextField
                                     id="no"
                                     required
@@ -803,9 +803,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
+                            </muGrid>
 
-                            <mu.Grid style={{ marginBottom: 16 }}>
+                            <muGrid style={{ marginBottom: 16 }}>
                                 <FormControl className={classes.formControl} disabled={disableEdit}>
                                     <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
                                     <Select
@@ -820,9 +820,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         {this.state.repoes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                     </Select>
                                 </FormControl>
-                            </mu.Grid>
+                            </muGrid>
 
-                            {/* <mu.Grid style={{ marginBottom: 16 }}>
+                            {/* <muGrid style={{ marginBottom: 16 }}>
                                 <TextField
                                     id="department"
                                     disabled={disableEdit}
@@ -837,9 +837,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid> */}
+                            </muGrid> */}
 
-                            <mu.Grid style={{ marginBottom: 16 }}>
+                            <muGrid style={{ marginBottom: 16 }}>
                                 {/* <FormGroup> */}
 
                                 <FormControl className={classes.formControl} disabled={disableEdit}>
@@ -878,21 +878,21 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
+                            </muGrid>
 
-                            {form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated ?
-                                <mu.Grid >
+                            {form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated === 1 ?
+                                <muGrid >
                                     <Button onClick={this.selectOrder} disabled={disableEdit}>
-                                        <mdi.ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
+                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
                                     </Button>
                                     {form.order ? <React.Fragment>
                                         <Chip label={form.order.no} style={{ marginLeft: 16 }} />
                                         <Chip label={form.order._embedded.client.name} style={{ marginLeft: 8 }} />
-                                    </React.Fragment> : 
-                                    (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
-                                </mu.Grid>
+                                    </React.Fragment> :
+                                        (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
+                                </muGrid>
                                 : null}
-                        </mu.Grid>
+                        </muGrid>
                     </Paper>
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -922,7 +922,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         {disableEdit ? null :
                                             <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
-                                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
+                                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
                                         }
                                     </TableCell>
                                 </TableRow>
@@ -981,7 +981,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                 {disableEdit ? null :
                                                     <Tooltip title="删除">
                                                         <IconButton onClick={() => this.onDelete(m.id, no)}>
-                                                            <mui.Delete />
+                                                            <Delete />
                                                         </IconButton>
                                                     </Tooltip>
                                                 }

@@ -21,8 +21,8 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ArrowLeft, ContentSave, ClipboardCheck, } from 'mdi-material-ui';
+import {Delete} from '@material-ui/icons';
 
 // ui
 import {
@@ -54,9 +54,8 @@ import {
     // IntegratedPaging,
 } from '@devexpress/dx-react-grid';
 
-import * as dx from '@devexpress/dx-react-grid-material-ui'
 import {
-    // Grid as dxGrid,
+    Grid as dxGrid,
     // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
@@ -381,15 +380,15 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{mode === MODE_ADD ? "新增应付结算" : "应付结算详情"}</Typography>
                         {mode === MODE_ADD ?
-                            <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
+                            <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<ContentSave /></Button>
                             :
                             document.status === 1 ?
-                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >付款完成<mdi.ClipboardCheck /></Button>
+                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >付款完成<ClipboardCheck /></Button>
                                 :
-                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<mdi.ClipboardCheck /></Button>
+                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<ClipboardCheck /></Button>
                         }
                         {/* {mode === MODE_VIEW ? null :
                             } */}
@@ -498,7 +497,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                     {mode === MODE_ADD ?
                                         <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                             {/* <Button variant="flat" disabled={!client} size="large" onClick={this.onAddOrders}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button> */}
+                                            <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button> */}
                                         </TableCell> : null
                                     }
                                 </TableRow>
@@ -517,7 +516,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                                 <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                     <Tooltip title="删除">
                                                         <IconButton onClick={() => this.onDelete(n.id, no)}>
-                                                            <mui.Delete />
+                                                            <Delete />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </TableCell> : null
@@ -529,7 +528,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>
                 </div>
@@ -544,7 +543,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                     <DialogTitle>选择订单</DialogTitle>
                     <DialogContent>
                         <Paper>
-                            <dx.Grid
+                            <dxGrid
                                 rows={orders}
                                 columns={columns}
                             >
@@ -567,7 +566,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                 <TableHeaderRow showSortingControls />
                                 <TableFilterRow />
                                 <TableSelection showSelectAll selectByRowClick={true} />
-                            </dx.Grid>
+                            </dxGrid>
                         </Paper>
                     </DialogContent>
                     <DialogActions>

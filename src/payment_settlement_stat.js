@@ -111,7 +111,7 @@ class PaymentSettlementStatPage extends React.PureComponent {
             {/* <Toolbar className={classes.toolbar}>
                 <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                 <Typography variant="title" className={classes.toolbarTitle}>应收汇总</Typography>
-                <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
+                <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
             </Toolbar> */}
 
             <Grid style={{ display:'flex', alignItems: 'center' }}>

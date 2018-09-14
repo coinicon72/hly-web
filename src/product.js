@@ -17,7 +17,7 @@ import {
 } from '@material-ui/core';
 
 // icons
-import * as mdi from 'mdi-material-ui';
+import {Export} from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
 import axios from 'axios'
@@ -111,10 +111,10 @@ class ProductPage extends React.PureComponent {
                 {/* <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography> */}
 
                 <Toolbar className={classes.toolbar}>
-                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton> */}
                     <Typography variant="title" className={classes.toolbarTitle}>双击产品可以查看详情</Typography>
-                    <Button href={`${EXPORT_BASE_URL}/products`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
-                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                    <Button href={`${EXPORT_BASE_URL}/products`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><Printer />打印</Button> */}
                 </Toolbar>
 
                 <DataTableBase columns={COLUMNS}

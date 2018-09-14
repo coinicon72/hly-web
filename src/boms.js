@@ -16,8 +16,8 @@ import CommonStyles from "./common_styles";
 import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import {PlusCircleOutline, FileDocumentBox} from 'mdi-material-ui';
+import { Edit } from '@material-ui/icons';
 
 // ui
 import {
@@ -135,7 +135,7 @@ class BomPage extends React.PureComponent {
                                     <TableCell numeric style={{ whiteSpace: 'nowrap' }}>数量</TableCell>
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         <Button variant="flat" size="large" component={Link} to={`/bom/add`}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增BOM</Button>
+                                            <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增BOM</Button>
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -152,17 +152,17 @@ class BomPage extends React.PureComponent {
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0, textAlign: 'center' }}>
                                                 <Tooltip title="明细">
                                                     <IconButton component={Link} to={`/bom/view/${orderItem.order.id}`}>
-                                                        <mdi.FileDocumentBox />
+                                                        <FileDocumentBox />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="编辑">
                                                     <IconButton component={Link} to={`/bom/edit/${orderItem.order.id}`}>
-                                                        <mui.Edit />
+                                                        <Edit />
                                                     </IconButton>
                                                 </Tooltip>
                                                 {/* <Tooltip title="删除">
                                                     <IconButton onClick={() => this.onDeleteBom(bom.id, no)}>
-                                                        <mui.Delete />
+                                                        <Delete />
                                                     </IconButton>
                                                 </Tooltip> */}
                                             </TableCell>
@@ -173,7 +173,7 @@ class BomPage extends React.PureComponent {
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
                         </div> */}
                     </Paper>
                 </div>

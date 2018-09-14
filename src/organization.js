@@ -14,7 +14,7 @@ import {
 } from '@devexpress/dx-react-grid-material-ui';
 
 // icons
-import * as mdi from 'mdi-material-ui';
+import {ArrowLeft} from 'mdi-material-ui';
 
 // import Tree from 'react-ui-tree';
 import TreeView from 'react-treeview'
@@ -230,9 +230,9 @@ class OrganizationPage extends React.PureComponent {
 
         return <div className={classes.contentRoot}>
             <Toolbar className={classes.toolbar}>
-                <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                 <Typography variant="title" className={classes.toolbarTitle}>组织结构管理</Typography>
-                {/* <Button color='primary' style={{ fontSize: 18 }} disabled={!this.state.selectedNode} ><mdi.PlusCircleOutline />添加下属结构</Button> */}
+                {/* <Button color='primary' style={{ fontSize: 18 }} disabled={!this.state.selectedNode} ><PlusCircleOutline />添加下属结构</Button> */}
             </Toolbar>
 
             <Grid container spacing={16}>

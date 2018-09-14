@@ -16,7 +16,7 @@ import CommonStyles from "./common_styles";
 // import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
+import {ArrowLeft} from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
 // ui
@@ -175,10 +175,10 @@ class DeliverySheetPage extends React.PureComponent {
                 {/* <Typography variant="title" color="inherit" className={classes.subTitle} >双击产品可以查看详情</Typography> */}
 
                 <Toolbar className={classes.toolbar}>
-                    <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                    <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                     <Typography variant="title" className={classes.toolbarTitle}>{(oid && order) ? `订单 ${order.no} 的发货单` : `全部发货单`}</Typography>
-                    {/* <Button href={`${EXPORT_BASE_URL}/orders`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> */}
-                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                    {/* <Button href={`${EXPORT_BASE_URL}/orders`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button> */}
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><Printer />打印</Button> */}
                 </Toolbar>
 
                 <DataTableBase columns={COLUMNS}

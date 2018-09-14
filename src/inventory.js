@@ -19,7 +19,7 @@ import {
     InputLabel, FormControl,
 } from '@material-ui/core';
 
-// import * as mdi from 'mdi-material-ui';
+// import {} from 'mdi-material-ui';
 
 // import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
@@ -163,7 +163,7 @@ class RepoPage extends React.PureComponent {
         return currentRepo ? (
             <div className={classes.contentRoot}>
                 <Toolbar className={classes.toolbar}>
-                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton> */}
                     {/* <Typography variant="title" className={classes.toolbarTitle}></Typography> */}
                     <FormControl className={classes.formControl}>
                         <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
@@ -180,8 +180,8 @@ class RepoPage extends React.PureComponent {
                         </Select>
                     </FormControl>
 
-                    {/* <Button onClick={this.saveInventory} color='primary' disabled={!this.state.changes || this.state.changes.length <= 0} style={{ fontSize: 18 }} ><mdi.ContentSave />保存</Button> */}
-                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><mdi.Printer />打印</Button> */}
+                    {/* <Button onClick={this.saveInventory} color='primary' disabled={!this.state.changes || this.state.changes.length <= 0} style={{ fontSize: 18 }} ><ContentSave />保存</Button> */}
+                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><Printer />打印</Button> */}
                 </Toolbar>
 
                 <DataTableBase columns={COLUMNS}

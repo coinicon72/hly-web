@@ -16,16 +16,16 @@ import CommonStyles from "./common_styles";
 import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ArrowLeft, PlusCircleOutline, FileDocumentBox, } from 'mdi-material-ui';
+import { Edit, Delete } from '@material-ui/icons';
 
 // ui
 import {
-    Paper, Typography, Grid, 
+    Paper, Typography, Grid,
     // TextField, 
-    Button, IconButton, Snackbar, 
+    Button, IconButton, Snackbar,
     // Input, Select, 
-    Toolbar, 
+    Toolbar,
     // Divider, 
     Tooltip,
     Table, TableBody, TableCell, TableHead, TableRow
@@ -125,7 +125,7 @@ class ProductDetailsPage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>产品详情</Typography>
                     </Toolbar>
 
@@ -161,7 +161,7 @@ class ProductDetailsPage extends React.PureComponent {
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>修订日志</TableCell>
                                     <TableCell style={{ padding: 0 }}>
                                         <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
+                                            <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -176,18 +176,18 @@ class ProductDetailsPage extends React.PureComponent {
                                                 <Tooltip title="配方明细">
                                                     {/* <IconButton onClick={() => this.onDetails(n.id)}> */}
                                                     <IconButton component={Link} to={`/formula/view/${product.id}/${n.id}`}>
-                                                        <mdi.FileDocumentBox />
+                                                        <FileDocumentBox />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="编辑">
                                                     {/* <IconButton onClick={() => this.onEdit(n.id)} title="编辑"> */}
                                                     <IconButton component={Link} to={`/formula/edit/${product.id}/${n.id}`}>
-                                                        <mui.Edit />
+                                                        <Edit />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="删除">
                                                     <IconButton onClick={() => this.onDelete(n.id, no)}>
-                                                        <mui.Delete />
+                                                        <Delete />
                                                     </IconButton>
                                                 </Tooltip>
                                             </TableCell>
@@ -198,7 +198,7 @@ class ProductDetailsPage extends React.PureComponent {
                         </Table>
                         <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
                         </div>
                     </Paper>
                 </div>

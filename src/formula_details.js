@@ -16,11 +16,11 @@ import { withRouter } from 'react-router'
 // import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ArrowLeft, ContentSave, PlusCircleOutline } from 'mdi-material-ui';
+import { Delete } from '@material-ui/icons';
 
 // ui components
-import * as mu from '@material-ui/core';
+import { Grid as muGrid } from '@material-ui/core';
 import {
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, 
@@ -419,11 +419,11 @@ class AddFourmulaPage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
                         {/* <Typography variant="title">添加配方</Typography> */}
                         {this.state.mode === MODE_VIEW ? null :
-                            <Button onClick={() => this.saveFormula()} disabled={this.state.mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存配方<mdi.ContentSave /></Button>}
+                            <Button onClick={() => this.saveFormula()} disabled={this.state.mode === MODE_EDIT} color='secondary' style={{ fontSize: 18 }} >保存配方<ContentSave /></Button>}
                     </Toolbar>
 
                     {/* <Divider style={{ margin: 16 }} /> */}
@@ -432,8 +432,8 @@ class AddFourmulaPage extends React.PureComponent {
 
                     <Paper className={classes.paper}>
 
-                        <mu.Grid container direction='column' alignItems="stretch">
-                            <mu.Grid>
+                        <muGrid container direction='column' alignItems="stretch">
+                            <muGrid>
                                 <FormControl required disabled={this.state.autoGenRevision} error={!!this.state.errors.revision} aria-describedby="revision-error-text"
                                 // className={classes.textFieldWithoutMargin}
                                 >
@@ -456,8 +456,8 @@ class AddFourmulaPage extends React.PureComponent {
                                     label="自动生成修订版本号"
                                     style={{ marginLeft: 16 }}
                                 />
-                            </mu.Grid>
-                            <mu.Grid>
+                            </muGrid>
+                            <muGrid>
                                 <TextField type="date" required disabled id="createDate" label="修订日期"
                                     // defaultValue={basicInfo.createDate}
                                     value={getTodayString()}
@@ -465,8 +465,8 @@ class AddFourmulaPage extends React.PureComponent {
                                     margin="normal"
                                     onChange={e => this.handleBasicInfoChange(e)}
                                 />
-                            </mu.Grid>
-                            <mu.Grid>
+                            </muGrid>
+                            <muGrid>
                                 <TextField id="changeLog" label="修订日志"
                                     defaultValue=""
                                     value={basicInfo.changeLog}
@@ -480,8 +480,8 @@ class AddFourmulaPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
-                            <mu.Grid>
+                            </muGrid>
+                            <muGrid>
                                 <TextField id="comment" label="备注"
                                     defaultValue=""
                                     value={basicInfo.comment}
@@ -495,8 +495,8 @@ class AddFourmulaPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
-                        </mu.Grid>
+                            </muGrid>
+                        </muGrid>
                     </Paper>
 
                     <Typography variant="title" className={classes.subTitle}>生产条件</Typography>
@@ -625,7 +625,7 @@ class AddFourmulaPage extends React.PureComponent {
                                     <TableCell style={{ padding: 0 }}>
                                         {this.state.mode === MODE_VIEW ? null : <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                                             <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
-                                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
+                                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
                                         </div>}
                                     </TableCell>
                                 </TableRow>
@@ -654,10 +654,10 @@ class AddFourmulaPage extends React.PureComponent {
 
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 {/* <IconButton onClick={() => this.onEdit(m.id)} title="编辑">
-                                                <mui.Edit />
+                                                <Edit />
                                             </IconButton> */}
                                                 {this.state.mode === MODE_VIEW ? null : <IconButton onClick={() => this.onDelete(m.id)} title="删除">
-                                                    <mui.Delete />
+                                                    <Delete />
                                                 </IconButton>}
 
                                             </TableCell>
@@ -668,7 +668,7 @@ class AddFourmulaPage extends React.PureComponent {
                         </Table>
                         {this.state.mode === MODE_VIEW ? null : <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
                         </div>}
                     </Paper>
                 </div>

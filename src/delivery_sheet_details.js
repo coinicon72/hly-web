@@ -16,11 +16,11 @@ import CommonStyles from "./common_styles";
 import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ArrowLeft, ContentSave, PlusCircleOutline } from 'mdi-material-ui';
+import { Delete } from '@material-ui/icons';
 
 // ui
-import * as mu from '@material-ui/core';
+import { Grid as muGrid } from '@material-ui/core';
 import {
     Paper, Typography, TextField, Button, IconButton, MenuItem,
     // Snackbar,
@@ -148,7 +148,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                 let p = order._embedded.items[no];
 
                 if (!deliverySheetItems.find(v => v.id.orderItem.product === p.id.product)) {
-                    deliverySheetItems.push({ id: { deliverySheet: deliverySheet.id, orderItem: p.id }, _embedded: { orderItem: p }, quantity: 0, boxes: 1, price: 0 })
+                    deliverySheetItems.push({ id: { deliverySheet: deliverySheet.id, orderItem: p.id }, _embedded: { orderItem: p }, quantity: 0, boxes: 1, price: p.price })
 
                     errors['deliverySheetItems'] = null
                     this.forceUpdate()
@@ -310,11 +310,11 @@ class DeliverySheetDetailsPage extends React.PureComponent {
 
             deliverySheetItems.forEach(p => {
                 p.id.deliverySheet = deliverySheet.id
-                const {orderItem} = p.id
+                const { orderItem } = p.id
                 let fi = {
                     ...p,
-                    deliverySheet: {id: deliverySheet.id}, 
-                    orderItem: { id: {order: orderItem.order, product: orderItem.product}, order: { id: orderItem.order }, product: { id: orderItem.product } },
+                    deliverySheet: { id: deliverySheet.id },
+                    orderItem: { id: { order: orderItem.order, product: orderItem.product }, order: { id: orderItem.order }, product: { id: orderItem.product } },
                 }
                 delete fi._embedded
 
@@ -360,7 +360,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
             axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
                 .then(resp => resp.data)
                 .then(order => {
-                    this.setState({ order, orderItems: order._embedded.items.flatMap(it => it.product) })
+                    this.setState({ order, orderItems: order._embedded.items.flatMap(it => ({ ...it.product, price: it.price })) })
                 })
                 .catch(e => this.props.showSnackbar(e.message));
         } else {
@@ -409,9 +409,9 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                     <div className={classes.contentRoot}>
 
                         <Toolbar className={classes.toolbar}>
-                            <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                            <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                             <Typography variant="title" className={classes.title}>发货单详情</Typography>
-                            <Button onClick={() => this.saveSheet()} disabled={(mode === MODE_EDIT && !dirty) || mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存发货单<mdi.ContentSave /></Button>
+                            <Button onClick={() => this.saveSheet()} disabled={(mode === MODE_EDIT && !dirty) || mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存发货单<ContentSave /></Button>
                             {/* {mode === MODE_VIEW ? null :
                             } */}
                         </Toolbar>
@@ -419,14 +419,14 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                         <Typography variant="title" className={classes.subTitle}>订单信息</Typography>
 
                         <Paper className={classes.paper}>
-                            <mu.Grid container direction='column' alignItems="stretch">
-                                <mu.Grid style={{ marginBottom: 16 }}>
+                            <muGrid container direction='column' alignItems="stretch">
+                                <muGrid style={{ marginBottom: 16 }}>
                                     <React.Fragment>
                                         <Chip label={order._embedded.client.name} className={classes.chip} />
                                         <Chip label={order._embedded.client.fullName} className={classes.chip} />
                                     </React.Fragment>
-                                </mu.Grid>
-                                <mu.Grid>
+                                </muGrid>
+                                <muGrid>
                                     <FormControl disabled aria-describedby="no-error-text">
                                         <InputLabel htmlFor="orderNo" shrink={true}>订单编号</InputLabel>
                                         <Input id="orderNo"
@@ -435,9 +435,9 @@ class DeliverySheetDetailsPage extends React.PureComponent {
 
                                         <FormHelperText id="no-error-text">{errors.revision}</FormHelperText>
                                     </FormControl>
-                                </mu.Grid>
+                                </muGrid>
 
-                                <mu.Grid>
+                                <muGrid>
                                     <TextField type="date" disabled id="orderDate"
                                         label="下单日期"
                                         value={order.orderDate ? toDateString(order.orderDate) : ""}
@@ -456,8 +456,8 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             shrink: true,
                                         }}
                                     />
-                                </mu.Grid>
-                                <mu.Grid>
+                                </muGrid>
+                                <muGrid>
                                     <TextField id="comment" disabled label="备注"
                                         value={order.comment}
                                         className={classes.textFieldWithoutWidth}
@@ -469,15 +469,15 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             shrink: true,
                                         }}
                                     />
-                                </mu.Grid>
-                            </mu.Grid>
+                                </muGrid>
+                            </muGrid>
                         </Paper>
 
                         <Typography variant="title" className={classes.subTitle}>发货单信息</Typography>
 
                         <Paper className={classes.paper}>
-                            <mu.Grid container direction='column' alignItems="stretch">
-                                <mu.Grid>
+                            <muGrid container direction='column' alignItems="stretch">
+                                <muGrid>
                                     <FormControl required
                                         error={!!errors['deliverySheet.no']}
                                     >
@@ -499,8 +499,8 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             shrink: true,
                                         }}
                                     />
-                                </mu.Grid>
-                            </mu.Grid>
+                                </muGrid>
+                            </muGrid>
                         </Paper>
 
                         <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -525,7 +525,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                         <TableCell padding="dense" style={{ width: '10%', padding: 0, whiteSpace: 'nowrap' }}>
                                             {mode === MODE_VIEW ? null :
                                                 <Button variant="flat" size="large" onClick={this.onAddProduct}>
-                                                    <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                                    <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                             }
                                         </TableCell>
                                     </TableRow>
@@ -565,8 +565,10 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                     />
                                                 </TableCell>
                                                 <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
-                                                    <TextField type="number" style={{ width: 100 }} required
-                                                        disabled={mode === MODE_VIEW}
+                                                    <TextField type="number"
+                                                        style={{ width: 100 }} required
+                                                        disabled
+                                                        // disabled={mode === MODE_VIEW}
                                                         id={`price_${pid}`}
                                                         value={it.price}
                                                         fullWidth
@@ -584,7 +586,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                     {mode === MODE_VIEW ? null :
                                                         <Tooltip title="删除">
                                                             <IconButton onClick={() => this.onDelete(it.id, no)}>
-                                                                <mui.Delete />
+                                                                <Delete />
                                                             </IconButton>
                                                         </Tooltip>
                                                     }
@@ -596,7 +598,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                             </Table>
                             {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                         </Paper>
                     </div>

@@ -130,6 +130,40 @@ export const OrderStatusProvider = props => (
 );
 
 
+export const OrderRelatedTypeEditer = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)
+        }
+        }
+        style={{ width: '100%' }}
+    >
+        <option key="o0" value=""></option>
+        <option key="o1" value={1}>订单相关</option>
+        <option key="o2" value={2}>采购相关</option>
+    </Select>
+);
+
+// const BooleanTypeProvider = props => (
+export const OrderRelatedTypeProvider = props => (
+    <DataTypeProvider
+        formatterComponent={
+            ({ row, value }) => {
+                switch (value) {
+                    case 0: return "";
+                    case 1: return "订单相关";
+                    case 2: return "采购相关";
+                }
+            }}
+        editorComponent={OrderRelatedTypeEditer}
+        {...props}
+    />
+);
+
+
 
 export const RepoChangingTypeEditor = ({ value, onValueChange }) => (
     <Select

@@ -17,7 +17,7 @@ import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
 import { withStyles } from '@material-ui/core';
-import { BooleanTypeProvider, RepoChangingTypeProvider } from './common_components'
+import { BooleanTypeProvider, OrderRelatedTypeProvider, RepoChangingTypeProvider } from './common_components'
 import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
 
 
@@ -39,7 +39,7 @@ const NEW_ROW_TEMPLATE = {
     id: 0,
     type: 1,
     reason: '',
-    orderRelated: false,
+    orderRelated: 0,
 }
 
 
@@ -99,7 +99,7 @@ class RepoChangingReasonPage extends React.PureComponent {
                     doDelete={this.doDelete}
                     providers={[
                         <RepoChangingTypeProvider for={['type']} />,
-                        <BooleanTypeProvider for={['orderRelated']} />,
+                        <OrderRelatedTypeProvider for={['orderRelated']} />,
                     ]}
                 />
             </div>

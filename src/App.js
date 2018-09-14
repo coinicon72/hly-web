@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 
 import compose from 'recompose/compose';
 
-import { withStyles, withWidth } from '@material-ui/core';
+import { withStyles, withWidth, } from '@material-ui/core';
 import {
   AppBar, Drawer, Divider, Toolbar,
   // Tooltip, Button, Grid,
@@ -21,14 +21,13 @@ import {
 } from '@material-ui/core';
 
 // icons
-import * as mdi from 'mdi-material-ui';
-// import * as mui from '@material-ui/icons';
-
-import { GroupWork, ExpandLess, ExpandMore } from '@material-ui/icons'
+import { GroupWork, LibraryBooks, ExpandLess, ExpandMore, } from '@material-ui/icons'
 import {
-  Menu as MenuIcon, AccountCircle,
+  Menu as MenuIcon,
+  AccountCircle, FileMultiple, Check, CheckboxMarkedOutline, CheckboxMultipleMarkedOutline,
+  FileImport, Database, DatabasePlus, DatabaseMinus, DatabaseSearch, Logout,
   // ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, 
-  ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant
+  ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant, FileExport, 
 } from 'mdi-material-ui';
 
 import { connect } from 'react-redux'
@@ -224,7 +223,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   this.setState({ user })
     // else {
     if (token) {
-      axios.defaults.headers.common['Authorization'] = token;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       axios.get(`${API_BASE_URL}/user`)
         .then(r => r.data.data)
@@ -352,7 +351,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   l.push(<Link key="/organizaion" to="/organizaion">
     //     <ListItem button>
     //       <ListItemIcon>
-    //         <mdi.AccountGroup />
+    //         <AccountGroup />
     //       </ListItemIcon>
     //       <ListItemText primary="组织结构" />
     //     </ListItem>
@@ -360,7 +359,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   l.push(<Link key="/organizaion" to="/organizaion">
     //     <ListItem button>
     //       <ListItemIcon>
-    //         <mdi.AccountGroup />
+    //         <AccountGroup />
     //       </ListItemIcon>
     //       <ListItemText primary="组织结构" />
     //     </ListItem>
@@ -370,7 +369,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/user" to="/user">
         <ListItem button>
           <ListItemIcon>
-            <mdi.AccountCircle />
+            <AccountCircle />
           </ListItemIcon>
           <ListItemText primary="员工" />
         </ListItem>
@@ -380,7 +379,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/role" to="/role">
         <ListItem button>
           <ListItemIcon>
-            <mdi.AccountCircle />
+            <AccountCircle />
           </ListItemIcon>
           <ListItemText primary="岗位" />
         </ListItem>
@@ -390,7 +389,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/userRole" to="/userRole">
         <ListItem button>
           <ListItemIcon>
-            <mdi.AccountCircle />
+            <AccountCircle />
           </ListItemIcon>
           <ListItemText primary="员工岗位" />
         </ListItem>
@@ -400,7 +399,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/rolePrivilege" to="/rolePrivilege">
         <ListItem button>
           <ListItemIcon>
-            <mdi.AccountCircle />
+            <AccountCircle />
           </ListItemIcon>
           <ListItemText primary="岗位权限" />
         </ListItem>
@@ -433,7 +432,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/boms" to="/boms">
         <ListItem button>
           <ListItemIcon>
-            <mdi.FileMultiple />
+            <FileMultiple />
           </ListItemIcon>
           <ListItemText primary="BOM 物料清单" />
         </ListItem>
@@ -443,7 +442,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     l.push(<Link key="/delivery_sheet" to="/delivery_sheet">
       <ListItem button>
         <ListItemIcon>
-          <mdi.FileMultiple />
+          <FileMultiple />
         </ListItemIcon>
         <ListItemText primary="发货单" />
       </ListItem>
@@ -466,7 +465,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/purchasingOrder" to="/purchasingOrder">
         <ListItem button>
           <ListItemIcon>
-            <mdi.LibraryBooks />
+            <LibraryBooks />
           </ListItemIcon>
           <ListItemText primary="采购计划" />
         </ListItem>
@@ -490,7 +489,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('accounting:settlement'))
       l.push(<ListItem button onClick={this.handleMenuToggle('paymentSettlement')}>
         <ListItemIcon>
-          <mdi.FileExport />
+          <FileExport />
         </ListItemIcon>
         <ListItemText primary="应付" />
         {menuStatus.paymentSettlement ? <ExpandLess /> : <ExpandMore />}
@@ -502,7 +501,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <Link key="/paymentSettlement" to="/paymentSettlement">
             <ListItem button className={classes.nested}>
               <ListItemIcon>
-                <mdi.Check />
+                <Check />
               </ListItemIcon>
               <ListItemText primary="结算" />
             </ListItem>
@@ -510,7 +509,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <Link key="/paymentProcess" to="/paymentProcess">
             <ListItem button className={classes.nested}>
               <ListItemIcon>
-                <mdi.CheckboxMarkedOutline color='secondary' />
+                <CheckboxMarkedOutline color='secondary' />
               </ListItemIcon>
               <ListItemText primary="处理" />
             </ListItem>
@@ -518,7 +517,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <Link key="/paymentStat" to="/paymentStat">
             <ListItem button className={classes.nested}>
               <ListItemIcon>
-                <mdi.CheckboxMultipleMarkedOutline color='secondary' />
+                <CheckboxMultipleMarkedOutline color='secondary' />
               </ListItemIcon>
               <ListItemText primary="汇总" />
             </ListItem>
@@ -530,7 +529,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   l.push(<Link key="/paymentSettlement" to="/paymentSettlement">
     //     <ListItem button>
     //       <ListItemIcon>
-    //         <mdi.LibraryBooks />
+    //         <LibraryBooks />
     //       </ListItemIcon>
     //       <ListItemText primary="应付结算" />
     //     </ListItem>
@@ -540,7 +539,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   l.push(<Link key="/paymentProcess" to="/paymentProcess">
     //     <ListItem button>
     //       <ListItemIcon>
-    //         <mdi.LibraryBooks color='secondary' />
+    //         <LibraryBooks color='secondary' />
     //       </ListItemIcon>
     //       <ListItemText primary="应付处理" />
     //     </ListItem>
@@ -550,7 +549,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   l.push(<Link key="/paymentStat" to="/paymentStat">
     //     <ListItem button>
     //       <ListItemIcon>
-    //         <mdi.LibraryBooks color='secondary' />
+    //         <LibraryBooks color='secondary' />
     //       </ListItemIcon>
     //       <ListItemText primary="应付汇总" />
     //     </ListItem>
@@ -560,7 +559,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('accounting:settlement'))
       l.push(<ListItem button onClick={this.handleMenuToggle('collectingSettlement')}>
         <ListItemIcon>
-          <mdi.FileImport />
+          <FileImport />
         </ListItemIcon>
         <ListItemText primary="应收" />
         {menuStatus.collectingSettlement ? <ExpandLess /> : <ExpandMore />}
@@ -572,7 +571,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <Link key="/collectingSettlement" to="/collectingSettlement">
             <ListItem button className={classes.nested}>
               <ListItemIcon>
-                <mdi.Check />
+                <Check />
               </ListItemIcon>
               <ListItemText primary="结算" />
             </ListItem>
@@ -580,7 +579,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <Link key="/collectingProcess" to="/collectingProcess">
             <ListItem button className={classes.nested}>
               <ListItemIcon>
-                <mdi.CheckboxMarkedOutline color='secondary' />
+                <CheckboxMarkedOutline color='secondary' />
               </ListItemIcon>
               <ListItemText primary="处理" />
             </ListItem>
@@ -588,7 +587,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <Link key="/collectingStat" to="/collectingStat">
             <ListItem button className={classes.nested}>
               <ListItemIcon>
-                <mdi.CheckboxMultipleMarkedOutline color='secondary' />
+                <CheckboxMultipleMarkedOutline color='secondary' />
               </ListItemIcon>
               <ListItemText primary="汇总" />
             </ListItem>
@@ -601,7 +600,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //     l.push(<Link key="/collectingSettlement" to="/collectingSettlement">
     //       <ListItem button>
     //         <ListItemIcon>
-    //           <mdi.LibraryBooks />
+    //           <LibraryBooks />
     //         </ListItemIcon>
     //         <ListItemText primary="应收结算" />
     //       </ListItem>
@@ -611,7 +610,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //     l.push(<Link key="/collectingProcess" to="/collectingProcess">
     //       <ListItem button>
     //         <ListItemIcon>
-    //           <mdi.LibraryBooks color='secondary' />
+    //           <LibraryBooks color='secondary' />
     //         </ListItemIcon>
     //         <ListItemText primary="应收处理" />
     //       </ListItem>
@@ -634,7 +633,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/repo" to="/repo">
         <ListItem button>
           <ListItemIcon>
-            <mdi.Database />
+            <Database />
           </ListItemIcon>
           <ListItemText primary="仓库" />
         </ListItem>
@@ -646,7 +645,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Link key={ROUTER_STOCK_IN} to={ROUTER_STOCK_IN}>
           <ListItem button>
             <ListItemIcon>
-              <mdi.DatabasePlus />
+              <DatabasePlus />
             </ListItemIcon>
             <ListItemText primary="入库单" />
           </ListItem>
@@ -660,7 +659,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Link key={ROUTER_STOCK_OUT} to={ROUTER_STOCK_OUT}>
           <ListItem button>
             <ListItemIcon>
-              <mdi.DatabaseMinus />
+              <DatabaseMinus />
             </ListItemIcon>
             <ListItemText primary="出库单" />
           </ListItem>
@@ -674,7 +673,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Link key={ROUTER_STOCK_IN_OUT} to={ROUTER_STOCK_IN_OUT}>
           <ListItem button>
             <ListItemIcon>
-              <mdi.Database />
+              <Database />
             </ListItemIcon>
             <ListItemText primary="出/入库单受理" />
           </ListItem>
@@ -686,7 +685,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       l.push(<Link key="/repo_details" to="/repo_details">
         <ListItem button>
           <ListItemIcon>
-            <mdi.DatabaseSearch />
+            <DatabaseSearch />
           </ListItemIcon>
           <ListItemText primary="库存明细" />
         </ListItem>
@@ -696,7 +695,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     //   l.push(<Link key="/inventory" to="/inventory">
     //     <ListItem button>
     //       <ListItemIcon>
-    //         <mdi.DatabaseSearch />
+    //         <DatabaseSearch />
     //       </ListItemIcon>
     //       <ListItemText primary="盘点" />
     //     </ListItem>
@@ -938,13 +937,13 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 >
                   {/* <MenuItem onClick={this.handleClose}>
                     <ListItemIcon className={classes.icon}>
-                      <mdi.FaceProfile />
+                      <FaceProfile />
                     </ListItemIcon>
                     <ListItemText classes={{ primary: classes.primary }} primary="个人信息" />
                   </MenuItem> */}
                   <MenuItem onClick={this.handleLogout}>
                     <ListItemIcon className={classes.icon}>
-                      <mdi.Logout />
+                      <Logout />
                     </ListItemIcon>
                     <ListItemText classes={{ primary: classes.primary }} primary="退出登录" />
                   </MenuItem>
@@ -973,6 +972,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                 variant="permanent"
                 open
                 classes={{
+                  docked: classes.drawerRoot,
                   paper: classes.drawerPaper,
                 }}
               >
@@ -1071,6 +1071,9 @@ const styles = theme => ({
   },
   hide: {
     display: 'none',
+  },
+  drawerRoot: {
+    height: '100%',
   },
   drawerPaper: {
     // position: 'relative',

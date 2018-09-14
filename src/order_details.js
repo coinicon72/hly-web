@@ -16,11 +16,11 @@ import CommonStyles from "./common_styles";
 import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ArrowLeft, ContentSave, PlusCircleOutline, CalendarToday, FileMultiple } from 'mdi-material-ui';
+import { Delete } from '@material-ui/icons';
 
 // ui
-import * as mu from '@material-ui/core';
+import { Grid as muGrid } from '@material-ui/core';
 import {
     Paper, Typography, TextField, Button, IconButton, MenuItem,
     // Snackbar,
@@ -431,16 +431,16 @@ class OrderDetailsPage extends React.PureComponent {
 
         const schedulable = this.hasPrivilege('production:schedule') && order.status <= ORDER_STATUS_PRODUCING && mode !== MODE_ADD
 
-        return ( order && products ? 
+        return (order && products ?
             // <Provider store={store}>
             <React.Fragment>
 
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>订单详情</Typography>
-                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存订单<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_VIEW} color='secondary' style={{ fontSize: 18 }} >保存订单<ContentSave /></Button>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
@@ -448,8 +448,8 @@ class OrderDetailsPage extends React.PureComponent {
                     <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
                     <Paper className={classes.paper}>
-                        <mu.Grid container direction='column' alignItems="stretch">
-                            <mu.Grid style={{ marginBottom: 16 }}>
+                        <muGrid container direction='column' alignItems="stretch">
+                            <muGrid style={{ marginBottom: 16 }}>
                                 {mode === MODE_ADD ? (
                                     <TextField
                                         required
@@ -482,8 +482,8 @@ class OrderDetailsPage extends React.PureComponent {
                                             </React.Fragment>
                                         ) : null
                                     )}
-                            </mu.Grid>
-                            <mu.Grid>
+                            </muGrid>
+                            <muGrid>
                                 <FormControl disabled={mode === MODE_VIEW} required error={!!errors['order.no']} aria-describedby="no-error-text">
                                     <InputLabel htmlFor="no" shrink={shrinkLabel}>订单编号</InputLabel>
                                     <Input id="no"
@@ -505,9 +505,9 @@ class OrderDetailsPage extends React.PureComponent {
                                     label={!!order.tax ? "含税" : "不含税"}
                                     style={{ marginLeft: 32 }}
                                 />
-                            </mu.Grid>
+                            </muGrid>
 
-                            <mu.Grid>
+                            <muGrid>
                                 <TextField type="date" disabled={mode === MODE_VIEW} required id="orderDate" error={!!errors['order.orderDate']}
                                     label="下单日期"
                                     value={order.orderDate ? toDateString(order.orderDate) : ""}
@@ -529,8 +529,8 @@ class OrderDetailsPage extends React.PureComponent {
                                         shrink: true,
                                     }}
                                 />
-                            </mu.Grid>
-                            <mu.Grid>
+                            </muGrid>
+                            <muGrid>
                                 <TextField id="comment" disabled={mode === MODE_VIEW} error={!!errors['order.comment']} label="备注"
                                     defaultValue=""
                                     value={order.comment}
@@ -544,8 +544,8 @@ class OrderDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </mu.Grid>
-                        </mu.Grid>
+                            </muGrid>
+                        </muGrid>
                     </Paper>
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -564,7 +564,7 @@ class OrderDetailsPage extends React.PureComponent {
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         {mode === MODE_VIEW ? null :
                                             <Button variant="flat" size="large" onClick={this.onAddProduct}>
-                                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                         }
                                     </TableCell>
                                 </TableRow>
@@ -607,13 +607,13 @@ class OrderDetailsPage extends React.PureComponent {
                                                 {mode === MODE_VIEW ? null :
                                                     <Tooltip title="删除">
                                                         <IconButton onClick={() => this.onDelete(n.id, no)}>
-                                                            <mui.Delete />
+                                                            <Delete />
                                                         </IconButton>
                                                     </Tooltip>
                                                 }
                                                 {schedulable ? <Tooltip title="排产">
                                                     <IconButton component={Link} to={`/schedule_details/${order.id}_${rid}`}>
-                                                        <mdi.CalendarToday />
+                                                        <CalendarToday />
                                                     </IconButton>
                                                 </Tooltip> : null}
                                             </TableCell>
@@ -624,7 +624,7 @@ class OrderDetailsPage extends React.PureComponent {
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>
 
@@ -635,9 +635,9 @@ class OrderDetailsPage extends React.PureComponent {
 
                             <Paper className={classes.paper}>
                                 <Button variant="flat" disabled={order.status >= ORDER_STATUS_COLLECTED} size="large" component={Link} to={`/delivery_sheet_details/add/${order.id}`}>
-                                    <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成出库单</Button>
+                                    <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成出库单</Button>
                                 <Button variant="flat" disabled={deliverySheets.length <= 0} size="large" component={Link} to={`/delivery_sheet/${order.id}`}>
-                                    <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看出库单 ({deliverySheets.length})</Button>
+                                    <FileMultiple style={{ opacity: .5 }} color="primary" />查看出库单 ({deliverySheets.length})</Button>
                             </Paper>
                         </React.Fragment>
                         : null}

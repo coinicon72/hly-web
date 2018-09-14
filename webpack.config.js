@@ -8,8 +8,8 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin")
 
 module.exports = {
-  // devtool: 'source-map',
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
+  // devtool: 'inline-source-map',
   // entry: ["./src/index.js"],
   mode: 'production',
 
@@ -26,38 +26,53 @@ module.exports = {
     port: 3000
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production')
-      }
-    }),
-    // new CleanWebpackPlugin(['dist']),
-    // new HtmlWebpackPlugin({
-    //   template: './public/index.html'
+    // new webpack.DefinePlugin({
+    //   'process.env': {
+    //     'NODE_ENV': JSON.stringify('production')
+    //   }
     // }),
-    // new webpack.NamedModulesPlugin(),
-    // new webpack.HotModuleReplacementPlugin(),
-    new ExtractTextPlugin("bundle.css", { allChunks: false }),
-    new webpack.optimize.AggressiveMergingPlugin(),
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    // new webpack.optimize.DedupePlugin(),
-    new CompressionPlugin({
-      asset: "[path].gz[query]",
-      algorithm: "gzip",
-      test: /\.js$|\.css$|\.html$/,
-      threshold: 10240,
-      minRatio: 0
-    })],
+    // // new CleanWebpackPlugin(['dist']),
+    // // new HtmlWebpackPlugin({
+    // //   template: './public/index.html'
+    // // }),
+    // // new webpack.NamedModulesPlugin(),
+    // // new webpack.HotModuleReplacementPlugin(),
+    // new ExtractTextPlugin("bundle.css", { allChunks: false }),
+    // new webpack.optimize.AggressiveMergingPlugin(),
+    // new webpack.optimize.OccurrenceOrderPlugin(),
+    // // new webpack.optimize.DedupePlugin(),
+    // new CompressionPlugin({
+    //   // asset: "[path].gz[query]",
+    //   // algorithm: "gzip",
+    //   test: /\.js$|\.css$|\.html$/,
+    //   threshold: 10240,
+    //   // minRatio: 0
+    // })
+  ],
   optimization: {
-    minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          mangle: {
-            keep_fnames: true,
-          },
-        },
-      }),
-    ],
+    // minimizer: [
+    //   new UglifyJsPlugin({
+    //     uglifyOptions: {
+    //       mangle: {
+    //         keep_fnames: true,
+    //       },
+    //       sourceMap: true,
+    //       compress: {
+    //         drop_console: true,
+    //         conditionals: true,
+    //         unused: true,
+    //         comparisons: true,
+    //         dead_code: true,
+    //         if_return: true,
+    //         join_vars: true,
+    //         warnings: false
+    //       },
+    //       output: {
+    //         comments: false
+    //       }
+    //     },
+    //   }),
+    // ],
   },
   module: {
     rules: [
@@ -66,8 +81,10 @@ module.exports = {
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
-          query: {
-            presets: ['es2015', 'react', 'stage-2']
+          options: {
+            babelrc: false,
+            presets: [['env', { modules: false }], 'react', 'stage-2']
+            // presets: ["es2015", 'react', 'stage-2']
           }
         }
       },

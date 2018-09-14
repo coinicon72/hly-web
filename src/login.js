@@ -24,7 +24,7 @@ import { withStyles } from '@material-ui/core';
 // } from '@devexpress/dx-react-grid-material-ui';
 
 //
-import * as mdi from 'mdi-material-ui';
+import {LoginVariant, Eye, EyeOff} from 'mdi-material-ui';
 
 //
 import { connect } from 'react-redux'
@@ -109,7 +109,7 @@ class LoginPage extends React.PureComponent {
                                         onClick={_ => this.setState({ showPassword: !this.state.showPassword })}
                                     // onMouseDown={this.handleMouseDownPassword}
                                     >
-                                        {this.state.showPassword ? <mdi.EyeOff /> : <mdi.Eye />}
+                                        {this.state.showPassword ? <EyeOff /> : <Eye />}
                                     </IconButton>
                                 </InputAdornment>
                             }
@@ -123,7 +123,7 @@ class LoginPage extends React.PureComponent {
                         disabled={!this.state.uid || !this.state.pwd}
                         onClick={() => this.props.doLogin && this.props.doLogin(this.state.uid, this.state.pwd)}
                     // onClick={() => this.props.showSnackbar("test")}
-                    >登录<mdi.LoginVariant /></Button>
+                    >登录<LoginVariant /></Button>
 
                     {this.props.loginError ? <p style={{ color: 'red', marginTop: 16 }}>{this.props.loginError.message}</p> : null}
                 </FormGroup>

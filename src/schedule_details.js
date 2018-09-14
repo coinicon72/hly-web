@@ -23,11 +23,11 @@ import CommonStyles from "./common_styles";
 // import { Link } from 'react-router-dom'
 
 // icons
-import * as mdi from 'mdi-material-ui';
+import { ArrowLeft, ContentSave, AutoFix } from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
 // ui
-import * as mu from '@material-ui/core';
+// import { Grid as muGrid } from '@material-ui/core';
 import {
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, 
@@ -353,7 +353,7 @@ class SchedulePage extends React.PureComponent {
 
             // ========================================================
             // step 2
-            activeStep ++
+            activeStep++
             this.setState({ activeStep })
             // this.state.activeStep += 1
             // this.forceUpdate()
@@ -384,7 +384,7 @@ class SchedulePage extends React.PureComponent {
 
             // ========================================================
             // step 3
-            activeStep ++
+            activeStep++
             this.setState({ activeStep })
             // this.state.activeStep += 1
             // this.forceUpdate()
@@ -464,7 +464,7 @@ class SchedulePage extends React.PureComponent {
 
             // ========================================================
             // done
-            activeStep ++
+            activeStep++
             this.setState({ activeStep })
             // this.state.activeStep += 1
             // this.forceUpdate()
@@ -542,33 +542,33 @@ class SchedulePage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{title}</Typography>
-                        <Button onClick={() => this.saveBom()} disabled={Object.keys(schedule).length === 0 || store.getState().boms.length === 0} color='secondary' style={{ fontSize: 18 }} >保存排产<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveBom()} disabled={Object.keys(schedule).length === 0 || store.getState().boms.length === 0} color='secondary' style={{ fontSize: 18 }} >保存排产<ContentSave /></Button>
 
                         {/* {
                             mode === MODE_ADD ? null :
-                                <Button href={`${EXPORT_BASE_URL}/boms/${orderId}`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button>
+                                <Button href={`${EXPORT_BASE_URL}/boms/${orderId}`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
                         } */}
                     </Toolbar>
 
                     {/* <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 8, alignItems: 'center' }}>
                         <Button onClick={this.selectOrder} color='primary' style={{ fontSize: 18 }}
-                            disabled={mode === MODE_VIEW}><mdi.ClipboardText />选择订单</Button>
+                            disabled={mode === MODE_VIEW}><ClipboardText />选择订单</Button>
                         <Typography className={classes.error} style={{ marginleft: '1em' }}>{errors.order}</Typography>
                     </div> */}
 
                     {order ? (
                         <React.Fragment>
                             <Paper className={classes.paper}>
-                                <mu.Grid container direction='column' alignItems="stretch">
-                                    <mu.Grid style={{ marginBottom: 16 }}>
+                                <muGrid container direction='column' alignItems="stretch">
+                                    <muGrid style={{ marginBottom: 16 }}>
                                         <React.Fragment>
                                             <Chip label={order._embedded.client.name} className={classes.chip} />
                                             <Chip label={order._embedded.client.fullName} className={classes.chip} />
                                         </React.Fragment>
-                                    </mu.Grid>
-                                    <mu.Grid>
+                                    </muGrid>
+                                    <muGrid>
                                         <FormControl disabled aria-describedby="no-error-text">
                                             <InputLabel htmlFor="no" shrink={true}>订单编号</InputLabel>
                                             <Input id="no"
@@ -576,9 +576,9 @@ class SchedulePage extends React.PureComponent {
                                             />
                                             <FormHelperText id="no-error-text">{errors.revision}</FormHelperText>
                                         </FormControl>
-                                    </mu.Grid>
+                                    </muGrid>
 
-                                    <mu.Grid>
+                                    <muGrid>
                                         <TextField type="date" disabled id="orderDate"
                                             label="下单日期"
                                             value={order.orderDate ? toDateString(order.orderDate) : ""}
@@ -597,8 +597,8 @@ class SchedulePage extends React.PureComponent {
                                                 shrink: true,
                                             }}
                                         />
-                                    </mu.Grid>
-                                    <mu.Grid>
+                                    </muGrid>
+                                    <muGrid>
                                         <TextField id="comment" disabled label="备注"
                                             value={order.comment}
                                             className={classes.textFieldWithoutWidth}
@@ -610,17 +610,17 @@ class SchedulePage extends React.PureComponent {
                                                 shrink: true,
                                             }}
                                         />
-                                    </mu.Grid>
-                                </mu.Grid>
+                                    </muGrid>
+                                </muGrid>
                             </Paper>
 
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>排产</Typography>
 
                                 <Paper className={classes.paper}>
-                                    <mu.Grid container direction='column' alignItems="stretch">
+                                    <muGrid container direction='column' alignItems="stretch">
 
-                                        <mu.Grid>
+                                        <muGrid>
                                             <TextField type="date" id="scheduleDate"
                                                 required
                                                 label="计划生产日期"
@@ -649,9 +649,9 @@ class SchedulePage extends React.PureComponent {
                                                     shrink: true,
                                                 }}
                                             />
-                                        </mu.Grid>
+                                        </muGrid>
 
-                                        <mu.Grid>
+                                        <muGrid>
                                             <TextField id="line" label="生产线"
                                                 value={schedule.line}
                                                 onChange={e => {
@@ -666,8 +666,8 @@ class SchedulePage extends React.PureComponent {
                                                     shrink: true,
                                                 }}
                                             />
-                                        </mu.Grid>
-                                    </mu.Grid>
+                                        </muGrid>
+                                    </muGrid>
                                 </Paper>
 
                             </div>
@@ -915,7 +915,7 @@ class BomSheet extends React.PureComponent {
                     <div>
                         <Typography variant="title" className={classes.subTitle2}>配方</Typography>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <Button onClick={() => { this.setState({ showSelectFormula: true }) }} color='primary' style={{ fontSize: 18, marginRight: '2em' }} disabled={mode === MODE_VIEW}><mdi.AutoFix />选择配方</Button>
+                            <Button onClick={() => { this.setState({ showSelectFormula: true }) }} color='primary' style={{ fontSize: 18, marginRight: '2em' }} disabled={mode === MODE_VIEW}><AutoFix />选择配方</Button>
                             {formula ? (
                                 <React.Fragment>
                                     <Tooltip title='修订版本' >

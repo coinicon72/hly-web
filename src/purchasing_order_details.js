@@ -21,13 +21,13 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // icons
-import * as mdi from 'mdi-material-ui';
-import * as mui from '@material-ui/icons';
+import { ArrowLeft, ContentSave, PlusCircleOutline, FileMultiple, } from 'mdi-material-ui';
+import { Delete } from '@material-ui/icons';
 
 // ui
 import {
     Paper, Typography, TextField, Button, IconButton,
-    MenuItem, 
+    MenuItem,
     // Snackbar, Select, Divider, Chip,
     Toolbar, Tooltip,
     Grid,// as Grid,
@@ -51,9 +51,8 @@ import {
     // IntegratedPaging,
 } from '@devexpress/dx-react-grid';
 
-import * as dx from '@devexpress/dx-react-grid-material-ui'
 import {
-    // Grid as dxGrid,
+    Grid as dxGrid,
     // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
@@ -71,7 +70,7 @@ import axios from 'axios'
 
 
 // import DataTableBase from "./data_table_base"
-import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
+import { MODE_ADD, MODE_EDIT, MODE_VIEW, ROUTER_STOCK_IN } from "./common"
 
 import { DATA_API_BASE_URL } from "./config"
 // import { store } from "./redux"
@@ -405,9 +404,9 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                 <div className={classes.contentRoot}>
 
                     <Toolbar className={classes.toolbar}>
-                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton>
+                        <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{mode === MODE_ADD ? "新增采购单" : "采购单详情"}</Typography>
-                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT && !dirty} color='secondary' style={{ fontSize: 18 }} >保存<mdi.ContentSave /></Button>
+                        <Button onClick={() => this.saveOrder()} disabled={mode === MODE_EDIT && !dirty} color='secondary' style={{ fontSize: 18 }} >保存<ContentSave /></Button>
                         {/* {mode === MODE_VIEW ? null :
                             } */}
                     </Toolbar>
@@ -550,7 +549,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                     <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                     <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         <Button variant="flat" size="large" onClick={this.onAddMaterial}>
-                                            <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                            <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
@@ -593,7 +592,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 <Tooltip title="删除">
                                                     <IconButton onClick={() => this.onDelete(n.id, no)}>
-                                                        <mui.Delete />
+                                                        <Delete />
                                                     </IconButton>
                                                 </Tooltip>
                                             </TableCell>
@@ -604,7 +603,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
                             <Button variant="flat" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
-                                <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
+                                <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>
 
@@ -613,14 +612,14 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                             <Typography variant="title" className={classes.subTitle}>入库单</Typography>
 
                             <Paper className={classes.paper}>
-                                {stockIn && stockIn.length > 0 ? (
+                                {order._embedded && order._embedded.repoChanging ? (
                                     <React.Fragment>
                                         <Typography >入库单已生成</Typography>
-                                        <Button variant="flat" size="large" component={Link} to={`/bom/view/${order.id}`}>
-                                            <mdi.FileMultiple style={{ opacity: .5 }} color="primary" />查看入库单</Button>
+                                        <Button variant="flat" size="large" component={Link} to={`${ROUTER_STOCK_IN}/view/${order._embedded.repoChanging.id}`}>
+                                            <FileMultiple style={{ opacity: .5 }} color="primary" />查看入库单</Button>
                                     </React.Fragment>
-                                ) : <Button variant="flat" size="large" component={Link} to={`/bom/add/${order.id}`}>
-                                        <mdi.PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成入库单</Button>}
+                                ) : <Button variant="flat" size="large" component={Link} to={`${ROUTER_STOCK_IN}/add/${order.id}`}>
+                                        <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成入库单</Button>}
                             </Paper>
                         </React.Fragment>
                         : null}
@@ -636,7 +635,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                     <DialogTitle>添加物料</DialogTitle>
                     <DialogContent>
                         <Paper>
-                            <dx.Grid
+                            <dxGrid
                                 rows={materials}
                                 columns={columns}
                             >
@@ -659,7 +658,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                 <TableHeaderRow showSortingControls />
                                 <TableFilterRow />
                                 <TableSelection showSelectAll selectByRowClick={true} />
-                            </dx.Grid>
+                            </dxGrid>
                         </Paper>
                     </DialogContent>
                     <DialogActions>

@@ -12,7 +12,7 @@ import {
     TableEditRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
-// import * as mdi from 'mdi-material-ui';
+// import {} from 'mdi-material-ui';
 
 import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
@@ -111,9 +111,9 @@ class CollectingSettlementPage extends React.PureComponent {
 
         return <div className={classes.contentRoot}>
             <Toolbar className={classes.toolbar}>
-                {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><mdi.ArrowLeft /></IconButton> */}
+                {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton> */}
                 <Typography variant="title" className={classes.toolbarTitle}></Typography>
-                {/* <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><mdi.Export />导出</Button> */}
+                {/* <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button> */}
             </Toolbar>
 
             <DataTableBase columns={[
