@@ -23,8 +23,8 @@ import { ClipboardCheckOutline, CloseOctagonOutline, ContentSave, ArrowLeft, Cli
 import { Delete } from '@material-ui/icons';
 
 // ui
-import { Grid as muGrid } from '@material-ui/core';
 import {
+    Grid as MuGrid,
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, Snackbar, 
     Select, Toolbar,
@@ -77,7 +77,7 @@ import axios from 'axios'
 // import DataTableBase from "./data_table_base"
 
 import {
-    TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_EDIT,
+    TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT, MODE_ADD, MODE_VIEW, MODE_EDIT,
 } from "./common"
 import {
     API_BASE_URL, DATA_API_BASE_URL
@@ -89,7 +89,7 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // import { store } from "./redux"
-import { toFixedMoney, getTodayString, getTodayDateTimeString, toDateString } from "./utils"
+import { toFixedMoney, getTodayDateTimeString, toDateString } from "./utils"
 import { COLOR_STOCK_IN, COLOR_STOCK_OUT } from "./common_styles"
 import { CurrencyTypeProvider } from "./common_components"
 import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
@@ -145,6 +145,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
         this.state = {
             dirty: false, // is data dirty?
 
+
+
             form: {},  // {applicant, application, department}
             changingItems: [], // [{ material: { }, quantity: 0 }]
 
@@ -169,6 +171,19 @@ class RepoChangingDetailsPage extends React.PureComponent {
             // reason: null, // id of reason
 
             //
+            orderSpecified: false,
+
+            showSelectPurchasingOrder: false,
+            purchasingOrderColumns: [
+                { name: 'id', title: '序号' },
+                { name: 'no', title: '订单号码' },
+                { name: "tax", title: "含税", getCellValue: row => row.tax ? '含税' : null },
+                { name: "date", title: "签订日期", getCellValue: row => row.date ? toDateString(row.date) : null },
+                { name: "supplier", title: "供应商", getCellValue: row => row._embedded && row._embedded.supplier ? row._embedded.supplier.name : null },
+            ],
+            purchasingOrders: [], //
+
+            //
             showSelectOrder: false,
             orderColumns: [
                 { name: 'id', title: '序号' },
@@ -178,8 +193,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
             ],
             orders: [], //
-            orderSelection: [],
             order: null, //
+
+            orderSelection: [],
 
             //
             showSavingDiag: false,
@@ -251,7 +267,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
 
         // delete a item
-        this.onDelete = ((id, no) => {
+        this.onDelete = (id, no) => {
             const { changingItems } = this.state;
             // let idx = changingItems.findIndex(v => v.id === id)
             // if (idx >= 0) {
@@ -260,11 +276,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.state.dirty = true
             this.forceUpdate();
             // }
-        })
+        }
 
 
         // item changed
-        this.handleQuantityChange = ((e, mid, no) => {
+        this.handleQuantityChange = (e, mid, no) => {
             // let id = e.target.id.split("_")[1]
             let item = this.state.changingItems[no]
             item.quantity = Number.parseFloat(e.target.value)
@@ -272,10 +288,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.updateFormValue()
 
             // this.forceUpdate();
-        })
+        }
 
 
-        this.handlePriceChange = ((e, mid, no) => {
+        this.handlePriceChange = (e, mid, no) => {
             // let id = e.target.id.split("_")[1]
             let item = this.state.changingItems[no]
             item.price = Number.parseFloat(e.target.value)
@@ -283,10 +299,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.updateFormValue()
 
             // this.forceUpdate();
-        })
+        }
 
 
-        this.updateFormValue = (e => {
+        this.updateFormValue = e => {
             let value = 0
             this.state.changingItems.forEach(i => {
                 value += i.quantity * i.price
@@ -295,46 +311,71 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.state.dirty = true
             this.state.form.value = toFixedMoney(value);
             this.forceUpdate()
-        })
+        }
 
 
         //
         this.changedReason = (e => {
-            // this.setState({ reason: e.target.value })
-
-            // const r = this.state.repoChangingReasons.find(i => i.id = this.state.reason)
-            // if (r)
-            //     this.setState({ orderRelated: r.orderRelated })
             const rid = parseInt(e.target.value, 10)
 
             const r = this.state.repoChangingReasons.find(i => i.id === rid)
             if (r) {
-                this.state.dirty = true
-                this.state.form.reason = { id: r.id, orderRelated: r.orderRelated }
-                // this.setState({ orderRelated: r.orderRelated })
-                this.state.orderRelated = r.orderRelated
-                this.forceUpdate()
+                this.setState({
+                    dirty: true,
+                    orderRelated: r.orderRelated,
+                    form: {
+                        ...this.state.form,
+                        reason: { id: r.id, orderRelated: r.orderRelated }
+                    }
+                })
             }
         })
 
+        // 采购订单选择
+        //
+        this.selectPurchasingOrder = e => {
+            this.setState({ showSelectPurchasingOrder: true })
+
+            axios.get(`${DATA_API_BASE_URL}/purchasingOrders/search/findByStatusIn?status=0,1`)
+                .then(resp => resp.data._embedded.purchasingOrders)
+                .then(purchasingOrders => {
+                    this.state.errors['form.order'] = null;
+                    this.setState({ purchasingOrders });
+                })
+                .catch(e => this.props.showSnackbar(e.message));
+
+        }
+
+        this.onSelectedPurchasingOrder = () => {
+            const { purchasingOrders, orderSelection } = this.state;
+            if (orderSelection.length === 0) return;
+
+            //
+            const order = purchasingOrders[orderSelection[0]]
+            this.state.form.purchasingOrder = order
+            this.setState({ showSelectPurchasingOrders: false })
+        }
+
+        this.cancelSelectPurchasingOrder = _ => this.setState({ showSelectPurchasingOrder: false })
+
         // 订单选择
         //
-        this.selectOrder = (e => {
+        this.selectOrder = e => {
             this.setState({ showSelectOrder: true })
 
             axios.get(`${DATA_API_BASE_URL}/orders`)
                 .then(resp => resp.data._embedded.orders)
                 .then(j => {
-                    this.state.errors['form.order'] == null;
+                    this.state.errors['form.order'] = null;
                     this.setState({ orders: j });
                 })
                 .catch(e => this.props.showSnackbar(e.message));
 
-        })
+        }
 
-        this.cancelSelectOrder = (_ => this.setState({ showSelectOrder: false }))
+        this.cancelSelectOrder = _ => this.setState({ showSelectOrder: false })
 
-        this.changeOrderSelection = (selection => {
+        this.changeOrderSelection = selection => {
             let keys = Object.keys(selection)
             if (keys.length > 1) {
                 let lastNo = selection[keys[keys.length - 1]]
@@ -342,10 +383,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             }
 
             this.setState({ orderSelection: selection });
-        })
+        }
 
 
-        this.onSelectedOrder = (() => {
+        this.onSelectedOrder = () => {
             const { orders, orderSelection } = this.state;
             if (orderSelection.length === 0) return;
 
@@ -353,19 +394,19 @@ class RepoChangingDetailsPage extends React.PureComponent {
             const order = orders[orderSelection[0]]
             this.state.form.order = order
             this.setState({ showSelectOrder: false })
-        })
+        }
 
         // saving
         this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
 
-        this.onSaveSuccess = (() => {
+        this.onSaveSuccess = () => {
             this.setState({ showSavingDiag: false, activeStep: 0 })
             this.props.history.goBack();
-        })
+        }
 
 
         //
-        this.saveForm = (async (doSubmit) => {
+        this.saveForm = async (doSubmit) => {
             //
             this.setState({ showSavingDiag: true, activeStep: 0 })
             this.forceUpdate()
@@ -392,7 +433,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             // if (!form.applicant || form.applicant == "")
             //     errors['form.applicant'] = "无效的制单人"
 
-            if (!form.no || form.no == "")
+            if (!form.no || form.no === "")
                 errors['form.no'] = "无效的单号"
 
             if (form.reason.orderRelated === 1 && (!form.order || !form.order.id))
@@ -476,10 +517,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             //
             this.props.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
 
-        })
+        }
 
 
-        this.processForm = (() => {
+        this.processForm = () => {
             const { form } = this.state
             const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/previewStockIn/${form.id}` : `${API_BASE_URL}/previewStockOut/${form.id}`
 
@@ -515,12 +556,12 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => {
                     this.props.showSnackbar(e.message)
                 })
-        })
+        }
 
 
         this.cancelPreview = () => this.setState({ showPreviewDiag: false })
 
-        this.onApplyChanging = (() => {
+        this.onApplyChanging = () => {
             const { form } = this.state
             const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/applyStockIn/${form.id}` : `${API_BASE_URL}/applyStockOut/${form.id}`
 
@@ -533,7 +574,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => {
                     this.props.showSnackbar(e.message)
                 })
-        })
+        }
 
 
         //
@@ -583,11 +624,26 @@ class RepoChangingDetailsPage extends React.PureComponent {
         if (!id) id = 0
 
         if (id === 0 || mode === MODE_ADD) {
-            this.state.mode = MODE_ADD
-            this.state.form.applicant = user
-            // this.state.dirty = f
+            this.setState({ mode: MODE_ADD, form: { ...this.state.form, applicant: user } })
 
-            // this.setState({ order: { tax: false } })
+            if (id > 0) {
+                this.setState({ orderSpecified: true })
+                axios.get(`${DATA_API_BASE_URL}/purchasingOrders/${id}`)
+                    .then(resp => resp.data)
+                    .then(purchasingOrder => this.setState({ form: { ...this.state.form, purchasingOrder } }))
+
+                    .then(_ => axios.get(`${DATA_API_BASE_URL}/purchasingOrders/${id}/items`))
+                    .then(resp => resp.data._embedded.purchasingOrderItems)
+                    .then(items => {
+                        let changingItems = []
+                        items.forEach(item => {
+                            changingItems.push({ material: item._embedded.material, quantity: item.quantity, price: item.vep })
+                        })
+                        this.setState({ changingItems })
+                    })
+
+                    .catch(e => this.props.showSnackbar(e.message))
+            }
         }
         else //if (id > 0) 
         {
@@ -631,11 +687,14 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .catch(e => this.props.showSnackbar(e.message))
 
                 .then(url => axios.get(url))
-                .then(resp => {
-                    this.state.form.order = resp.data
-                    this.forceUpdate()
-                })
-            // .catch(e => this.props.showSnackbar(e.message))
+                .then(resp => resp.data)
+                .then(order => this.setState({ form: { ...this.state.form, order } }))
+                .catch(e => `${DATA_API_BASE_URL}/repoChangings/${id}/purchasingOrder`)
+
+                .then(url => axios.get(url))
+                .then(resp => resp.data)
+                .then(purchasingOrder => this.setState({ form: { ...this.state.form, purchasingOrder } }))
+        // .catch(e => this.props.showSnackbar(e.message))
         }
 
         // load materials
@@ -681,10 +740,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
         const { type, classes, } = this.props
         // const { id } = this.props.match.params;
         const { mode, form, changingItems, materials } = this.state;
-        const { dirty, selectMaterial, columns, selection } = this.state;
+        const { dirty, orderSpecified, selectMaterial, columns, selection } = this.state;
         const { errors, } = this.state;
 
-        let shrinkLabel = mode === MODE_EDIT ? true : undefined;
+        let shrinkLabel = mode === MODE_ADD ? undefined : true;
 
         const { showSavingDiag, activeStep } = this.state;
 
@@ -695,18 +754,38 @@ class RepoChangingDetailsPage extends React.PureComponent {
         switch (type) {
 
             case TYPE_STOCK_IN: {
-                if (mode === MODE_ADD)
-                    title = "填写入库单";
-                else
-                    title = "编辑入库单";
+                switch (mode) {
+                    case MODE_ADD:
+                        title = "填写入库单";
+                        break;
+                    case MODE_VIEW:
+                        title = "查看入库单";
+                        break;
+                    case MODE_EDIT:
+                        title = "编辑入库单";
+                        break;
+                    default:
+                        break;
+                }
+
                 break
             }
 
             case TYPE_STOCK_OUT: {
-                if (mode === MODE_ADD)
-                    title = "填写出库单";
-                else
-                    title = "编辑出库单";
+                switch (mode) {
+                    case MODE_ADD:
+                        title = "填写出库单";
+                        break;
+                    case MODE_VIEW:
+                        title = "查看出库单";
+                        break;
+                    case MODE_EDIT:
+                        title = "编辑出库单";
+                        break;
+                    default:
+                        break;
+                }
+
                 break;
             }
 
@@ -725,6 +804,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 break
         }
 
+        // enable edit
+        const disableEdit = type === TYPE_STOCK_IN_OUT || mode === MODE_VIEW
+
         // actions
         const actions = type === TYPE_STOCK_IN_OUT ?
             <React.Fragment>
@@ -738,11 +820,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 <Tooltip title="保存表单">
                     <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<ContentSave /></Button></Tooltip>
                 <Tooltip title="保存表单，然后提交给仓库管理员">
-                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={!dirty && mode === MODE_ADD} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
+                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={(!dirty && mode !== MODE_EDIT) || mode === MODE_VIEW} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
             </React.Fragment>
-
-        // enable edit
-        const disableEdit = type === TYPE_STOCK_IN_OUT
 
         return this.state.repoes && this.state.materials && this.state.repoChangingReasons ? (
             // <Provider store={store}>
@@ -759,19 +838,19 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
                     <Paper className={classes.paper}>
-                        <muGrid container direction='column' alignItems="stretch">
+                        <MuGrid container direction='column' alignItems="stretch">
 
                             {type === TYPE_STOCK_IN_OUT ?
-                                <muGrid style={{ marginBottom: 16 }}>
+                                <MuGrid style={{ marginBottom: 16 }}>
                                     {form.type === REPO_CHANGING_TYPE_IN ?
                                         <Chip label="入库" style={{ color: 'white', backgroundColor: COLOR_STOCK_IN }} />
                                         :
                                         <Chip label="出库" style={{ color: 'white', backgroundColor: COLOR_STOCK_OUT }} />}
-                                </muGrid>
+                                </MuGrid>
                                 : null
                             }
 
-                            <muGrid style={{ marginBottom: 16 }}>
+                            <MuGrid style={{ marginBottom: 16 }}>
                                 <TextField
                                     id="applicant"
                                     // required
@@ -786,13 +865,13 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </muGrid>
+                            </MuGrid>
 
-                            <muGrid style={{ marginBottom: 16 }}>
+                            <MuGrid style={{ marginBottom: 16 }}>
                                 <TextField
                                     id="no"
                                     required
-                                    // disabled//={disableEdit}
+                                    disabled={disableEdit}
                                     // select
                                     error={!!errors['form.no']}
                                     label="单号"
@@ -803,9 +882,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </muGrid>
+                            </MuGrid>
 
-                            <muGrid style={{ marginBottom: 16 }}>
+                            <MuGrid style={{ marginBottom: 16 }}>
                                 <FormControl className={classes.formControl} disabled={disableEdit}>
                                     <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
                                     <Select
@@ -820,28 +899,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         {this.state.repoes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                     </Select>
                                 </FormControl>
-                            </muGrid>
+                            </MuGrid>
 
-                            {/* <muGrid style={{ marginBottom: 16 }}>
-                                <TextField
-                                    id="department"
-                                    disabled={disableEdit}
-                                    // required
-                                    // select
-                                    // error={!!errors['client']}
-                                    label="部门"
-                                    style={{ width: 300 }}
-                                    value={form ? form.department : ""}
-                                    onChange={e => this.handleInput(e)}
-                                    InputLabelProps={{
-                                        shrink: shrinkLabel,
-                                    }}
-                                />
-                            </muGrid> */}
-
-                            <muGrid style={{ marginBottom: 16 }}>
-                                {/* <FormGroup> */}
-
+                            <MuGrid style={{ marginBottom: 16 }}>
                                 <FormControl className={classes.formControl} disabled={disableEdit}>
                                     <InputLabel htmlFor="reason" shrink>原因类别</InputLabel>
                                     <Select
@@ -857,13 +917,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                             this.state.repoChangingReasons
                                                 .filter(r => r.type === form.type)
                                                 .map(r => <option key={r.id} value={r.id}>{r.reason}</option>)}
-                                        {/* <option key="-1" value="">其他</option> */}
                                     </Select>
                                 </FormControl>
 
                                 <TextField
                                     id="reasonDetail"
-                                    // error={!!errors['order.comment']} 
                                     disabled={disableEdit}
                                     label="原因描述"
                                     defaultValue=""
@@ -878,21 +936,32 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </muGrid>
+                            </MuGrid>
 
                             {form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated === 1 ?
-                                <muGrid >
-                                    <Button onClick={this.selectOrder} disabled={disableEdit}>
-                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT ? '订单' : '选择订单'}
+                                <MuGrid >
+                                    <Button onClick={this.selectOrder} disabled={disableEdit || orderSpecified}>
+                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '订单' : '选择订单'}
                                     </Button>
                                     {form.order ? <React.Fragment>
                                         <Chip label={form.order.no} style={{ marginLeft: 16 }} />
                                         <Chip label={form.order._embedded.client.name} style={{ marginLeft: 8 }} />
                                     </React.Fragment> :
                                         (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
-                                </muGrid>
-                                : null}
-                        </muGrid>
+                                </MuGrid>
+                                : form.type === REPO_CHANGING_TYPE_IN && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated === 2 ?
+                                    <MuGrid >
+                                        <Button onClick={this.selectPurchasingOrder} disabled={disableEdit || orderSpecified}>
+                                            <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '采购计划' : '选择采购计划'}
+                                        </Button>
+                                        {form.purchasingOrder ? <React.Fragment>
+                                            <Chip label={form.purchasingOrder.no} style={{ marginLeft: 16 }} />
+                                            <Chip label={form.purchasingOrder._embedded.supplier.name} style={{ marginLeft: 8 }} />
+                                        </React.Fragment> :
+                                            (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
+                                    </MuGrid>
+                                    : null}
+                        </MuGrid>
                     </Paper>
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -908,19 +977,19 @@ class RepoChangingDetailsPage extends React.PureComponent {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
-                                    <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
-                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>类型</TableCell>
-                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>规格</TableCell>
-                                    <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>数量</TableCell>
+                                    <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>材料编号</TableCell>
+                                    <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>材料名称</TableCell>
+                                    <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>类型</TableCell>
+                                    <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>规格</TableCell>
+                                    <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>数量</TableCell>
                                     {form.type === REPO_CHANGING_TYPE_OUT ? null : (
                                         <React.Fragment>
-                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>价格</TableCell>
-                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>小计</TableCell>
+                                            <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>价格</TableCell>
+                                            <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                         </React.Fragment>
                                     )}
-                                    <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                        {disableEdit ? null :
+                                    <TableCell padding='dense' style={{ padding: 0, whiteSpace: 'nowrap' }}>
+                                        {disableEdit || orderSpecified ? null :
                                             <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
                                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
                                         }
@@ -935,19 +1004,19 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                     if (!subtotal) subtotal = 0
                                     return (
                                         <TableRow key={m.id}>
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
+                                            <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
 
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
+                                            <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
 
-                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
+                                            <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
 
-                                            <TableCell style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
+                                            <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
 
-                                            <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                            <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`quantity_${m.id}`}
                                                     value={n.quantity}
                                                     fullWidth
-                                                    disabled={disableEdit}
+                                                    disabled={disableEdit || orderSpecified}
                                                     error={!!errors[`quantity_${m.id}`]}
                                                     margin="normal" inputProps={{ min: 0 }}
                                                     // InputProps={{
@@ -959,10 +1028,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                                             {form.type === REPO_CHANGING_TYPE_OUT ? null : (
                                                 <React.Fragment>
-                                                    <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                                    <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                         <TextField type="number" required id={`price_${m.id}`}
-                                                            value={n.price}
-                                                            disabled={disableEdit || m.category === 1}
+                                                            value={ toFixedMoney(n.price) }
+                                                            disabled={disableEdit || m.category === 1 || orderSpecified}
                                                             fullWidth
                                                             error={!!errors[`price_${m.id}`]}
                                                             margin="normal" inputProps={{ min: 0 }}
@@ -973,11 +1042,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                         />
                                                     </TableCell>
 
-                                                    <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
+                                                    <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
                                                 </React.Fragment>
                                             )}
 
-                                            <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
+                                            <TableCell padding='dense' style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 {disableEdit ? null :
                                                     <Tooltip title="删除">
                                                         <IconButton onClick={() => this.onDelete(m.id, no)}>
@@ -1050,6 +1119,49 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     <DialogActions>
                         <Button onClick={this.cancelSelect} color="primary">取消</Button>
                         <Button onClick={this.addMaterials} disabled={selection.length <= 0} color="secondary">添加</Button>
+                    </DialogActions>
+                </Dialog>
+
+
+                {/* dialog for select purchasing order */}
+                <Dialog
+                    open={this.state.showSelectPurchasingOrder}
+                    onClose={this.cancelSelectPurchasingOrder}
+                    // className={classes.dialog}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>选择采购订单</DialogTitle>
+                    <DialogContent>
+                        <Paper>
+                            <Grid
+                                rows={this.state.purchasingOrders}
+                                columns={this.state.purchasingOrderColumns}
+                            >
+                                <SelectionState
+                                    selection={this.state.orderSelection}
+                                    onSelectionChange={this.changeOrderSelection}
+                                />
+                                <IntegratedSelection />
+
+                                <SortingState
+                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
+                                />
+                                <IntegratedSorting />
+
+                                <FilteringState defaultFilters={[]} />
+                                <IntegratedFiltering />
+
+                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+
+                                <TableHeaderRow showSortingControls />
+                                <TableFilterRow />
+                                <TableSelection selectByRowClick={true} />
+                            </Grid>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.cancelSelectPurchasingOrder} color="primary">取消</Button>
+                        <Button onClick={this.onSelectedPurchasingOrder} disabled={this.state.orderSelection.length <= 0} color="secondary">添加</Button>
                     </DialogActions>
                 </Dialog>
 

@@ -313,7 +313,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                 .then(clients => {
                     this.setState({ clients });
                 })
-                .catch(e => this.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message));
         }
         else //if (id > 0) 
         {
@@ -344,22 +344,6 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                 // .then(boms => this.setState({ boms }))
                 .catch(e => this.props.showSnackbar(e.message));
         }
-
-        // load clients
-        // axios.get(`${DATA_API_BASE_URL}/clients`)
-        //     .then(resp => resp.data._embedded.clients)
-        //     .then(j => {
-        //         this.setState({ clients: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
-
-        // // load materials
-        // axios.get(`${DATA_API_BASE_URL}/materials`)
-        //     .then(resp => resp.data._embedded.materials)
-        //     .then(j => {
-        //         this.setState({ materials: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
     }
 
     render() {

@@ -91,31 +91,6 @@ class RolePrivilegePage extends React.PureComponent {
 
             const privilege = this.state.privileges.find(r => r.id === pid)
 
-            // let role = this.state.selectedRole
-            // if (!role) return
-            // if (!role.privileges) role.privileges = []
-
-            // const i = role.privileges.findIndex(r => r.id === pid)
-
-            // if (i < 0) {
-            //     axios.post(role._links.privileges.href, `${API_BASE_URL}/privileges/${pid}`, {
-            //         headers: {
-            //             'Content-Type': 'text/uri-list',
-            //         }
-            //     }).then(_ => {
-            //         role.privileges.push(privilege)
-            //         this.forceUpdate()
-            //     })
-            //         .catch(e => this.showSnackbar(e.message))
-            // } else {
-            //     axios.delete(`${role._links.privileges.href}/${pid}`)
-            //         .then(_ => {
-            //             role.privileges.splice(i, 1)
-            //             this.forceUpdate()
-            //         })
-            //         .catch(e => this.showSnackbar(e.message))
-            // }
-
             const isAdd = event.target.checked
             if (!isAdd) {
                 const code = privilege.code.replace(':read', '')

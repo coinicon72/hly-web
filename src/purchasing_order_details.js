@@ -375,7 +375,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
         axios.get(`${DATA_API_BASE_URL}/materials`)
             .then(resp => resp.data._embedded['materials'])
             .then(j => this.state.materials = j)
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
 
         // load suppliers
         axios.get(`${DATA_API_BASE_URL}/clients/search/findByPaymentPolicyIsNotNull`)
@@ -383,7 +383,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             .then(clients => {
                 this.setState({ clients });
             })
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
     }
 
     render() {

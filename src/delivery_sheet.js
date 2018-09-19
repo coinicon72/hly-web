@@ -24,7 +24,7 @@ import {
     // Paper, 
     Typography,
     // Grid, TextField, 
-    Button,
+    // Button,
     IconButton, 
     // Snackbar, 
     // Input, Select, 
@@ -35,7 +35,7 @@ import {
     // TableCell, TableHead, TableRow
 } from '@material-ui/core';
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 //
 import axios from 'axios'
@@ -45,7 +45,11 @@ import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, API_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { toDateString } from "./utils"
-import { TaxTypeEditor, TaxTypeProvider, OrderStatusEditor, OrderStatusProvider } from './common_components'
+import { 
+    // TaxTypeEditor, 
+    TaxTypeProvider, 
+    // OrderStatusEditor, 
+    OrderStatusProvider } from './common_components'
 
 
 // =============================================

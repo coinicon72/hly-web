@@ -7,17 +7,29 @@ import CommonStyles from "./common_styles";
 import axios from 'axios'
 
 import { withStyles } from '@material-ui/core';
-import { Toolbar, Typography, Grid, TextField, IconButton, Button } from '@material-ui/core';
 import {
-    TableEditRow,
-} from '@devexpress/dx-react-grid-material-ui';
+    // Toolbar, Typography, 
+    Grid,
+    TextField,
+    // IconButton, 
+    Button
+} from '@material-ui/core';
+// import {
+//     TableEditRow,
+// } from '@devexpress/dx-react-grid-material-ui';
 
-import { ArrowLeft, Export } from 'mdi-material-ui';
+import {
+    // ArrowLeft, 
+    Export
+} from 'mdi-material-ui';
 
-import { LookupEditCell } from "./data_table_util";
+// import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
-import { getTodayString, toDateString } from "./utils"
+import {
+    // getTodayString, 
+    toDateString
+} from "./utils"
 
 import {
     EXPORT_BASE_URL,
@@ -114,7 +126,7 @@ class CollectingSettlementStatPage extends React.PureComponent {
                 <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
             </Toolbar> */}
 
-            <Grid style={{ display:'flex', alignItems: 'center' }}>
+            <Grid style={{ display: 'flex', alignItems: 'center' }}>
                 <TextField type="date" required id="start"
                     label="起始日期"
                     value={from}
@@ -133,7 +145,7 @@ class CollectingSettlementStatPage extends React.PureComponent {
                         shrink: true,
                     }}
                 />
-                <span style={{flex:1}} />
+                <span style={{ flex: 1 }} />
                 <Button href={`${EXPORT_BASE_URL}/collectingSettlements?from=${from}&to=${to}`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
             </Grid>
 

@@ -7,8 +7,11 @@ import React from 'react';
 // import Loadable from 'react-loadable';
 // import Loading from './loading-component';
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
-import { withStyles, Typography } from '@material-ui/core';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
+import {
+    withStyles,
+    // Typography
+} from '@material-ui/core';
 
 import axios from 'axios'
 
@@ -62,7 +65,7 @@ const COLUMNS_IN_OUT = [
     { name: "repo", title: "仓库", getCellValue: row => row.repo ? row.repo.name : null },
     { name: "applicant", title: "申请人", getCellValue: row => row.applicant ? row.applicant.name : null },
     { name: "department", title: "部门" },
-    { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate.split('T')[0] },
+    { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate ? row.applyingDate.split('T')[0] : null },
     { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
     { name: "amount", title: "总额", getCellValue: row => row.type === REPO_CHANGING_TYPE_IN ? row.amount : "" },
 ]

@@ -7,6 +7,8 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin")
 
+const WebpackAutoInject = require('webpack-auto-inject-version');
+
 module.exports = {
   devtool: 'source-map',
   // devtool: 'inline-source-map',
@@ -23,9 +25,15 @@ module.exports = {
   },
   devServer: {
     contentBase: "./public",
-    port: 3000
+    port: 3000,
+    historyApiFallback: true,
   },
   plugins: [
+    new WebpackAutoInject({
+      // components: {
+      //   AutoIncreaseVersion: false
+      // }
+    }),
     // new webpack.DefinePlugin({
     //   'process.env': {
     //     'NODE_ENV': JSON.stringify('production')
@@ -83,7 +91,8 @@ module.exports = {
           loader: "babel-loader",
           options: {
             babelrc: false,
-            presets: [['env', { modules: false }], 'react', 'stage-2']
+            // import {} from xxx and ['env', { modules: false }] are the keys to support tree shaking
+            presets: [['env', { modules: false }], 'react', 'stage-2'],
             // presets: ["es2015", 'react', 'stage-2']
           }
         }

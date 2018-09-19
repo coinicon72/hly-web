@@ -101,38 +101,6 @@ class RepoPage extends React.PureComponent {
             this.state.currentRepo = r
             this.forceUpdate()
         })
-
-        // this.doUpdate = ((r, c) => {
-        //     let { changes } = this.state
-
-        //     let item = changes.find(i => i.id == r.id)
-        //     if (item == null) {
-        //         item = { ...r }
-        //         changes.push(item)
-        //     }
-        //     item.change = { ...item.change, ...c }
-        //     this.forceUpdate()
-
-        //     // let v = this.state.availableValues['type'].find(v => v.name === c.type)
-        //     // if (v && c.type) c.type = "../materialTypes/" + v.id
-
-        //     // return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
-        //     //     .then(resp => resp.data)
-        //     //     .then(j => ({ ...j, type: v && v.name ? v.name : undefined }))
-        //     return new Promise((resolve, reject) => resolve(c))
-        // }).bind(this)
-
-        // this.saveInventory = (() => {
-        //     let { changes } = this.state
-        //     let data = changes.map(ci => ({ id: ci.id, ...ci.change }))
-
-        //     axios.patch(`${API_BASE_URL}/inventory`, data)
-        //         .then(r => {
-        //             this.setState({ changes: [] })
-        //             this.showSnackbar("已保存")
-        //         })
-        //         .catch(e => this.showSnackbar(e.message));
-        // }).bind(this)
     }
 
     showSnackbar(msg: String) {

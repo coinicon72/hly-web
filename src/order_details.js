@@ -20,8 +20,8 @@ import { ArrowLeft, ContentSave, PlusCircleOutline, CalendarToday, FileMultiple 
 import { Delete } from '@material-ui/icons';
 
 // ui
-import { Grid as muGrid } from '@material-ui/core';
 import {
+    Grid as MuGrid,
     Paper, Typography, TextField, Button, IconButton, MenuItem,
     // Snackbar,
     // Select, Divider,
@@ -448,8 +448,8 @@ class OrderDetailsPage extends React.PureComponent {
                     <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
 
                     <Paper className={classes.paper}>
-                        <muGrid container direction='column' alignItems="stretch">
-                            <muGrid style={{ marginBottom: 16 }}>
+                        <MuGrid container direction='column' alignItems="stretch">
+                            <MuGrid style={{ marginBottom: 16 }}>
                                 {mode === MODE_ADD ? (
                                     <TextField
                                         required
@@ -482,8 +482,8 @@ class OrderDetailsPage extends React.PureComponent {
                                             </React.Fragment>
                                         ) : null
                                     )}
-                            </muGrid>
-                            <muGrid>
+                            </MuGrid>
+                            <MuGrid>
                                 <FormControl disabled={mode === MODE_VIEW} required error={!!errors['order.no']} aria-describedby="no-error-text">
                                     <InputLabel htmlFor="no" shrink={shrinkLabel}>订单编号</InputLabel>
                                     <Input id="no"
@@ -505,9 +505,9 @@ class OrderDetailsPage extends React.PureComponent {
                                     label={!!order.tax ? "含税" : "不含税"}
                                     style={{ marginLeft: 32 }}
                                 />
-                            </muGrid>
+                            </MuGrid>
 
-                            <muGrid>
+                            <MuGrid>
                                 <TextField type="date" disabled={mode === MODE_VIEW} required id="orderDate" error={!!errors['order.orderDate']}
                                     label="下单日期"
                                     value={order.orderDate ? toDateString(order.orderDate) : ""}
@@ -529,8 +529,8 @@ class OrderDetailsPage extends React.PureComponent {
                                         shrink: true,
                                     }}
                                 />
-                            </muGrid>
-                            <muGrid>
+                            </MuGrid>
+                            <MuGrid>
                                 <TextField id="comment" disabled={mode === MODE_VIEW} error={!!errors['order.comment']} label="备注"
                                     defaultValue=""
                                     value={order.comment}
@@ -544,8 +544,8 @@ class OrderDetailsPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </muGrid>
-                        </muGrid>
+                            </MuGrid>
+                        </MuGrid>
                     </Paper>
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>

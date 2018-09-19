@@ -35,6 +35,11 @@ import {
 import axios from 'axios'
 
 
+//
+import { connect } from 'react-redux'
+
+import { actionShowSnackbar } from "./redux/data_selection"
+
 // import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
@@ -49,10 +54,6 @@ class ProductDetailsPage extends React.PureComponent {
         this.state = {
             product: {},
             formulas: [],
-
-            //
-            snackbarOpen: false,
-            snackbarContent: "",
         }
 
         // this.onDetails = ((id) => {
@@ -69,9 +70,9 @@ class ProductDetailsPage extends React.PureComponent {
                     .then(r => {
                         this.state.formulas.splice(no, 1);
                         this.forceUpdate();
-                        this.showSnackbar("已删除");
+                        this.props.showSnackbar("已删除");
                     })
-                    .catch(e => this.showSnackbar(e.message));
+                    .catch(e => this.props.showSnackbar(e.message));
             }
         })
     }
@@ -96,14 +97,13 @@ class ProductDetailsPage extends React.PureComponent {
                 return fs.sort((i, j) => i.revision - j.revision);
             })
             .then(fs => this.setState({ formulas: fs }))
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
     }
 
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
         const { product, formulas } = this.state;
-        const { snackbarOpen, snackbarContent } = this.state;
 
         // let noDataTip = null
         // if (!formulas.length) {
@@ -203,20 +203,6 @@ class ProductDetailsPage extends React.PureComponent {
                     </Paper>
                 </div>
 
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                />
-
             </React.Fragment>
             // </Provider>
         )
@@ -249,4 +235,15 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(ProductDetailsPage);
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    // mapStateToProps,
+    null,
+    mapDispatchToProps
+)(ProductDetailsPage)
+
+export default withStyles(styles)(ConnectedComponent);

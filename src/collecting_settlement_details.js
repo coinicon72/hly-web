@@ -316,7 +316,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                 .then(clients => {
                     this.setState({ clients });
                 })
-                .catch(e => this.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message));
         }
         else //if (id > 0) 
         {

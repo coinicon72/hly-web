@@ -13,23 +13,26 @@ import CommonStyles from "./common_styles";
 
 // router
 // import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom'
 
 // icons
 import { ArrowLeft, ContentSave, PlusCircleOutline } from 'mdi-material-ui';
 import { Delete } from '@material-ui/icons';
 
 // ui
-import { Grid as muGrid } from '@material-ui/core';
 import {
-    Paper, Typography, TextField, Button, IconButton, MenuItem,
+    Grid as MuGrid,
+    Paper, Typography, TextField, Button, IconButton, 
+    // MenuItem,
     // Snackbar,
     // Select, Divider,
     Toolbar, Tooltip, Chip,
     Input, InputLabel, InputAdornment,
     // FormGroup, 
-    FormControlLabel, FormControl, FormHelperText,
-    Stepper, Step, StepLabel, Switch,
+    // FormControlLabel, 
+    FormControl, FormHelperText,
+    Stepper, Step, StepLabel, 
+    // Switch,
     Table, TableBody, TableCell, TableHead, TableRow,
     Dialog, DialogActions, DialogContent, DialogTitle,
 } from '@material-ui/core';
@@ -419,14 +422,14 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                         <Typography variant="title" className={classes.subTitle}>订单信息</Typography>
 
                         <Paper className={classes.paper}>
-                            <muGrid container direction='column' alignItems="stretch">
-                                <muGrid style={{ marginBottom: 16 }}>
+                            <MuGrid container direction='column' alignItems="stretch">
+                                <MuGrid style={{ marginBottom: 16 }}>
                                     <React.Fragment>
                                         <Chip label={order._embedded.client.name} className={classes.chip} />
                                         <Chip label={order._embedded.client.fullName} className={classes.chip} />
                                     </React.Fragment>
-                                </muGrid>
-                                <muGrid>
+                                </MuGrid>
+                                <MuGrid>
                                     <FormControl disabled aria-describedby="no-error-text">
                                         <InputLabel htmlFor="orderNo" shrink={true}>订单编号</InputLabel>
                                         <Input id="orderNo"
@@ -435,9 +438,9 @@ class DeliverySheetDetailsPage extends React.PureComponent {
 
                                         <FormHelperText id="no-error-text">{errors.revision}</FormHelperText>
                                     </FormControl>
-                                </muGrid>
+                                </MuGrid>
 
-                                <muGrid>
+                                <MuGrid>
                                     <TextField type="date" disabled id="orderDate"
                                         label="下单日期"
                                         value={order.orderDate ? toDateString(order.orderDate) : ""}
@@ -456,8 +459,8 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             shrink: true,
                                         }}
                                     />
-                                </muGrid>
-                                <muGrid>
+                                </MuGrid>
+                                <MuGrid>
                                     <TextField id="comment" disabled label="备注"
                                         value={order.comment}
                                         className={classes.textFieldWithoutWidth}
@@ -469,15 +472,15 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             shrink: true,
                                         }}
                                     />
-                                </muGrid>
-                            </muGrid>
+                                </MuGrid>
+                            </MuGrid>
                         </Paper>
 
                         <Typography variant="title" className={classes.subTitle}>发货单信息</Typography>
 
                         <Paper className={classes.paper}>
-                            <muGrid container direction='column' alignItems="stretch">
-                                <muGrid>
+                            <MuGrid container direction='column' alignItems="stretch">
+                                <MuGrid>
                                     <FormControl required
                                         error={!!errors['deliverySheet.no']}
                                     >
@@ -499,8 +502,8 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             shrink: true,
                                         }}
                                     />
-                                </muGrid>
-                            </muGrid>
+                                </MuGrid>
+                            </MuGrid>
                         </Paper>
 
                         <div style={{ display: 'flex', flexDirection: 'row' }}>

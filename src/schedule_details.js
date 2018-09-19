@@ -27,8 +27,8 @@ import { ArrowLeft, ContentSave, AutoFix } from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
 // ui
-// import { Grid as muGrid } from '@material-ui/core';
 import {
+    Grid as MuGrid,
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, 
     // Snackbar,
@@ -561,14 +561,14 @@ class SchedulePage extends React.PureComponent {
                     {order ? (
                         <React.Fragment>
                             <Paper className={classes.paper}>
-                                <muGrid container direction='column' alignItems="stretch">
-                                    <muGrid style={{ marginBottom: 16 }}>
+                                <MuGrid container direction='column' alignItems="stretch">
+                                    <MuGrid style={{ marginBottom: 16 }}>
                                         <React.Fragment>
                                             <Chip label={order._embedded.client.name} className={classes.chip} />
                                             <Chip label={order._embedded.client.fullName} className={classes.chip} />
                                         </React.Fragment>
-                                    </muGrid>
-                                    <muGrid>
+                                    </MuGrid>
+                                    <MuGrid>
                                         <FormControl disabled aria-describedby="no-error-text">
                                             <InputLabel htmlFor="no" shrink={true}>订单编号</InputLabel>
                                             <Input id="no"
@@ -576,9 +576,9 @@ class SchedulePage extends React.PureComponent {
                                             />
                                             <FormHelperText id="no-error-text">{errors.revision}</FormHelperText>
                                         </FormControl>
-                                    </muGrid>
+                                    </MuGrid>
 
-                                    <muGrid>
+                                    <MuGrid>
                                         <TextField type="date" disabled id="orderDate"
                                             label="下单日期"
                                             value={order.orderDate ? toDateString(order.orderDate) : ""}
@@ -597,8 +597,8 @@ class SchedulePage extends React.PureComponent {
                                                 shrink: true,
                                             }}
                                         />
-                                    </muGrid>
-                                    <muGrid>
+                                    </MuGrid>
+                                    <MuGrid>
                                         <TextField id="comment" disabled label="备注"
                                             value={order.comment}
                                             className={classes.textFieldWithoutWidth}
@@ -610,17 +610,17 @@ class SchedulePage extends React.PureComponent {
                                                 shrink: true,
                                             }}
                                         />
-                                    </muGrid>
-                                </muGrid>
+                                    </MuGrid>
+                                </MuGrid>
                             </Paper>
 
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>排产</Typography>
 
                                 <Paper className={classes.paper}>
-                                    <muGrid container direction='column' alignItems="stretch">
+                                    <MuGrid container direction='column' alignItems="stretch">
 
-                                        <muGrid>
+                                        <MuGrid>
                                             <TextField type="date" id="scheduleDate"
                                                 required
                                                 label="计划生产日期"
@@ -649,9 +649,9 @@ class SchedulePage extends React.PureComponent {
                                                     shrink: true,
                                                 }}
                                             />
-                                        </muGrid>
+                                        </MuGrid>
 
-                                        <muGrid>
+                                        <MuGrid>
                                             <TextField id="line" label="生产线"
                                                 value={schedule.line}
                                                 onChange={e => {
@@ -666,8 +666,8 @@ class SchedulePage extends React.PureComponent {
                                                     shrink: true,
                                                 }}
                                             />
-                                        </muGrid>
-                                    </muGrid>
+                                        </MuGrid>
+                                    </MuGrid>
                                 </Paper>
 
                             </div>

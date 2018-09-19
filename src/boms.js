@@ -32,6 +32,10 @@ import {
 //
 import axios from 'axios'
 
+//
+import { connect } from 'react-redux'
+import { actionShowSnackbar } from "./redux/data_selection"
+
 // import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
@@ -46,10 +50,6 @@ class BomPage extends React.PureComponent {
 
         this.state = {
             boms: [],
-
-            //
-            snackbarOpen: false,
-            snackbarContent: "",
         }
 
         this.loadBoms = (async () => {
@@ -75,13 +75,9 @@ class BomPage extends React.PureComponent {
                         // .then(o => b.order = o)
                     })
                 })
-                .catch(e => this.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message));
 
         })
-    }
-
-    showSnackbar(msg: String) {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
     }
 
     componentDidMount() {
@@ -177,20 +173,6 @@ class BomPage extends React.PureComponent {
                         </div> */}
                     </Paper>
                 </div>
-
-                <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                />
             </React.Fragment>
         )
     }
@@ -204,4 +186,15 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(BomPage);
+const mapDispatchToProps = dispatch => ({
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedPage = connect(
+    // mapStateToProps,
+    null,
+    mapDispatchToProps
+)(BomPage)
+
+
+export default withStyles(styles)(ConnectedPage);

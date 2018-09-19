@@ -52,6 +52,11 @@ import {
 
 import CommonStyles from "./common_styles";
 
+// import {
+//     TaxTypeProvider,
+//     OrderStatusProvider
+// } from './common_components'
+
 // import { LookupEditCell } from "./data_table_util";
 
 // import ReactHeight from 'react-height';
@@ -423,6 +428,8 @@ class DataTableBase extends React.PureComponent {
                         </React.Fragment>
                         : null
                     }
+                        {/* <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
+                        <OrderStatusProvider key='OrderStatusProvider' for={['status']} />, */}
                     {/* <Toolbar>
                         <div>
                             <Typography color="inherit" noWrap>

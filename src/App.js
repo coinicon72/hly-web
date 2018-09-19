@@ -27,7 +27,7 @@ import {
   AccountCircle, FileMultiple, Check, CheckboxMarkedOutline, CheckboxMultipleMarkedOutline,
   FileImport, Database, DatabasePlus, DatabaseMinus, DatabaseSearch, Logout,
   // ChevronLeft, ChevronRight, Inbox, EmailOpen, Star, Send, Email, Delete, AlertOctagon, 
-  ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant, FileExport, 
+  ClipboardAccount, ClipboardText, HexagonMultiple, FlagVariant, FileExport,
 } from 'mdi-material-ui';
 
 import { connect } from 'react-redux'
@@ -200,13 +200,13 @@ class App extends React.PureComponent<{ classes: any }, any> {
       // return false
     })
 
-    this.handleMenuToggle = id => (() => {
+    this.handleMenuToggle = id => () => {
       const { menuStatus } = this.state
       menuStatus[id] = !menuStatus[id]
       const ns = { ...menuStatus }
 
       this.setState({ menuStatus: ns })
-    }).bind(this)
+    }
   }
 
   componentDidMount() {
@@ -496,7 +496,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </ListItem>)
 
     l.push(
-      <Collapse in={menuStatus.paymentSettlement} timeout="auto" unmountOnExit>
+      <Collapse key='grpPaymentSettlement' in={menuStatus.paymentSettlement} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           <Link key="/paymentSettlement" to="/paymentSettlement">
             <ListItem button className={classes.nested}>
@@ -566,7 +566,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
       </ListItem>)
 
     l.push(
-      <Collapse in={menuStatus.collectingSettlement} timeout="auto" unmountOnExit>
+      <Collapse key='grpCollectingSettlement' in={menuStatus.collectingSettlement} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           <Link key="/collectingSettlement" to="/collectingSettlement">
             <ListItem button className={classes.nested}>
@@ -875,6 +875,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
     const { snackbarOpen, snackbarContent, hideSnackbar } = this.props;
 
+    const version = '[AIV]{version}[/AIV]';
+
     // console.debug(this.props.width)
     // const defaultCloseDrawer = (width == 'xs' || width == 'sm');
 
@@ -884,7 +886,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
           {/* <IconButton onClick={this.handleDrawerToggle}>
             <ChevronLeft />
           </IconButton> */}
-          <Link to="/"><Typography variant="title">华丽雅</Typography></Link>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
+            <Link to="/"><Typography variant="title">华丽雅</Typography></Link>
+            <span style={{ marginLeft: 8, fontSize: 14 }}>{version}</span>
+          </div>
         </div>
         {/* <Divider />
         <List> */}

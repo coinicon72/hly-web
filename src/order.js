@@ -16,7 +16,7 @@ import CommonStyles from "./common_styles";
 // import { Link } from 'react-router-dom'
 
 // icons
-import {Export} from 'mdi-material-ui';
+import { Export } from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
 // ui
@@ -34,7 +34,7 @@ import {
     // TableCell, TableHead, TableRow
 } from '@material-ui/core';
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 //
 import axios from 'axios'
@@ -44,7 +44,12 @@ import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { toDateString } from "./utils"
-import { TaxTypeEditor, TaxTypeProvider, OrderStatusEditor, OrderStatusProvider } from './common_components'
+import {
+    // TaxTypeEditor, 
+    TaxTypeProvider,
+    // OrderStatusEditor, 
+    OrderStatusProvider
+} from './common_components'
 
 
 // =============================================
@@ -70,7 +75,7 @@ const COLUMNS = [
     { name: 'orderDate', title: '下单时间', getCellValue: row => toDateString(row.orderDate) },
     { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
     { name: 'value', title: '总额' },
-    { name: 'tax', title: '是否含税'}, //getCellValue: row => row.tax ? '是' : '否' },
+    { name: 'tax', title: '是否含税' }, //getCellValue: row => row.tax ? '是' : '否' },
     // { name: 'comment', title: '备注' },
     // { name: 'actual_value', title: '' },
     // { name: 'metadata', title: '' },
@@ -123,13 +128,6 @@ class OrderPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        // document.title = '订单'
-        // axios.get(`${API_BASE_URL}/${DATA_REPO}`)
-        //     .then(resp => resp.data._embedded[DATA_REPO])
-        //     .then(j => {
-        //         this.setState({ orders: j });
-        //     })
-        //     .catch(e => this.showSnackbar(e.message));
     }
 
     onRowDoubleClicked = (row) => {
@@ -189,8 +187,8 @@ class OrderPage extends React.PureComponent {
                     showDeleteCommand={false}
                     addHandler={this.addRowHandler}
                     providers={[
-                        <OrderStatusProvider for={['status']} />,
-                        <TaxTypeProvider for={['tax']} />,
+                        <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
+                        <OrderStatusProvider key='OrderStatusProvider' for={['status']} />,
                     ]}
                 // editHandler={this.editRowHandler}
                 />

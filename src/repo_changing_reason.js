@@ -8,17 +8,17 @@ import CommonStyles from "./common_styles";
 
 import axios from 'axios'
 
-import {
-    Input, Select,
-} from '@material-ui/core';
+// import {
+//     Input, Select,
+// } from '@material-ui/core';
 
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
 import DataTableBase from "./data_table_base"
 
 import { DATA_API_BASE_URL } from "./config"
 import { withStyles } from '@material-ui/core';
-import { BooleanTypeProvider, OrderRelatedTypeProvider, RepoChangingTypeProvider } from './common_components'
-import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
+import { OrderRelatedTypeProvider, RepoChangingTypeProvider } from './common_components'
+// import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
 
 
 // =============================================
@@ -98,8 +98,8 @@ class RepoChangingReasonPage extends React.PureComponent {
                     doUpdate={this.doUpdate}
                     doDelete={this.doDelete}
                     providers={[
-                        <RepoChangingTypeProvider for={['type']} />,
-                        <OrderRelatedTypeProvider for={['orderRelated']} />,
+                        <RepoChangingTypeProvider key='RepoChangingTypeProvider' for={['type']} />,
+                        <OrderRelatedTypeProvider key='OrderRelatedTypeProvider' for={['orderRelated']} />,
                     ]}
                 />
             </div>

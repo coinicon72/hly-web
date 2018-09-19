@@ -7,8 +7,10 @@ import React from 'react';
 // import Loadable from 'react-loadable';
 // import Loading from './loading-component';
 
-import { withStyles, Typography, Select, Input } from '@material-ui/core';
-import { DataTypeProvider } from '@devexpress/dx-react-grid';
+import { withStyles, 
+    // Typography, Select, Input 
+} from '@material-ui/core';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 import axios from 'axios'
 
@@ -26,7 +28,7 @@ import CommonStyles from "./common_styles"
 
 import DataTableBase from "./data_table_base"
 import { toDateString } from './utils'
-import { TaxTypeEditor, TaxTypeProvider } from './common_components'
+import { PurchasingOrderStatusProvider, TaxTypeProvider } from './common_components'
 
 
 // =============================================
@@ -37,9 +39,10 @@ const DETAIL_PAGE_URL = "/purchasingOrderDetails";
 const COLUMNS = [
     { name: 'id', title: '序号' },
     { name: 'no', title: '订单号码' },
+    { name: 'status', title: '状态' },
     { name: "tax", title: "含税" },
     { name: "date", title: "签订日期", getCellValue: row => row.date ? toDateString(row.date) : null },
-    { name: "supplier", title: "供应商" },
+    { name: "supplier", title: "供应商", getCellValue: row => row._embedded && row._embedded.supplier ? row._embedded.supplier.name : null },
 ]
 
 
@@ -124,7 +127,8 @@ class PurchasingOrderPage extends React.PureComponent {
                     showEditCommand={false}
                     clickHandler={this.onRowDoubleClicked}
                     providers={[
-                        <TaxTypeProvider for={['tax']} />,
+                        <PurchasingOrderStatusProvider key='PurchasingOrderStatusProvider' for={['status']} />,
+                        <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
                     ]}
                 />
             </div>

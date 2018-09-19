@@ -20,8 +20,8 @@ import { ArrowLeft, ContentSave, PlusCircleOutline } from 'mdi-material-ui';
 import { Delete } from '@material-ui/icons';
 
 // ui components
-import { Grid as muGrid } from '@material-ui/core';
 import {
+    Grid as MuGrid,
     Paper, Typography, TextField, Button, IconButton,
     // MenuItem, 
     Snackbar,
@@ -136,8 +136,11 @@ class AddFourmulaPage extends React.PureComponent {
         this.cancelSelect = () => this.setState({ selectMaterial: false })
 
         this.handleBasicInfoChange = (e => {
-            this.state.basicInfo[e.target.id] = e.target.value
-            this.forceUpdate();
+            // this.state.basicInfo[e.target.id] = e.target.value
+            // this.forceUpdate();
+            const newVal = { ...this.state.basicInfo }
+            newVal[e.target.id] = e.target.value
+            this.setState({ basicInfo: newVal })
         })
 
         this.handleProdCondChange = (e => {
@@ -323,6 +326,9 @@ class AddFourmulaPage extends React.PureComponent {
             this.setState({ activeStep: this.state.activeStep + 1 })
 
         })
+
+        //
+        this.loadInitData = this.loadInitData.bind(this)
     }
 
     showSnackbar(msg: String) {
@@ -330,28 +336,32 @@ class AddFourmulaPage extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { mode, pid, fid } = this.props.match.params;
+        const { mode } = this.props.match.params;
 
         // check mode
-        if (mode === MODE_ADD || mode === MODE_VIEW || mode === MODE_EDIT)
-            this.state.mode = mode
-        else {
-            this.state.mode = undefined
+        if (mode === MODE_ADD || mode === MODE_VIEW || mode === MODE_EDIT) {
+            this.setState({ mode }, this.loadInitData)
+        } else {
+            this.setState({ mode: undefined })
             return;
         }
+    }
+
+    loadInitData() {
+        const { pid, fid } = this.props.match.params;
 
         //
         axios.get(`${DATA_API_BASE_URL}/products/${pid}`)
             .then(resp => resp.data)
             .then(j => {
                 // this.setState({ product: j });
-                this.state.product = j;
+                this.setState({ product: j });
             })
             .catch(e => this.showSnackbar(e.message));
 
         axios.get(`${DATA_API_BASE_URL}/materials`)
             .then(resp => resp.data._embedded['materials'])
-            .then(j => this.state.materials = j)
+            .then(j => this.setState({ materials: j }))
             .catch(e => this.showSnackbar(e.message));
 
         // load details
@@ -359,14 +369,14 @@ class AddFourmulaPage extends React.PureComponent {
             axios.get(`${DATA_API_BASE_URL}/formulas/${fid}`)
                 .then(resp => resp.data)
                 .then(j => {
-                    this.state.basicInfo = j;
+                    this.setState({ basicInfo: j });
                     return j._links.produceCondition.href
                 })
 
                 .then(url => axios.get(url))
                 .then(resp => resp.data)
                 .then(j => {
-                    this.state.produceCond = j;
+                    this.setState({ produceCond: j });
                     return `${DATA_API_BASE_URL}/formulas/${fid}/items`
                 })
 
@@ -432,8 +442,8 @@ class AddFourmulaPage extends React.PureComponent {
 
                     <Paper className={classes.paper}>
 
-                        <muGrid container direction='column' alignItems="stretch">
-                            <muGrid>
+                        <MuGrid container direction='column' alignItems="stretch">
+                            <MuGrid>
                                 <FormControl required disabled={this.state.autoGenRevision} error={!!this.state.errors.revision} aria-describedby="revision-error-text"
                                 // className={classes.textFieldWithoutMargin}
                                 >
@@ -456,8 +466,8 @@ class AddFourmulaPage extends React.PureComponent {
                                     label="自动生成修订版本号"
                                     style={{ marginLeft: 16 }}
                                 />
-                            </muGrid>
-                            <muGrid>
+                            </MuGrid>
+                            <MuGrid>
                                 <TextField type="date" required disabled id="createDate" label="修订日期"
                                     // defaultValue={basicInfo.createDate}
                                     value={getTodayString()}
@@ -465,8 +475,8 @@ class AddFourmulaPage extends React.PureComponent {
                                     margin="normal"
                                     onChange={e => this.handleBasicInfoChange(e)}
                                 />
-                            </muGrid>
-                            <muGrid>
+                            </MuGrid>
+                            <MuGrid>
                                 <TextField id="changeLog" label="修订日志"
                                     defaultValue=""
                                     value={basicInfo.changeLog}
@@ -480,8 +490,8 @@ class AddFourmulaPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </muGrid>
-                            <muGrid>
+                            </MuGrid>
+                            <MuGrid>
                                 <TextField id="comment" label="备注"
                                     defaultValue=""
                                     value={basicInfo.comment}
@@ -495,8 +505,8 @@ class AddFourmulaPage extends React.PureComponent {
                                         shrink: shrinkLabel,
                                     }}
                                 />
-                            </muGrid>
-                        </muGrid>
+                            </MuGrid>
+                        </MuGrid>
                     </Paper>
 
                     <Typography variant="title" className={classes.subTitle}>生产条件</Typography>
