@@ -443,8 +443,8 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                         <Toolbar className={classes.toolbar}>
                             <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                             <Typography variant="title" className={classes.title}>发货单详情</Typography>
-                            <Button onClick={() => this.saveSheet()} disabled={(mode === MODE_EDIT && !dirty) || mode === MODE_VIEW || deliverySheet.status === 1} color='secondary' style={{ fontSize: 18 }} >保存发货单<ContentSave /></Button>
-                            <Button onClick={() => this.commitSheet()} disabled={deliverySheet.id == null || deliverySheet.status !== 0} color='secondary' style={{ fontSize: 18 }} >提交至仓库<ClipboardCheck /></Button>
+                            <Button onClick={() => this.createRepoChangingSheet()} disabled={(mode === MODE_EDIT && !dirty) || mode === MODE_VIEW || deliverySheet.status === 1} color='secondary' style={{ fontSize: 18 }} >生成出库单<ContentSave /></Button>
+                            {/* <Button onClick={() => this.commitSheet()} disabled={deliverySheet.id == null || deliverySheet.status !== 0} color='secondary' style={{ fontSize: 18 }} >提交至仓库<ClipboardCheck /></Button> */}
                             {/* {mode === MODE_VIEW ? null :
                             } */}
                         </Toolbar>

@@ -968,9 +968,9 @@ class BomSheet extends React.PureComponent {
                                                 fullWidth
                                                 error={errors && errors[`material_${f.id.material}`]}
                                                 InputProps={{
-                                                    min: 0,
                                                     endAdornment: <InputAdornment position="end">kg</InputAdornment>
                                                 }}
+                                                inputProps={{ min: 0, }}
                                                 onChange={e => this.handleQuantityChange(e)}
                                             />
                                         </TableCell>

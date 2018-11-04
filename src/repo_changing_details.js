@@ -1018,7 +1018,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                     fullWidth
                                                     disabled={disableEdit || orderSpecified}
                                                     error={!!errors[`quantity_${m.id}`]}
-                                                    margin="normal" inputProps={{ min: 0 }}
+                                                    margin="normal" 
+                                                    inputProps={{ min: 0 }}
                                                     // InputProps={{
                                                     //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
                                                     // }}
@@ -1034,7 +1035,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                             disabled={disableEdit || m.category === 1 || orderSpecified}
                                                             fullWidth
                                                             error={!!errors[`price_${m.id}`]}
-                                                            margin="normal" inputProps={{ min: 0 }}
+                                                            margin="normal" 
+                                                            inputProps={{ min: 0 }}
                                                             // InputProps={{
                                                             //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
                                                             // }}

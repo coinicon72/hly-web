@@ -431,25 +431,28 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                             label="应付"
                                             style={{ width: 150 }}
                                             InputProps={{
-                                                min: 0,
                                                 startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                            inputProps={{
+                                                min: 0,
                                             }}
                                             // className={classNames(classes.margin, classes.textField)}
                                             value={document.value}
                                         />
                                     </Grid>
                                     <Grid style={{ marginTop: 16 }}>
-                                        <TextField
+                                        <TextField type='number'
                                             label="实付"
                                             numeric={true}
                                             error={errors['paid'] ? true : false}
                                             style={{ width: 150 }}
                                             InputProps={{
-                                                min: 0,
-                                                type: 'number',
                                                 startAdornment: <InputAdornment position="start">¥</InputAdornment>
                                             }}
-                                           // className={classNames(classes.margin, classes.textField)}
+                                            inputProps={{
+                                                min: 0,
+                                            }}
+                                            // className={classNames(classes.margin, classes.textField)}
                                             value={document.paidValue}
                                             onChange={e => {
                                                 document.paidValue = e.target.value

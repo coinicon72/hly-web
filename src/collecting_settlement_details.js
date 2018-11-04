@@ -426,23 +426,26 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                             label="应收"
                                             style={{ width: 150 }}
                                             InputProps={{
-                                                min: 0,
                                                 startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                            inputProps={{
+                                                min: 0,
                                             }}
                                             // className={classNames(classes.margin, classes.textField)}
                                             value={document.value}
                                         />
                                     </Grid>
                                     <Grid style={{ marginTop: 16 }}>
-                                        <TextField
+                                        <TextField type="number"
                                             label="实收"
                                             numeric={true}
                                             error={errors['collected'] ? true : false}
                                             style={{ width: 150 }}
                                             InputProps={{
-                                                min: 0,
-                                                type: 'number',
                                                 startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                            }}
+                                            inputProps={{
+                                                min: 0,
                                             }}
                                             // className={classNames(classes.margin, classes.textField)}
                                             value={document.collectedValue}
@@ -459,7 +462,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                     </Paper>
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Typography variant="title" className={classes.subTitle}>采购计划</Typography>
+                        <Typography variant="title" className={classes.subTitle}>销售明细</Typography>
                         {/* <Typography variant="title" className={classes.subTitle} style={{ marginLeft: 8, flex: 1, color: 'red' }}>{errors['orderItems'] ? errors['orderItems'] : null}</Typography> */}
                         {/* <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{document.total ? `¥ ${toFixedMoney(document.total)}` : '--'}</Typography> */}
                     </div>

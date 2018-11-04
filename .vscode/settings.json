@@ -4,5 +4,6 @@
     "search.exclude": {
         "**/node_modules": false,
         "**/bower_components": true
-    }
+    },
+    "editor.matchBrackets": false
 }

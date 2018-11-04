@@ -61,6 +61,36 @@ export const TaxTypeProvider = props => (
 );
 
 
+export const DeliverySheetStatusEditor = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)
+        }
+        }
+        style={{ width: '100%' }}
+    >
+        <option key="o-1" value=""></option>
+        <option key="o0" value={0}>未提交</option>
+        <option key="o1" value={1}>已提交</option>
+    </Select>
+);
+
+// const BooleanTypeProvider = props => (
+export const DeliverySheetStatusProvider = props => (
+    <DataTypeProvider
+        formatterComponent={
+            ({ row, value }) =>
+                value === 1? <Typography style={{ color: 'green' }}>已提交</Typography> : null
+        }
+        editorComponent={DeliverySheetStatusEditor}
+        {...props}
+    />
+);
+
+
 export const BooleanTypeEditor = ({ value, onValueChange }) => (
     <Select
         native

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 // import classNames from 'classnames';
 
 // import Loadable from 'react-loadable';
-// import Loading from './loading-component';
+import Loading from './loading-component';
 
 import compose from 'recompose/compose';
 
@@ -82,6 +82,7 @@ import ScheduleDetails from './schedule_details'
 import RepoChangingReasonPage from './repo_changing_reason'
 import DeliverySheetPage from './delivery_sheet'
 import DeliverySheetDetailsPage from './delivery_sheet_details'
+import CommittedDeliverySheetPage from './committed_delivery_sheet'
 
 
 // import DAC from "./dimension_aware_component"
@@ -98,55 +99,6 @@ import { actionLogout, actionUpdateUserInfo } from "./redux/redux"
 import { actionShowSnackbar, actionHideSnackbar } from "./redux/data_selection"
 // import withRouter from 'react-router-dom/withRouter';
 
-// const DataTableBase = Loadable({
-//   loader: () => import('./data_table_base'),
-//   loading: Loading,
-// });
-// const ClientTypePage = Loadable({
-//   loader: () => import("./client_type"),
-//   loading: Loading,
-// });
-// const MaterialTypePage = Loadable({
-//   loader: () => import("./material_type"),
-//   loading: Loading,
-// });
-// const MaterialPage = Loadable({
-//   loader: () => import("./material"),
-//   loading: Loading,
-// });
-// const ClientPage = Loadable({
-//   loader: () => import("./client"),
-//   loading: Loading,
-// });
-// const OrderPage = Loadable({
-//   loader: () => import("./order"),
-//   loading: Loading,
-// });
-// const OrderDetailsPage = Loadable({
-//   loader: () => import("./order_details"),
-//   loading: Loading,
-// });
-// const ProductPage = Loadable({
-//   loader: () => import("./product"),
-//   loading: Loading,
-// });
-// const ProductDetailsPage = Loadable({
-//   loader: () => import("./product_details"),
-//   loading: Loading,
-// });
-// const FormulaDetailsPage = Loadable({
-//   loader: () => import("./formula_details"),
-//   loading: Loading,
-// });
-// const BomDetailsPage = Loadable({
-//   loader: () => import("./bom_details"),
-//   loading: Loading,
-// });
-// const BomsPage = Loadable({
-//   loader: () => import("./boms"),
-//   loading: Loading,
-// });
-
 
 class App extends React.PureComponent<{ classes: any }, any> {
 
@@ -156,6 +108,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
     this.state = {
       openDrawer: false,
       anchor: 'left',
+
+      init: true,
 
       basicDataMenu: false,
       menuStatus: {
@@ -228,9 +182,10 @@ class App extends React.PureComponent<{ classes: any }, any> {
       axios.get(`${API_BASE_URL}/user`)
         .then(r => r.data.data)
         .then(user => {
-          this.setState({ user })
+          this.setState({ user, init: false })
           this.props.updateUserInfo(user)
         })
+        .catch(e => this.setState({ init: false }))
     }
   }
 
@@ -248,7 +203,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         //   .then(user => this.setState({ user }))
       }
 
-      this.setState({ token, user })
+      this.setState({ token, user, init: false })
       this.props.history.replace("/")
       // console.warn(`login failed: ${this.props.loginResult}`)
     }
@@ -642,6 +597,20 @@ class App extends React.PureComponent<{ classes: any }, any> {
     if (this.hasPrivilege('repo:stock-in'))
       l.push(
         // <Tooltip key="key_stock_in" title="非库房人员申请">
+        <Link key="/committed-delivery-sheet" to="/committed-delivery-sheet">
+          <ListItem button>
+            <ListItemIcon>
+              <DatabasePlus />
+            </ListItemIcon>
+            <ListItemText primary="发货单受理" />
+          </ListItem>
+        </Link>
+        // </Tooltip>
+      )
+
+    if (this.hasPrivilege('repo:stock-in'))
+      l.push(
+        // <Tooltip key="key_stock_in" title="非库房人员申请">
         <Link key={ROUTER_STOCK_IN} to={ROUTER_STOCK_IN}>
           <ListItem button>
             <ListItemIcon>
@@ -738,6 +707,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path={ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
         <Route path={ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
         <Route path={ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
+        <Route path="/committed-delivery-sheet" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单受理</Typography>} />
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
         <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
@@ -832,6 +802,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path={ROUTER_STOCK_OUT} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_OUT} type={TYPE_STOCK_OUT} user={this.state.user} />} />
         <Route path={`${ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockChangingDetailsPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
         <Route path={ROUTER_STOCK_IN_OUT} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path="/committed-delivery-sheet" component={CommittedDeliverySheetPage} />
         <Route path="/repo_details" component={RepoDetailsPage} />
         <Route path="/repo" component={RepoPage} />
         <Route path="/inventory" component={InventoryPage} />
@@ -871,7 +842,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
   render() {
     const { classes, } = this.props
-    const { token, user, anchor, openDrawer, anchorEl } = this.state;
+    const { init, token, user, anchor, openDrawer, anchorEl } = this.state;
 
     const { snackbarOpen, snackbarContent, hideSnackbar } = this.props;
 
@@ -919,80 +890,81 @@ class App extends React.PureComponent<{ classes: any }, any> {
     );
 
     return <React.Fragment>
-      {!token || !user ? <LoginPage /> :
-        <BrowserRouter>
-          <div className={classes.appFrame}>
-            <AppBar className={classes.appBar}>
-              <Toolbar>
-                <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
-                  <MenuIcon />
-                </IconButton>
+      {init ? null :
+        !token || !user ? <LoginPage /> :
+          <BrowserRouter>
+            <div className={classes.appFrame}>
+              <AppBar className={classes.appBar}>
+                <Toolbar>
+                  <IconButton color="inherit" className={classes.navIconHide} aria-label="open drawer" onClick={this.handleDrawerToggle}>
+                    <MenuIcon />
+                  </IconButton>
 
-                {this.renderRenderTitle(classes)}
+                  {this.renderRenderTitle(classes)}
 
-                <IconButton color="inherit"
-                  aria-owns={anchorEl ? 'simple-menu' : null}
-                  aria-haspopup="true"
-                  onClick={this.handleClick}><AccountCircle /></IconButton>
-                <Menu
-                  id="simple-menu"
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={this.handleClose}
-                >
-                  {/* <MenuItem onClick={this.handleClose}>
+                  <IconButton color="inherit"
+                    aria-owns={anchorEl ? 'simple-menu' : null}
+                    aria-haspopup="true"
+                    onClick={this.handleClick}><AccountCircle /></IconButton>
+                  <Menu
+                    id="simple-menu"
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={this.handleClose}
+                  >
+                    {/* <MenuItem onClick={this.handleClose}>
                     <ListItemIcon className={classes.icon}>
                       <FaceProfile />
                     </ListItemIcon>
                     <ListItemText classes={{ primary: classes.primary }} primary="个人信息" />
                   </MenuItem> */}
-                  <MenuItem onClick={this.handleLogout}>
-                    <ListItemIcon className={classes.icon}>
-                      <Logout />
-                    </ListItemIcon>
-                    <ListItemText classes={{ primary: classes.primary }} primary="退出登录" />
-                  </MenuItem>
-                </Menu>
-                {user ? <Typography style={{ color: "#ffffff" }}>{user.name}</Typography> : null}
-              </Toolbar>
-            </AppBar>
-            <Hidden mdUp>
-              <Drawer
-                variant="temporary"
-                anchor={anchor}
-                open={openDrawer}
-                onClose={this.handleDrawerToggle}
-                classes={{
-                  paper: classes.drawerPaper,
-                }}
-                ModalProps={{
-                  keepMounted: true, // Better open performance on mobile.
-                }}
+                    <MenuItem onClick={this.handleLogout}>
+                      <ListItemIcon className={classes.icon}>
+                        <Logout />
+                      </ListItemIcon>
+                      <ListItemText classes={{ primary: classes.primary }} primary="退出登录" />
+                    </MenuItem>
+                  </Menu>
+                  {user ? <Typography style={{ color: "#ffffff" }}>{user.name}</Typography> : null}
+                </Toolbar>
+              </AppBar>
+              <Hidden mdUp>
+                <Drawer
+                  variant="temporary"
+                  anchor={anchor}
+                  open={openDrawer}
+                  onClose={this.handleDrawerToggle}
+                  classes={{
+                    paper: classes.drawerPaper,
+                  }}
+                  ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                  }}
+                >
+                  {drawer}
+                </Drawer>
+              </Hidden>
+              <Hidden smDown implementation="css">
+                <Drawer
+                  variant="permanent"
+                  open
+                  classes={{
+                    docked: classes.drawerRoot,
+                    paper: classes.drawerPaper,
+                  }}
+                >
+                  {drawer}
+                </Drawer>
+              </Hidden>
+              <main
+                className={classes.content}
               >
-                {drawer}
-              </Drawer>
-            </Hidden>
-            <Hidden smDown implementation="css">
-              <Drawer
-                variant="permanent"
-                open
-                classes={{
-                  docked: classes.drawerRoot,
-                  paper: classes.drawerPaper,
-                }}
-              >
-                {drawer}
-              </Drawer>
-            </Hidden>
-            <main
-              className={classes.content}
-            >
-              {/* <div className={classes.drawerHeader} /> */}
+                {/* <div className={classes.drawerHeader} /> */}
 
-              {this.renderRenderMainContent()}
-            </main>
-          </div>
-        </BrowserRouter >
+                {this.renderRenderMainContent()}
+              </main>
+            </div>
+          </BrowserRouter >
       }
 
       <Snackbar

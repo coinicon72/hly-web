@@ -522,8 +522,10 @@ class AddFourmulaPage extends React.PureComponent {
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
-                                min: 0,
                                 endAdornment: <InputAdornment position="end" style={{ width: '3em' }}>分钟</InputAdornment>
+                            }}
+                            inputProps={{
+                                min: 0,
                             }}
                         />
 
@@ -537,10 +539,12 @@ class AddFourmulaPage extends React.PureComponent {
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
-                                min: 0,
                                 endAdornment: <InputAdornment position="end">目</InputAdornment>
                             }}
-                        />
+                            inputProps={{
+                                min: 0,
+                            }}
+                    />
 
                         <div>
                             <TextField type="number" required id="inputTemperature" error={!!errors['inputTemperature']}
@@ -553,10 +557,12 @@ class AddFourmulaPage extends React.PureComponent {
                                     shrink: shrinkLabel,
                                 }}
                                 InputProps={{
-                                    min: 0,
                                     endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
                                 }}
-                            />
+                                inputProps={{
+                                    min: 0,
+                                }}
+                       />
 
                             <TextField type="number" required id="outputTemperature" error={!!errors['outputTemperature']}
                                 label="出料挤温" defaultValue=""
@@ -568,10 +574,12 @@ class AddFourmulaPage extends React.PureComponent {
                                     shrink: shrinkLabel,
                                 }}
                                 InputProps={{
-                                    min: 0,
                                     endAdornment: <InputAdornment position="end">&#8451;</InputAdornment>
                                 }}
-                            />
+                                inputProps={{
+                                    min: 0,
+                                }}
+                   />
                         </div>
 
                         <TextField type="number" required id="mainMillerRpm" error={!!errors['mainMillerRpm']} label="主磨转数" defaultValue=""
@@ -583,10 +591,12 @@ class AddFourmulaPage extends React.PureComponent {
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
-                                min: 0,
                                 endAdornment: <InputAdornment position="end">RPM</InputAdornment>
                             }}
-                        />
+                            inputProps={{
+                                min: 0,
+                            }}
+          />
 
                         <TextField type="number" required id="secondMillerRpm" error={!!errors['secondMillerRpm']} label="副磨转数" defaultValue=""
                             value={produceCond.secondMillerRpm}
@@ -597,10 +607,12 @@ class AddFourmulaPage extends React.PureComponent {
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
-                                min: 0,
                                 endAdornment: <InputAdornment position="end">RPM</InputAdornment>
                             }}
-                        />
+                            inputProps={{
+                                min: 0,
+                            }}
+               />
 
                         <TextField type="number" required id="screwRpm" error={!!errors['screwRpm']} label="螺杆转数" defaultValue=""
                             value={produceCond.screwRpm}
@@ -611,10 +623,12 @@ class AddFourmulaPage extends React.PureComponent {
                                 shrink: shrinkLabel,
                             }}
                             InputProps={{
-                                min: 0,
                                 endAdornment: <InputAdornment position="end">RPM</InputAdornment>
                             }}
-                        />
+                            inputProps={{
+                                min: 0,
+                            }}
+       />
 
                     </Paper>
 

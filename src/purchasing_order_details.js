@@ -582,8 +582,10 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                                     error={!!errors[`vip_${rid}`]}
                                                     margin="normal"
                                                     InputProps={{
-                                                        min: 0,
                                                         startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                                    }}
+                                                    inputProps={{
+                                                        min: 0,
                                                     }}
                                                     onChange={e => this.handlePriceChange(e)}
                                                 />

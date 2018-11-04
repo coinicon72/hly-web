@@ -596,8 +596,10 @@ class OrderDetailsPage extends React.PureComponent {
                                                     error={!!errors[`price_${rid}`]}
                                                     margin="normal"
                                                     InputProps={{
-                                                        min: 0,
                                                         startAdornment: <InputAdornment position="start">¥</InputAdornment>
+                                                    }}
+                                                    inputProps={{
+                                                        min: 0,
                                                     }}
                                                     onChange={e => this.handlePriceChange(e)}
                                                 />
@@ -631,13 +633,13 @@ class OrderDetailsPage extends React.PureComponent {
 
                     {this.hasPrivilege('production:schedule') && order.status >= ORDER_STATUS_PRODUCING ?
                         <React.Fragment>
-                            <Typography variant="title" className={classes.subTitle}>出库单</Typography>
+                            <Typography variant="title" className={classes.subTitle}>发货单</Typography>
 
                             <Paper className={classes.paper}>
                                 <Button variant="flat" disabled={order.status >= ORDER_STATUS_COLLECTED} size="large" component={Link} to={`/delivery_sheet_details/add/${order.id}`}>
-                                    <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成出库单</Button>
+                                    <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成发货单</Button>
                                 <Button variant="flat" disabled={deliverySheets.length <= 0} size="large" component={Link} to={`/delivery_sheet/${order.id}`}>
-                                    <FileMultiple style={{ opacity: .5 }} color="primary" />查看出库单 ({deliverySheets.length})</Button>
+                                    <FileMultiple style={{ opacity: .5 }} color="primary" />查看发货单 ({deliverySheets.length})</Button>
                             </Paper>
                         </React.Fragment>
                         : null}
