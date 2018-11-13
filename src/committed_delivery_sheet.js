@@ -103,7 +103,7 @@ class CommittedDeliverySheetPage extends React.PureComponent {
 
     onRowDoubleClicked = (row) => {
         if (row)
-            this.props.history.push('/committed_delivery_sheet_details/edit/' + row.id);
+            this.props.history.push('/delivery_sheet_details/audit/' + row.id);
     }
 
     doLoad = () => {

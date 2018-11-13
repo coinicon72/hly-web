@@ -83,6 +83,7 @@ import RepoChangingReasonPage from './repo_changing_reason'
 import DeliverySheetPage from './delivery_sheet'
 import DeliverySheetDetailsPage from './delivery_sheet_details'
 import CommittedDeliverySheetPage from './committed_delivery_sheet'
+import SalesDetailsPage from './sales_details'
 
 
 // import DAC from "./dimension_aware_component"
@@ -119,6 +120,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
     };
 
     this.handleDrawerToggle = this.handleDrawerToggle.bind(this);
+    this.setupAxios = this.setupAxios.bind(this)
+    this.getUserInfo = this.getUserInfo.bind(this)
 
     this.handleClick = event => {
       this.setState({ anchorEl: event.currentTarget });
@@ -165,28 +168,24 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
   componentDidMount() {
     const { cookies } = this.props;
-    const token = cookies.get('token')
+    let token = cookies.get('token')
     // const user = cookies.get('user')
 
     // if (!token) {
     //   this.props.history.replace('/login');
     // } else
+    // if (!token) token = ""
     this.setState({ token })
 
-    // if (user)
-    //   this.setState({ user })
-    // else {
+    // token存在，则初始化过程延迟至用户信息加载结束（完成/失败）
+    // token不存在，则初始化过程直接完成，显示登录界面
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.setupAxios(token)
 
-      axios.get(`${API_BASE_URL}/user`)
-        .then(r => r.data.data)
-        .then(user => {
-          this.setState({ user, init: false })
-          this.props.updateUserInfo(user)
-        })
+      this.getUserInfo()
         .catch(e => this.setState({ init: false }))
-    }
+    } else
+      this.setState({ init: false })
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -197,16 +196,38 @@ class App extends React.PureComponent<{ classes: any }, any> {
         cookies.set('token', token, { path: '/' })
         // cookies.set('user', user)
 
-        axios.defaults.headers.common['Authorization'] = token;
-        // axios.get(`${API_BASE_URL}/user`)
-        //   .then(r => r.data.data)
-        //   .then(user => this.setState({ user }))
+        this.setupAxios(token)
+
+        this.getUserInfo()
       }
 
       this.setState({ token, user, init: false })
       this.props.history.replace("/")
       // console.warn(`login failed: ${this.props.loginResult}`)
     }
+  }
+
+  setupAxios(token) {
+    axios.defaults.headers.common['Authorization'] = token;
+    // axios.defaults.headers.common['Authorization'] = `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjEwLCJleHAiOjE1MzU0NTk2NDB9.Cyx0DTXvDYVHXE4O4J3Ju8JHTLkFJF6sraLgStipkdw`;
+
+    axios.interceptors.response.use(undefined, function (error) {
+      if (error && error.response && error.response.status === 500 &&
+        error.response.data && error.response.data.message && error.response.data.message === 'token expired') {
+        this.handleLogout()
+      }
+      
+      return Promise.reject(error);
+    }.bind(this));
+  }
+
+  getUserInfo() {
+    return axios.get(`${API_BASE_URL}/user`)
+      .then(r => r.data.data)
+      .then(user => {
+        this.setState({ user, init: false })
+        this.props.updateUserInfo(user)
+      })
   }
 
   handleDrawerToggle() {
@@ -383,7 +404,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </ListItem>
       </Link>)
 
-    if (this.hasPrivilege('production:bom'))
+    if (this.hasPrivilege('production:bom')) {
       l.push(<Link key="/boms" to="/boms">
         <ListItem button>
           <ListItemIcon>
@@ -393,15 +414,16 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </ListItem>
       </Link>)
 
-    // if (this.hasPrivilege('production:bom'))
-    l.push(<Link key="/delivery_sheet" to="/delivery_sheet">
-      <ListItem button>
-        <ListItemIcon>
-          <FileMultiple />
-        </ListItemIcon>
-        <ListItemText primary="发货单" />
-      </ListItem>
-    </Link>)
+      // if (this.hasPrivilege('production:bom'))
+      l.push(<Link key="/delivery_sheet" to="/delivery_sheet">
+        <ListItem button>
+          <ListItemIcon>
+            <FileMultiple />
+          </ListItemIcon>
+          <ListItemText primary="发货单" />
+        </ListItem>
+      </Link>)
+    }
 
     return l.length > 0 ?
       <React.Fragment>
@@ -594,7 +616,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </ListItem>
       </Link>)
 
-    if (this.hasPrivilege('repo:stock-in'))
+    if (this.hasPrivilege('repo:stock-out'))
       l.push(
         // <Tooltip key="key_stock_in" title="非库房人员申请">
         <Link key="/committed-delivery-sheet" to="/committed-delivery-sheet">
@@ -689,7 +711,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
   // };
 
 
-  renderRenderTitle(classes) {
+  renderTitle(classes) {
     return (
       <Switch>
         <Route path="/client" component={() => <Typography variant="title" className={classes.appTitle}>客户</Typography>} />
@@ -727,13 +749,14 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/schedule_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>排产</Typography>} />
         <Route path="/delivery_sheet" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单</Typography>} />
         <Route path="/delivery_sheet_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单明细</Typography>} />
-        <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅</Typography>} />
+        <Route path="/sales_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>销售明细</Typography>} />
+        <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅{process.env.NODE_ENV === 'development' ? ' - development' : null}</Typography>} />
       </Switch>
 
     )
   }
 
-  renderRenderMainContent() {
+  renderMainContent() {
     // 'admin'
     // 'financial-manager'
     // 'general-manager'
@@ -834,6 +857,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/delivery_sheet/:oid?" component={DeliverySheetPage} />
         <Route path="/delivery_sheet_details/:mode/:id" component={DeliverySheetDetailsPage} />
 
+        <Route path="/sales_details/:oid" component={SalesDetailsPage} />
+
         <Route component={HomePage} />
       </Switch>
 
@@ -900,7 +925,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
                     <MenuIcon />
                   </IconButton>
 
-                  {this.renderRenderTitle(classes)}
+                  {this.renderTitle(classes)}
 
                   <IconButton color="inherit"
                     aria-owns={anchorEl ? 'simple-menu' : null}
@@ -961,7 +986,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
               >
                 {/* <div className={classes.drawerHeader} /> */}
 
-                {this.renderRenderMainContent()}
+                {this.renderMainContent()}
               </main>
             </div>
           </BrowserRouter >

@@ -100,6 +100,7 @@ import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
 // const MODE_ADD = "add";
 // const MODE_EDIT = "edit";
 // const MODE_VIEW = "view";
+const MODE_DELIVERY = 'delivery';
 
 const APPLY_CHANGING_COUNTDOWN = 5
 
@@ -247,10 +248,13 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         // select materials
         this.addMaterials = () => {
-            const { changingItems, materials, selection } = this.state;
+            const { form, changingItems, materials, selection } = this.state;
+
+            const filteredMaterials = materials.filter(m => form.repo && form.repo.type === m.category)
+
             Object.keys(selection).forEach(idx => {
                 let no = selection[idx];
-                let material = materials[no];
+                let material = filteredMaterials[no];
 
                 if (!changingItems.find(v => v.material.id === material.id))
                     changingItems.push({ material })
@@ -315,7 +319,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
 
         //
-        this.changedReason = (e => {
+        this.changedReason = e => {
             const rid = parseInt(e.target.value, 10)
 
             const r = this.state.repoChangingReasons.find(i => i.id === rid)
@@ -329,7 +333,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     }
                 })
             }
-        })
+        }
 
         // 采购订单选择
         //
@@ -426,7 +430,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.setState({ activeStep: 0 })
 
             const { user } = this.props
-            let { form, changingItems } = this.state
+            let { form, changingItems, mode, delivery_sheet_id } = this.state
             let { type } = this.props
 
             form.applicant = user
@@ -476,38 +480,53 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 form.applyingDate = getTodayDateTimeString()
             }
 
-            await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
-                .then(resp => resp.data)
-                .then(j => form.id = j.id)
-                .catch(e => {
-                    cancel = true
-                    this.setState({ showSavingDiag: false })
-                    this.props.showSnackbar(e.message)
-                })
-
-            if (cancel) return;
-
-
-            // step 4
-            this.setState({ activeStep: this.state.activeStep + 1 })
-
-            // {"id": {"repoChanging": 0, "material": 0}, "repoChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
-            changingItems.forEach(p => {
-                let fi = {
-                    id: { repoChanging: form.id, material: p.material.id },
-                    repoChanging: { id: form.id },
-                    material: { id: p.material.id },
-                    quantity: p.quantity,
-                    price: p.price,
-                }
-
-                axios.post(`${DATA_API_BASE_URL}/repoChangingItems`, fi)
+            if (mode === MODE_DELIVERY) {
+                await axios.post(`${API_BASE_URL}/deliverySheet/${delivery_sheet_id}/repoChangingSheet`, form)
+                    // .then(resp => resp.data)
+                    // .then(j => form.id = j.id)
                     .catch(e => {
-                        cancel = true;
+                        cancel = true
                         this.setState({ showSavingDiag: false })
                         this.props.showSnackbar(e.message)
                     })
-            })
+
+                    if (cancel) return;
+
+                    this.setState({ activeStep: this.state.activeStep + 1 })
+            } else {
+                await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
+                    .then(resp => resp.data)
+                    .then(j => form.id = j.id)
+                    .catch(e => {
+                        cancel = true
+                        this.setState({ showSavingDiag: false })
+                        this.props.showSnackbar(e.message)
+                    })
+
+                if (cancel) return;
+
+
+                // step 4
+                this.setState({ activeStep: this.state.activeStep + 1 })
+
+                // {"id": {"repoChanging": 0, "material": 0}, "repoChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
+                changingItems.forEach(p => {
+                    let fi = {
+                        id: { repoChanging: form.id, material: p.material.id },
+                        repoChanging: { id: form.id },
+                        material: { id: p.material.id },
+                        quantity: p.quantity,
+                        price: p.price,
+                    }
+
+                    axios.post(`${DATA_API_BASE_URL}/repoChangingItems`, fi)
+                        .catch(e => {
+                            cancel = true;
+                            this.setState({ showSavingDiag: false })
+                            this.props.showSnackbar(e.message)
+                        })
+                })
+            }
 
             if (cancel) return;
 
@@ -622,9 +641,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
         //
         if (!id) id = 0
+        this.setState({ delivery_sheet_id: id })
 
         if (id === 0 || mode === MODE_ADD) {
-            this.setState({ mode: MODE_ADD, form: { ...this.state.form, applicant: user } })
+            this.setState({ mode, form: { ...this.state.form, applicant: user } })
 
             if (id > 0) {
                 this.setState({ orderSpecified: true })
@@ -644,8 +664,44 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                     .catch(e => this.props.showSnackbar(e.message))
             }
+        } else if (mode === MODE_DELIVERY) {
+            this.setState({ mode })
+
+            // axios.get(`${DATA_API_BASE_URL}/deliverySheets/${id}`)
+            //     .then(resp => resp.data)
+            //     .then(deliverySheet => {
+            //         this.setState({ deliverySheet });
+            //     })
+            // .then(_ => axios.get(`${DATA_API_BASE_URL}/deliverySheets/${id}/items`))
+            axios.get(`${DATA_API_BASE_URL}/deliverySheets/${id}/items`)
+                .then(resp => resp.data._embedded.deliverySheetItems)
+                .then(items => {
+                    let { changingItems } = this.state
+
+                    items.forEach(item => {
+                        changingItems.push({ material: { id: item.id.orderItem.product, name: item._embedded.orderItem.product.code, type: { name: "产品" }, spec: "" }, quantity: item.quantity, price: item.price })
+                    })
+
+                    this.setState({ changingItems })
+                })
+                .then(_ => axios.get(`${DATA_API_BASE_URL}/deliverySheets/${id}/order`))
+                .then(resp => resp.data)
+                .then(order => {
+                    this.setState({
+                        orderSpecified: true, form: {
+                            ...this.state.form,
+                            status: 1,
+                            type: REPO_CHANGING_TYPE_OUT,
+                            applicant: this.props.user,
+                            order,
+                            deliverySheet: { id },
+                            reason: { id: 11, orderRelated: 1 }
+                        }
+                    })
+                })
+                .catch(e => this.props.showSnackbar(e.message));
         }
-        else //if (id > 0) 
+        else //if (mode === MODE_EDIT) 
         {
             this.state.mode = mode //MODE_EDIT
             // this.state.dirty = false
@@ -694,7 +750,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                 .then(url => axios.get(url))
                 .then(resp => resp.data)
                 .then(purchasingOrder => this.setState({ form: { ...this.state.form, purchasingOrder } }))
-        // .catch(e => this.props.showSnackbar(e.message))
+            // .catch(e => this.props.showSnackbar(e.message))
         }
 
         // load materials
@@ -711,6 +767,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             .then(j => {
                 if (mode === MODE_ADD)
                     this.state.form.repo = j[0]
+                else if (mode === MODE_DELIVERY) {
+                    j = j.filter(r => r.type === 1)
+                    this.state.form.repo = j[0]
+                }
 
                 this.setState({ repoes: j });
             })
@@ -817,8 +877,10 @@ class RepoChangingDetailsPage extends React.PureComponent {
             </React.Fragment>
             :
             <React.Fragment>
-                <Tooltip title="保存表单">
-                    <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<ContentSave /></Button></Tooltip>
+                {mode === MODE_DELIVERY ? null :
+                    <Tooltip title="保存表单">
+                        <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<ContentSave /></Button></Tooltip>
+                }
                 <Tooltip title="保存表单，然后提交给仓库管理员">
                     <Button onClick={() => this.saveForm(true)} color='secondary' disabled={(!dirty && mode !== MODE_EDIT) || mode === MODE_VIEW} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
             </React.Fragment>
@@ -902,7 +964,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                             </MuGrid>
 
                             <MuGrid style={{ marginBottom: 16 }}>
-                                <FormControl className={classes.formControl} disabled={disableEdit}>
+                                <FormControl className={classes.formControl} disabled={disableEdit || mode === MODE_DELIVERY}>
                                     <InputLabel htmlFor="reason" shrink>原因类别</InputLabel>
                                     <Select
                                         native
@@ -938,7 +1000,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                 />
                             </MuGrid>
 
-                            {form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated === 1 ?
+                            {form && form.type === REPO_CHANGING_TYPE_OUT && form.reason && form.reason.orderRelated === 1 ?
                                 <MuGrid >
                                     <Button onClick={this.selectOrder} disabled={disableEdit || orderSpecified}>
                                         <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '订单' : '选择订单'}
@@ -1018,7 +1080,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                     fullWidth
                                                     disabled={disableEdit || orderSpecified}
                                                     error={!!errors[`quantity_${m.id}`]}
-                                                    margin="normal" 
+                                                    margin="normal"
                                                     inputProps={{ min: 0 }}
                                                     // InputProps={{
                                                     //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
@@ -1031,11 +1093,11 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                                 <React.Fragment>
                                                     <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                         <TextField type="number" required id={`price_${m.id}`}
-                                                            value={ toFixedMoney(n.price) }
+                                                            value={toFixedMoney(n.price)}
                                                             disabled={disableEdit || m.category === 1 || orderSpecified}
                                                             fullWidth
                                                             error={!!errors[`price_${m.id}`]}
-                                                            margin="normal" 
+                                                            margin="normal"
                                                             inputProps={{ min: 0 }}
                                                             // InputProps={{
                                                             //     endAdornment: <InputAdornment position="end">kg</InputAdornment>
@@ -1049,7 +1111,7 @@ class RepoChangingDetailsPage extends React.PureComponent {
                                             )}
 
                                             <TableCell padding='dense' style={{ whiteSpace: 'nowrap', padding: 0 }}>
-                                                {disableEdit ? null :
+                                                {disableEdit || orderSpecified ? null :
                                                     <Tooltip title="删除">
                                                         <IconButton onClick={() => this.onDelete(m.id, no)}>
                                                             <Delete />

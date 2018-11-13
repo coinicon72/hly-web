@@ -85,7 +85,7 @@ import { getTodayString, toFixedMoney, toDateString } from "./utils"
 // const MODE_ADD = 0;
 // const MODE_EDIT = 1;
 
-const savingSteps = ['检查输入数据', '保存基本信息', "保存明细", "完成"];
+const savingSteps = ['检查输入数据', "保存数据", "完成"];
 
 // =============================================
 class CollectingSettlementDetailsPage extends React.PureComponent {
@@ -98,8 +98,8 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             clients: [],
             orders: [], // 
 
-            // document
-            document: {},
+            // sheet
+            sheet: {},
             client: null,
 
             //
@@ -114,7 +114,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             selection: [],
 
             //
-            savingDocument: false,
+            savingSheet: false,
             activeStep: 0,
 
             // errors
@@ -137,9 +137,24 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                 this.state.orders = []
                 this.forceUpdate()
 
-                axios.get(`${DATA_API_BASE_URL}/orders/search/findByClientAndStatus?client=../../clients/${this.state.client.id}&status=0`)
+                axios.get(`${DATA_API_BASE_URL}/orders/search/findByClientAndStatus?client=../../clients/${this.state.client.id}&status=2`)
                     .then(r => r.data._embedded.orders)
-                    .then(orders => this.setState({ orders }))
+                    .then(orders => {
+                        this.setState({ orders })
+
+                        orders.forEach(o => {
+                            axios.get(`${DATA_API_BASE_URL}/orders/search/findDeliveredByOrderId?oid=${o.id}`)
+                            .then(r => r.data)
+                            .then(d => {
+                                let o = orders.find(org => org.id === d.id)
+                                if (o) {
+                                    o.value = d.value
+                                    o.actualValue = d.actualValue
+                                    this.setState({ orders: [...orders] })
+                                }
+                            })
+                        })
+                    })
             }
         })
 
@@ -186,17 +201,17 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
 
 
         //
-        this.cancelSave = () => this.setState({ savingDocument: false, activeStep: 0 })
+        this.cancelSave = () => this.setState({ savingSheet: false, activeStep: 0 })
 
         this.onSaveSuccess = (() => {
-            this.setState({ savingDocument: false, activeStep: 0, dirty: false })
+            this.setState({ savingSheet: false, activeStep: 0, dirty: false })
             this.props.history.goBack();
         })
 
 
-        this.saveDocument = (async () => {
+        this.saveSheet = (async () => {
             //
-            this.setState({ savingDocument: true, activeStep: 0 })
+            this.setState({ savingSheet: true, activeStep: 0 })
             this.forceUpdate()
 
             //
@@ -208,10 +223,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             // this.setState({ activeStep: this.state.activeStep + 1 })
 
             //
-            let { document, client, orders } = this.state
+            let { client, orders } = this.state
 
-            // document.createdBy = { id: this.props.user.id }
-            // document.createDate = getTodayString()
+            // sheet.createdBy = { id: this.props.user.id }
+            // sheet.createDate = getTodayString()
             if (!client)
                 errors['client'] = "未指定客户"
 
@@ -219,48 +234,66 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                 errors['orders'] = "未指定订单"
 
             if (Object.keys(errors).length > 0) {
-                this.setState({ savingDocument: false, errors })
+                this.setState({ savingSheet: false, errors })
                 this.props.showSnackbar("发现错误，请检查数据输入")
                 return;
             }
 
 
-            // step 3
+            // // step 3
+            // this.setState({ activeStep: this.state.activeStep + 1 })
+
+            // sheet.client = { id: client.id }
+
+            // await axios.post(`${DATA_API_BASE_URL}/collectingSettlements`, sheet)
+            //     .then(resp => resp.data)
+            //     .then(j => sheet.id = j.id)
+            //     .catch(e => {
+            //         cancel = true;
+            //         this.setState({ savingSheet: false })
+
+            //         this.props.showSnackbar(e.message)
+            //     })
+
+            // if (cancel) return;
+
+
+            // // step 4
+            // this.setState({ activeStep: this.state.activeStep + 1 })
+
+            // orders.forEach(p => {
+            //     let fi = {
+            //         id: { settlement: sheet.id, order: p.id },
+            //         settlement: { id: sheet.id },
+            //         order: { id: p.id }
+            //     }
+
+            //     axios.post(`${DATA_API_BASE_URL}/collectingSettlementItems`, fi)
+            //         .catch(e => {
+            //             cancel = true;
+            //             this.setState({ savingSheet: false })
+
+            //             this.props.showSnackbar(e.message)
+            //         })
+            // })
+
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-            document.client = { id: client.id }
+            let sheet = Object.assign({}, this.state.sheet)
+            sheet.client = { id: client.id }
+            sheet.items = []
 
-            await axios.post(`${DATA_API_BASE_URL}/collectingSettlements`, document)
-                .then(resp => resp.data)
-                .then(j => document.id = j.id)
-                .catch(e => {
-                    cancel = true;
-                    this.setState({ savingDocument: false })
+            orders.forEach(o => {
+                sheet.items.push({id: { order: o.id }})
+            })
 
-                    this.props.showSnackbar(e.message)
-                })
-
-            if (cancel) return;
-
-
-            // step 4
-            this.setState({ activeStep: this.state.activeStep + 1 })
-
-            orders.forEach(p => {
-                let fi = {
-                    id: { settlement: document.id, order: p.id },
-                    settlement: { id: document.id },
-                    order: { id: p.id }
-                }
-
-                axios.post(`${DATA_API_BASE_URL}/collectingSettlementItems`, fi)
+            await axios.post(`${API_BASE_URL}/collectingSettlement`, sheet)
                     .catch(e => {
                         cancel = true;
-                        this.setState({ savingDocument: false })
+                        this.setState({ savingSheet: false })
 
                         this.props.showSnackbar(e.message)
                     })
-            })
 
             if (cancel) return;
 
@@ -268,9 +301,9 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             this.setState({ activeStep: this.state.activeStep + 1 })
         })
 
-        this.confirmDocument = () => {
+        this.confirmSheet = () => {
             if (window.confirm("确认此结算单？")) {
-                axios.patch(`${API_BASE_URL}/collecting/${this.state.document.id}/confirm`)
+                axios.patch(`${API_BASE_URL}/collecting/${this.state.sheet.id}/confirm`)
                     .then(_ => {
                         this.props.showSnackbar("结算单已确认")
                         this.props.history.goBack();
@@ -279,8 +312,8 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             }
         }
 
-        this.processDocument = () => {
-            if (!this.state.document.collectedValue) {
+        this.processSheet = () => {
+            if (!this.state.sheet.collectedValue) {
                 const errors = { collected: "无效的金额" }
                 this.setState({ errors })
                 this.props.showSnackbar("发现错误，请检查数据输入")
@@ -290,7 +323,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             }
 
             if (window.confirm("确认已收款？")) {
-                axios.patch(`${API_BASE_URL}/collecting/${this.state.document.id}/finish`, { collectedValue: this.state.document.collectedValue })
+                axios.patch(`${API_BASE_URL}/collecting/${this.state.sheet.id}/finish`, { collectedValue: this.state.sheet.collectedValue })
                     .then(_ => {
                         this.props.showSnackbar("结算单已完成")
                         this.props.history.goBack();
@@ -308,7 +341,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
         if (id === 0) {
             this.state.mode = MODE_ADD
 
-            this.setState({ document: {} })
+            this.setState({ sheet: {} })
 
             // load materials
             axios.get(`${DATA_API_BASE_URL}/clients/search/findByCollectingPolicyIsNotNull`)
@@ -325,7 +358,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
             axios.get(`${DATA_API_BASE_URL}/collectingSettlements/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
-                    this.setState({ document: j });
+                    this.setState({ sheet: j });
                     if (j._embedded && j._embedded.client)
                         this.setState({ client: j._embedded.client });
 
@@ -344,13 +377,13 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
     render() {
         const { classes, } = this.props
         // const { id } = this.props.match.params;
-        const { dirty, mode, clients, client, document, orders, } = this.state;
+        const { dirty, mode, clients, client, sheet, orders, } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
         const { errors } = this.state;
 
         // let shrinkLabel = mode === MODE_EDIT ? true : undefined;
 
-        const { savingDocument, activeStep } = this.state;
+        const { savingSheet, activeStep } = this.state;
 
         return (
             // <Provider store={store}>
@@ -362,12 +395,12 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                         <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                         <Typography variant="title" className={classes.title}>{mode === MODE_ADD ? "新增应收结算" : "应收结算详情"}</Typography>
                         {mode === MODE_ADD ?
-                            <Button onClick={() => this.saveDocument()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<ContentSave /></Button>
+                            <Button onClick={() => this.saveSheet()} disabled={!client || !orders || orders.length <= 0} color='secondary' style={{ fontSize: 18 }} >保存<ContentSave /></Button>
                             :
-                            document.status === 1 ?
-                                <Button onClick={() => this.processDocument()} color='secondary' style={{ fontSize: 18 }} >收款完成<ClipboardCheck /></Button>
+                            sheet.status === 1 ?
+                                <Button onClick={() => this.processSheet()} color='secondary' style={{ fontSize: 18 }} >收款完成<ClipboardCheck /></Button>
                                 :
-                                <Button onClick={() => this.confirmDocument()} color='secondary' style={{ fontSize: 18 }} >确认<ClipboardCheck /></Button>
+                                <Button onClick={() => this.confirmSheet()} color='secondary' style={{ fontSize: 18 }} >确认<ClipboardCheck /></Button>
                         }
                         {/* {mode === MODE_VIEW ? null :
                             } */}
@@ -415,10 +448,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                             ) : null}
 
                             <Grid style={{ marginTop: 16 }}>
-                                <Typography>结算单创建日期</Typography><Chip label={mode === MODE_ADD ? getTodayString() : document.createDate} className={classes.chip} />
+                                <Typography>结算单创建日期</Typography><Chip label={mode === MODE_ADD ? getTodayString() : sheet.createDate} className={classes.chip} />
                             </Grid>
 
-                            {mode === MODE_EDIT && document.status === 1 ? (
+                            {mode === MODE_EDIT && sheet.status === 1 ? (
                                 <React.Fragment>
                                     <Grid style={{ marginTop: 16 }}>
                                         <TextField
@@ -432,7 +465,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                                 min: 0,
                                             }}
                                             // className={classNames(classes.margin, classes.textField)}
-                                            value={document.value}
+                                            value={sheet.value}
                                         />
                                     </Grid>
                                     <Grid style={{ marginTop: 16 }}>
@@ -448,10 +481,10 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                                 min: 0,
                                             }}
                                             // className={classNames(classes.margin, classes.textField)}
-                                            value={document.collectedValue}
+                                            value={sheet.collectedValue}
                                             onChange={e => {
-                                                document.collectedValue = e.target.value
-                                                this.setState({ document })
+                                                sheet.collectedValue = e.target.value
+                                                this.setState({ sheet })
                                             }}
 
                                         />
@@ -464,18 +497,19 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <Typography variant="title" className={classes.subTitle}>销售明细</Typography>
                         {/* <Typography variant="title" className={classes.subTitle} style={{ marginLeft: 8, flex: 1, color: 'red' }}>{errors['orderItems'] ? errors['orderItems'] : null}</Typography> */}
-                        {/* <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{document.total ? `¥ ${toFixedMoney(document.total)}` : '--'}</Typography> */}
+                        {/* <Typography variant="title" className={classes.subTitle} color='secondary' marginleft={0}>总价：{sheet.total ? `¥ ${toFixedMoney(sheet.total)}` : '--'}</Typography> */}
                     </div>
                     <Paper className={classes.compactPaper}>
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>序号</TableCell>
+                                    <TableCell padding="dense" style={{ width: '10%', whiteSpace: 'nowrap' }}>序号</TableCell>
                                     <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>订单编号</TableCell>
                                     <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>签订时间</TableCell>
                                     <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>发货时间</TableCell>
-                                    <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>是否含税</TableCell>
-                                    <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>总价</TableCell>
+                                    <TableCell padding="dense" style={{ width: '10%', whiteSpace: 'nowrap' }}>是否含税</TableCell>
+                                    <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>合同总价</TableCell>
+                                    <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>实际总价</TableCell>
                                     {mode === MODE_ADD ?
                                         <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                             {/* <Button variant="flat" disabled={!client} size="large" onClick={this.onAddOrders}>
@@ -492,8 +526,9 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.no}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{toDateString(n.orderDate)}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{toDateString(n.deliveryDate)}</TableCell>
-                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.tax ? '含税' : ''}</TableCell>
+                                            <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.tax ? '含税' : '不含税'}</TableCell>
                                             <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>¥ {n.value}</TableCell>
+                                            <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>¥ {n.actualValue}</TableCell>
                                             {mode === MODE_ADD ?
                                                 <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                     <Tooltip title="删除">
@@ -560,7 +595,7 @@ class CollectingSettlementDetailsPage extends React.PureComponent {
 
                 {/* dialog for save formula */}
                 <Dialog
-                    open={savingDocument}
+                    open={savingSheet}
                     onClose={this.cancelSave}
                     classes={{ paper: classes.dialog }}
                 >

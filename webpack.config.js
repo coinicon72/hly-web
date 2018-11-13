@@ -3,6 +3,7 @@ const path = require("path");
 // const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
 
+
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin")
@@ -17,11 +18,10 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, "dist"),
-    // filename: "js/[name].js",
-    // filename: '[name].bundle.js',
+    // path: path.resolve(__dirname, "public"),
     // publicPath: '/public/'
+    publicPath: '/',
     filename: 'bundle.js',
-    publicPath: '/'
   },
   devServer: {
     contentBase: "./public",
@@ -34,11 +34,15 @@ module.exports = {
       //   AutoIncreaseVersion: false
       // }
     }),
-    // new webpack.DefinePlugin({
-    //   'process.env': {
-    //     'NODE_ENV': JSON.stringify('production')
-    //   }
-    // }),
+
+    // support react env variables
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production'),
+        'REACT_APP_SERVER_URL': JSON.stringify('http://175.6.57.235:8081'),
+      }
+    }),
+    
     // // new CleanWebpackPlugin(['dist']),
     // // new HtmlWebpackPlugin({
     // //   template: './public/index.html'

@@ -74,12 +74,14 @@ import { DATA_API_BASE_URL } from "./config"
 import { toFixedMoney, toDateString, getTodayDateTimeString, getTodayString } from "./utils"
 
 //
-import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
+import { MODE_ADD, MODE_EDIT, MODE_VIEW, ROUTER_STOCK_OUT } from "./common"
 import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 // const MODE_ADD = 0;
 // const MODE_EDIT = 1;
+
+const MODE_AUDIT = 'audit';
 
 const savingSteps = ['检查输入数据', '保存基本信息', "保存明细", "完成"];
 
@@ -369,6 +371,10 @@ class DeliverySheetDetailsPage extends React.PureComponent {
             }
         }
 
+        this.createRepoChangingSheet = _ => {
+            this.props.history.push(`${ROUTER_STOCK_OUT}/delivery/${this.state.deliverySheet.id}`);
+        }
+
         this.hasPrivilege = privilege => {
             if (!this.props.user || !this.props.user.roles)
                 return false
@@ -415,7 +421,10 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                 .catch(e => this.props.showSnackbar(e.message));
         }
 
-        this.setState({ mode: MODE_EDIT })
+        if (mode === MODE_AUDIT)
+            this.setState({ mode })
+        else
+            this.setState({ mode: MODE_EDIT })
     }
 
     render() {
@@ -443,8 +452,14 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                         <Toolbar className={classes.toolbar}>
                             <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton>
                             <Typography variant="title" className={classes.title}>发货单详情</Typography>
-                            <Button onClick={() => this.saveSheet()} disabled={(mode === MODE_EDIT && !dirty) || mode === MODE_VIEW || deliverySheet.status === 1} color='secondary' style={{ fontSize: 18 }} >保存发货单<ContentSave /></Button>
-                            <Button onClick={() => this.commitSheet()} disabled={deliverySheet.id == null || deliverySheet.status !== 0} color='secondary' style={{ fontSize: 18 }} >提交至仓库<ClipboardCheck /></Button>
+                            {
+                                mode === MODE_AUDIT ?
+                                    <Button onClick={() => this.createRepoChangingSheet()} color='secondary' style={{ fontSize: 18 }} >生成出库单<ClipboardCheck /></Button>
+                                    : <React.Fragment>
+                                        <Button onClick={() => this.saveSheet()} disabled={(mode === MODE_EDIT && !dirty) || mode === MODE_VIEW || deliverySheet.status === 1} color='secondary' style={{ fontSize: 18 }} >保存发货单<ContentSave /></Button>
+                                        <Button onClick={() => this.commitSheet()} disabled={deliverySheet.id == null || deliverySheet.status !== 0} color='secondary' style={{ fontSize: 18 }} >提交至仓库<ClipboardCheck /></Button>
+                                    </React.Fragment>
+                            }
                             {/* {mode === MODE_VIEW ? null :
                             } */}
                         </Toolbar>
@@ -511,7 +526,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                         <Paper className={classes.paper}>
                             <MuGrid container direction='column' alignItems="stretch">
                                 <MuGrid>
-                                    <FormControl required
+                                    <FormControl required disabled={mode === MODE_AUDIT}
                                         error={!!errors['deliverySheet.no']}
                                     >
                                         <InputLabel htmlFor="no" shrink={true}>发货单编号</InputLabel>
@@ -521,7 +536,10 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                         />
                                     </FormControl>
 
-                                    <TextField type="date" required id="deliveryDate"
+                                    <TextField type="date"
+                                        id="deliveryDate"
+                                        required
+                                        disabled={mode === MODE_AUDIT}
                                         error={!!errors['deliverySheet.deliveryDate']}
                                         label="发货日期"
                                         style={{ marginLeft: 32 }}
@@ -559,7 +577,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                         <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>单价</TableCell>
                                         <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                         <TableCell padding="dense" style={{ width: '10%', padding: 0, whiteSpace: 'nowrap' }}>
-                                            {mode === MODE_VIEW ? null :
+                                            {mode === MODE_VIEW || mode === MODE_AUDIT ? null :
                                                 <Button variant="flat" size="large" onClick={this.onAddProduct}>
                                                     <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                             }
@@ -576,7 +594,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                 <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>{product.code}</TableCell>
                                                 <TableCell padding="dense" style={{ width: '10%', whiteSpace: 'nowrap' }}>{product.color}</TableCell>
                                                 <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
-                                                    <TextField type="number" style={{ width: 100 }} required disabled={mode === MODE_VIEW} id={`quantity_${pid}`}
+                                                    <TextField type="number" style={{ width: 100 }} required disabled={mode === MODE_VIEW || mode === MODE_AUDIT} id={`quantity_${pid}`}
                                                         value={it.quantity}
                                                         fullWidth
                                                         error={!!errors[`quantity_${pid}`]}
@@ -589,7 +607,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                     />
                                                 </TableCell>
                                                 <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
-                                                    <TextField type="number" style={{ width: 80 }} required disabled={mode === MODE_VIEW} id={`boxes_${pid}`}
+                                                    <TextField type="number" style={{ width: 80 }} required disabled={mode === MODE_VIEW || mode === MODE_AUDIT} id={`boxes_${pid}`}
                                                         value={it.boxes}
                                                         fullWidth
                                                         error={!!errors[`boxes_${pid}`]}
@@ -617,7 +635,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                 </TableCell>
                                                 <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(it.quantity * it.price)}`}</TableCell>
                                                 <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap', padding: 0 }}>
-                                                    {mode === MODE_VIEW ? null :
+                                                    {mode === MODE_VIEW || mode === MODE_AUDIT ? null :
                                                         <Tooltip title="删除">
                                                             <IconButton onClick={() => this.onDelete(it.id, no)}>
                                                                 <Delete />

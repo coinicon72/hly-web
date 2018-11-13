@@ -119,7 +119,7 @@ class CollectingSettlementPage extends React.PureComponent {
             <DataTableBase columns={[
                 { name: 'id', title: '序号' },
                 { name: 'client', title: '客户', getCellValue: row => (row.client) ? row.client.name : null },
-                { name: 'paymentPeriod', title: '结算周期', getCellValue: row => (row.client) ? `${row.client.paymentPeriod} 天` : null },
+                { name: 'paymentPeriod', title: '结算周期', getCellValue: row => (row.client) ? `${row.client.collectingPeriod} 天` : null },
                 { name: "createDate", title: "生成时间" },
                 // { name: "disabled", title: "有效" },
                 // { name: "confirmedDate", title: "确认时间" },

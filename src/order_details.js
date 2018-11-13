@@ -640,6 +640,9 @@ class OrderDetailsPage extends React.PureComponent {
                                     <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成发货单</Button>
                                 <Button variant="flat" disabled={deliverySheets.length <= 0} size="large" component={Link} to={`/delivery_sheet/${order.id}`}>
                                     <FileMultiple style={{ opacity: .5 }} color="primary" />查看发货单 ({deliverySheets.length})</Button>
+
+                                <Button variant="flat" size="large" component={Link} to={`/sales_details/${order.id}`}>
+                                    <FileMultiple style={{ opacity: .5 }} color="primary" />销售明细</Button>
                             </Paper>
                         </React.Fragment>
                         : null}

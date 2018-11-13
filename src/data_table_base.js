@@ -11,15 +11,17 @@ import { withStyles } from '@material-ui/core';
 import {
     Paper,
     // Typography, 
-    Button, IconButton, Snackbar, 
+    Button, IconButton, Snackbar,
     // Input, Select, Toolbar, 
     Tooltip,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
 } from '@material-ui/core';
 
-import { AddCircleOutline, 
+import {
+    AddCircleOutline,
     // PlaylistAdd, 
-    Delete, Edit, Save, Cancel } from '@material-ui/icons';
+    Delete, Edit, Save, Cancel
+} from '@material-ui/icons';
 // import { Refresh } from 'mdi-material-ui';
 
 import {
@@ -285,13 +287,16 @@ class DataTableBase extends React.PureComponent {
                 let idx = deletingRows[0];
                 let r = rows[idx]
 
-                this.doDelete && this.doDelete(r) //axios.delete(this.dataRepoApiUrl + "/" + r['id'])
-                    .then(r => {
-                        rows.splice(idx, 1);
-                        deletingRows.splice(0, 1);
-                        this.setState({ rows, deletingRows });
-                    })
-                    .catch(e => this.showSnackbar(e.message));
+                if (this.doDelete) {
+                    const result = this.doDelete(r) //axios.delete(this.dataRepoApiUrl + "/" + r['id'])
+                    if (result)
+                        result.then(r => {
+                            rows.splice(idx, 1);
+                            deletingRows.splice(0, 1);
+                            this.setState({ rows, deletingRows });
+                        })
+                            .catch(e => this.showSnackbar(e.message));
+                }
             }
             // })
         };
@@ -428,7 +433,7 @@ class DataTableBase extends React.PureComponent {
                         </React.Fragment>
                         : null
                     }
-                        {/* <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
+                    {/* <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
                         <OrderStatusProvider key='OrderStatusProvider' for={['status']} />, */}
                     {/* <Toolbar>
                         <div>
@@ -496,7 +501,7 @@ class DataTableBase extends React.PureComponent {
                             showEditCommand={this.props.showEditCommand === false ? false : true}
                             showDeleteCommand={this.props.showDeleteCommand === false ? false : true}
                             commandComponent={this.Command}
-                            padding="dense" 
+                            padding="dense"
                         />
                     }
                     {/* <TableSelection showSelectAll /> */}

@@ -75,6 +75,7 @@ export const DeliverySheetStatusEditor = ({ value, onValueChange }) => (
         <option key="o-1" value=""></option>
         <option key="o0" value={0}>未提交</option>
         <option key="o1" value={1}>已提交</option>
+        <option key="o2" value={2}>已处理</option>
     </Select>
 );
 
@@ -82,8 +83,15 @@ export const DeliverySheetStatusEditor = ({ value, onValueChange }) => (
 export const DeliverySheetStatusProvider = props => (
     <DataTypeProvider
         formatterComponent={
-            ({ row, value }) =>
-                value === 1? <Typography style={{ color: 'green' }}>已提交</Typography> : null
+            ({ row, value }) => {
+                switch (value) {
+                    case 0: return <Typography style={{ color: 'gray' }}>未提交</Typography>;
+                    case 1: return <Typography style={{ color: 'green' }}>已提交</Typography>;
+                    case 2: return <Typography style={{ color: 'orange' }}>已处理</Typography>;
+                    default: return null;
+                }
+                // value === 1? <Typography style={{ color: 'green' }}>已提交</Typography> : null
+            }
         }
         editorComponent={DeliverySheetStatusEditor}
         {...props}

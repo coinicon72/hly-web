@@ -16,7 +16,7 @@ import CommonStyles from "./common_styles";
 // import { Link } from 'react-router-dom'
 
 // icons
-import {ArrowLeft} from 'mdi-material-ui';
+import { ArrowLeft } from 'mdi-material-ui';
 // import * as mui from '@material-ui/icons';
 
 // ui
@@ -25,7 +25,7 @@ import {
     Typography,
     // Grid, TextField, 
     // Button,
-    IconButton, 
+    IconButton,
     // Snackbar, 
     // Input, Select, 
     Toolbar,
@@ -45,13 +45,16 @@ import DataTableBase from "./data_table_base"
 
 import { EXPORT_BASE_URL, API_BASE_URL, DATA_API_BASE_URL } from "./config"
 import { toDateString } from "./utils"
-import { 
+import {
     // TaxTypeEditor, 
     DeliverySheetStatusProvider,
-    TaxTypeProvider, 
+    TaxTypeProvider,
     // OrderStatusEditor, 
-    OrderStatusProvider } from './common_components'
+    OrderStatusProvider
+} from './common_components'
 
+import { connect } from 'react-redux'
+import { actionShowSnackbar } from "./redux/data_selection"
 
 // =============================================
 const DATA_REPO = "deliverySheets";
@@ -143,12 +146,13 @@ class DeliverySheetPage extends React.PureComponent {
 
         return axios.get(url)//,
             .then(resp => resp.data)
-            // {
-            //     let sheets = resp.data._embedded[DATA_REPO]
+        // .then(ds => ds.filter(s => s.status < 2))
+        // {
+        //     let sheets = resp.data._embedded[DATA_REPO]
 
-            //     sheets.flatMap(s => s._links.order)
-            //         .
-            // })
+        //     sheets.flatMap(s => s._links.order)
+        //         .
+        // })
     }
 
     doAdd = (r) => {
@@ -162,7 +166,12 @@ class DeliverySheetPage extends React.PureComponent {
     }
 
     doDelete = (r) => {
-        return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
+        if (r.status === 0)
+            return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
+        else {
+            this.props.showSnackbar("不能删除已提交/已处理的发货单")
+            return null
+        }
     }
 
     // showSnackbar(msg: String) {
@@ -220,4 +229,14 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(DeliverySheetPage);
+const mapDispatchToProps = dispatch => ({
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedPage = connect(
+    null,
+    mapDispatchToProps
+)(DeliverySheetPage)
+
+
+export default withStyles(styles)(ConnectedPage);
