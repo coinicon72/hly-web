@@ -84,6 +84,8 @@ import DeliverySheetPage from './delivery_sheet'
 import DeliverySheetDetailsPage from './delivery_sheet_details'
 import CommittedDeliverySheetPage from './committed_delivery_sheet'
 import SalesDetailsPage from './sales_details'
+import SchedulesPage from './schedules'
+import PurchasingDetailsPage from './purchasing_details'
 
 
 // import DAC from "./dimension_aware_component"
@@ -216,7 +218,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         error.response.data && error.response.data.message && error.response.data.message === 'token expired') {
         this.handleLogout()
       }
-      
+
       return Promise.reject(error);
     }.bind(this));
   }
@@ -394,7 +396,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
   manufactionItems = _ => {
     let l = []
 
-    if (this.hasPrivilege('sales:order'))
+    if (this.hasPrivilege('sales:order')) {
       l.push(<Link key="/orders" to="/orders">
         <ListItem button>
           <ListItemIcon>
@@ -403,6 +405,27 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <ListItemText primary="订单" />
         </ListItem>
       </Link>)
+
+      l.push(<Link key="/sales_details" to="/sales_details">
+        <ListItem button>
+          <ListItemIcon>
+            <ClipboardText />
+          </ListItemIcon>
+          <ListItemText primary="销售明细" />
+        </ListItem>
+      </Link>)
+    }
+
+    if (this.hasPrivilege('production:bom')) {
+      l.push(<Link key="/schedules" to="/schedules">
+        <ListItem button>
+          <ListItemIcon>
+            <FileMultiple />
+          </ListItemIcon>
+          <ListItemText primary="排产明细" />
+        </ListItem>
+      </Link>)
+    }
 
     if (this.hasPrivilege('production:bom')) {
       l.push(<Link key="/boms" to="/boms">
@@ -413,8 +436,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <ListItemText primary="BOM 物料清单" />
         </ListItem>
       </Link>)
+    }
 
-      // if (this.hasPrivilege('production:bom'))
+    if (this.hasPrivilege('sales:order')) {
       l.push(<Link key="/delivery_sheet" to="/delivery_sheet">
         <ListItem button>
           <ListItemIcon>
@@ -438,7 +462,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
   purchasingOrderItems = _ => {
     let l = []
 
-    if (this.hasPrivilege('purchasing:plan'))
+    if (this.hasPrivilege('purchasing:plan')) {
       l.push(<Link key="/purchasingOrder" to="/purchasingOrder">
         <ListItem button>
           <ListItemIcon>
@@ -447,6 +471,16 @@ class App extends React.PureComponent<{ classes: any }, any> {
           <ListItemText primary="采购计划" />
         </ListItem>
       </Link>)
+
+      l.push(<Link key="/purchasing_details" to="/purchasing_details">
+        <ListItem button>
+          <ListItemIcon>
+            <LibraryBooks />
+          </ListItemIcon>
+          <ListItemText primary="采购明细" />
+        </ListItem>
+      </Link>)
+    }
 
     return l.length > 0 ?
       <React.Fragment>
@@ -750,6 +784,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/delivery_sheet" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单</Typography>} />
         <Route path="/delivery_sheet_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单明细</Typography>} />
         <Route path="/sales_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>销售明细</Typography>} />
+        <Route path="/schedules" component={({ type }) => <Typography variant="title" className={classes.appTitle}>排产明细</Typography>} />
+        <Route path="/purchasing_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购明细</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅{process.env.NODE_ENV === 'development' ? ' - development' : null}</Typography>} />
       </Switch>
 
@@ -857,7 +893,11 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/delivery_sheet/:oid?" component={DeliverySheetPage} />
         <Route path="/delivery_sheet_details/:mode/:id" component={DeliverySheetDetailsPage} />
 
-        <Route path="/sales_details/:oid" component={SalesDetailsPage} />
+        <Route path="/sales_details" component={SalesDetailsPage} />
+
+        <Route path="/schedules" component={SchedulesPage} />
+
+        <Route path="/purchasing_details" component={PurchasingDetailsPage} />
 
         <Route component={HomePage} />
       </Switch>

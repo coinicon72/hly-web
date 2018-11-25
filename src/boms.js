@@ -59,16 +59,25 @@ class BomPage extends React.PureComponent {
                     this.state.boms = boms;
 
                     boms.forEach(b => {
-                        axios.get(`${DATA_API_BASE_URL}/boms/${b.id}/orderItem`)
+                        axios.get(`${DATA_API_BASE_URL}/orderItems/${b.id.order}_${b.id.product}`)
                             .then(resp => resp.data)
                             .then(bi => {
                                 b.orderItem = bi
-                                return bi.order.id
+                                return bi.id.order
                             })
-                            .then(oid => axios.get(`${DATA_API_BASE_URL}/orders/${oid}`))
-                            .then(resp => resp.data._embedded.client)
-                            .then(client => {
-                                b.client = client
+                            
+                            .then(oid => axios.get(`${DATA_API_BASE_URL}/products/${b.orderItem.id.product}`))
+                            .then(resp => resp.data)
+                            .then(p => {
+                                b.orderItem.product = p
+                                return 1
+                            })
+
+                            .then(oid => axios.get(`${DATA_API_BASE_URL}/orders/${b.orderItem.id.order}`))
+                            .then(resp => resp.data)
+                            .then(o => {
+                                b.orderItem.order = o
+                                b.client = o._embedded.client
                                 this.forceUpdate()
                             })
                         // .then(oid => axios.get(`${API_BASE_URL}/orders/${oid}`))
@@ -124,7 +133,7 @@ class BomPage extends React.PureComponent {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell numeric style={{ whiteSpace: 'nowrap' }}>BOM序号</TableCell>
+                                    {/* <TableCell numeric style={{ whiteSpace: 'nowrap' }}>BOM序号</TableCell> */}
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>客户</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>订单编号</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>产品编号</TableCell>
@@ -140,19 +149,19 @@ class BomPage extends React.PureComponent {
                                     const { client, orderItem } = bom
                                     return (
                                         <TableRow key={bom.id}>
-                                            <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{bom.id}</TableCell>
+                                            {/* <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{bom.id}</TableCell> */}
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{client ? client.name : null}</TableCell>
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem ? orderItem.order.no : null}</TableCell>
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem.product.code}</TableCell>
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.order ? orderItem.order.no : null}</TableCell>
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.product ? orderItem.product.code : null}</TableCell>
                                             <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`${orderItem.quantity} kg`}</TableCell>
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0, textAlign: 'center' }}>
                                                 <Tooltip title="明细">
-                                                    <IconButton component={Link} to={`/bom/view/${orderItem.order.id}`}>
+                                                    <IconButton component={Link} to={`/bom/view/${orderItem.id.order}`}>
                                                         <FileDocumentBox />
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="编辑">
-                                                    <IconButton component={Link} to={`/bom/edit/${orderItem.order.id}`}>
+                                                    <IconButton component={Link} to={`/bom/edit/${orderItem.id.order}`}>
                                                         <Edit />
                                                     </IconButton>
                                                 </Tooltip>

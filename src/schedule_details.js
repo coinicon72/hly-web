@@ -81,7 +81,7 @@ import { actionShowSnackbar } from "./redux/data_selection"
 import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
 
 import { EXPORT_BASE_URL, DATA_API_BASE_URL } from "./config"
-import { toFixedMass, toDateString } from "./utils"
+import { toFixedMass, toDateString, getTodayString } from "./utils"
 // import { store } from "./redux"
 
 
@@ -488,6 +488,7 @@ class SchedulePage extends React.PureComponent {
                     this.setState({ order })
                 })
                 .catch(e => this.props.showSnackbar(e.message))
+
                 .then(_ => axios.get(`${DATA_API_BASE_URL}/producingSchedules/${id}`))
                 .then(resp => resp.data)
                 .then(schedule => {
@@ -498,6 +499,12 @@ class SchedulePage extends React.PureComponent {
                     // schedule.product = {id: pid}
 
                     this.setState({ schedule, mode: MODE_EDIT })
+                })
+                .catch(e => {
+                    if (e.response.status === 404)
+                        this.setState({ mode: MODE_ADD })
+                    else
+                        this.props.showSnackbar(e.message)
                 })
         }
 
@@ -634,6 +641,9 @@ class SchedulePage extends React.PureComponent {
                                                 InputLabelProps={{
                                                     shrink: true,
                                                 }}
+                                                inputProps={{
+                                                    min: mode === MODE_VIEW ? null : getTodayString()
+                                                }}
                                             />
 
                                             <TextField type="date" id="producingDate"
@@ -647,6 +657,9 @@ class SchedulePage extends React.PureComponent {
                                                 margin="normal"
                                                 InputLabelProps={{
                                                     shrink: true,
+                                                }}
+                                                inputProps={{
+                                                    min: mode === MODE_VIEW ? null : getTodayString()
                                                 }}
                                             />
                                         </MuGrid>
