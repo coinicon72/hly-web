@@ -56,21 +56,21 @@ import { TaxTypeEditor, TaxTypeProvider } from './common_components'
 
 const COLUMNS = [
     // { name: 'id', title: '序号', getCellValue: row => `${row.id.repoChanging}-${row.id.material}` },
-    { name: "date", title: "采购日期", getCellValue: row => row.repoChanging.purchasingOrder ? row.repoChanging.purchasingOrder.date : null },
-    { name: "orderNo", title: "采购单号", getCellValue: row => row.repoChanging.purchasingOrder ? row.repoChanging.purchasingOrder.no : null },
-    { name: "executeDate", title: "入库日期", getCellValue: row => row.repoChanging.executeDate },
-    { name: "repoNo", title: "入库编号", getCellValue: row => row.repoChanging.no },
-    { name: "repo", title: "仓库", getCellValue: row => row.repoChanging.repo.name },
-    { name: "supplier", title: "供应商", getCellValue: row => row.repoChanging.purchasingOrder ? row.repoChanging.purchasingOrder.supplier.name : null },
-    { name: 'productCode', title: '产品名称', getCellValue: row => row.material.name },
-    { name: 'type', title: '类型', getCellValue: row => row.material.type.name },
-    { name: 'spec', title: '规格', getCellValue: row => row.material.spec },
+    { name: "date", title: "采购日期", getCellValue: row => row.order.date },
+    { name: "orderNo", title: "采购单号", getCellValue: row => row.order.no },
+    { name: "executeDate", title: "入库日期", getCellValue: row => row.order.repoChanging ? row.order.repoChanging.executeDate : null },
+    { name: "repoNo", title: "入库编号", getCellValue: row => row.order.repoChanging ? row.order.repoChanging.no : null },
+    { name: "repo", title: "仓库", getCellValue: row => row.order.repoChanging ? row.order.repoChanging.repo.name : null },
+    { name: "supplier", title: "供应商", getCellValue: row => row.order.supplier.name },
+    { name: 'productCode', title: '产品名称', getCellValue: row => row.item.material.name },
+    { name: 'type', title: '类型', getCellValue: row => row.item.material.type.name },
+    { name: 'spec', title: '规格', getCellValue: row => row.item.material.spec },
     // { name: 'unit', title: '单位', },
-    { name: 'quantity', title: '数量' },
-    { name: 'price', title: '单价', getCellValue: row => `¥ ${toFixedMoney(row.price)}` },
-    { name: 'total', title: '总价', getCellValue: row => `¥ ${toFixedMoney(row.quantity * row.price)}` },
-    { name: 'tax', title: '是否含税', getCellValue: row => row.repoChanging.purchasingOrder ? row.repoChanging.purchasingOrder.tax : null }, //getCellValue: row => row.tax ? '是' : '否' },
-    { name: 'actualTotal', title: '不含税总价', getCellValue: row => `¥ ${toFixedMoney(row.repoChanging.purchasingOrder && row.repoChanging.purchasingOrder.tax ? row.quantity * row.price / 1.16 : row.quantity * row.price)}` },
+    { name: 'quantity', title: '数量', getCellValue: row => row.item.quantity },
+    { name: 'price', title: '单价', getCellValue: row => `¥ ${toFixedMoney(row.item.vip)}` },
+    { name: 'total', title: '总价', getCellValue: row => `¥ ${toFixedMoney(row.item.quantity * row.item.vip)}` },
+    { name: 'tax', title: '是否含税', getCellValue: row => row.order.tax }, //getCellValue: row => row.tax ? '是' : '否' },
+    { name: 'actualTotal', title: '不含税总价', getCellValue: row => `¥ ${toFixedMoney(row.order.tax ? row.item.quantity * row.item.vip / (1 + row.order.vat) : row.item.quantity * row.item.vip)}` },
 ]
 
 
@@ -79,29 +79,16 @@ class PurchasingOrderPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        // this.state = {
-        //     // dataFilter: "",
-        //     // dataRepoApiUrl: "",
-        //     columns: [],
+        this.suppliers = {};
+        this.materials = {};
 
-        //     dataRepoApiUrl: `${API_BASE_URL}/purchasingDetails`,
-        //     // ready4UI: false,
-        // }
+        this.details = [];
 
-        this.dataRepoApiUrl = `${API_BASE_URL}/purchasingDetails`;
+        //
+        this.dataRepoApiUrl = `${API_BASE_URL}/purchasingOrders`;
 
-        // this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
-
-        // this.changeAddedRowsCallback = (row => {
-        //     return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
-        // });
-
+        //
         this.doLoad = this.doLoad.bind(this)
-        // this.doAdd = this.doAdd.bind(this)
-        // this.doUpdate = this.doUpdate.bind(this)
-        // this.doDelete = this.doDelete.bind(this)
-
-        // this.addRowHandler = () => this.props.history.push(DETAIL_PAGE_URL);
     }
 
     componentDidMount() {
@@ -117,29 +104,25 @@ class PurchasingOrderPage extends React.PureComponent {
     doLoad = () => {
         return axios.get(this.dataRepoApiUrl)//,
             .then(resp => resp.data)
-            .then(d => {
-                let changings = {};
-                let orders = {};
+            .then(orders => {
+                orders.map(o => o.supplier)
+                    .filter(c => typeof (c) === 'object')
+                    .forEach(c => {
+                        if (!this.suppliers[c.id])
+                            this.suppliers[c.id] = c;
+                    });
 
-                d.map(i => i.repoChanging)
-                    .filter(o => o !== null && typeof (o) === 'object')
-                    .forEach(o => changings[o.id] = o)
-                    ;
+                orders.forEach(order => {
+                    if (typeof (order.supplier) !== 'object')
+                        order.supplier = this.suppliers[order.supplier];
 
-                d.filter(i => typeof (i.repoChanging) !== 'object')
-                    .forEach(i => i.repoChanging = changings[i.repoChanging]);
+                    order.items.forEach(item => {
+                        this.details.push({ order, item });
+                    })
+                })
 
-                d.map(i => i.repoChanging.order)
-                    .filter(o => o !== null && typeof (o) === 'object')
-                    .forEach(o => orders[o.id] = o)
-                    ;
-
-                d.filter(i => typeof (i.repoChanging.purchasingOrder) !== 'object')
-                    .forEach(i => i.repoChanging.purchasingOrder = orders[i.repoChanging.purchasingOrder]);
-
-                d.forEach(i => i.key = `${i.id.repoChanging}-${i.id.material}`)
-                return d;
-            })
+                return this.details;
+            });
     }
 
     // doAdd = (r) => {

@@ -8,10 +8,11 @@
 
 # production
 /build
-/dist/bundle.js
+/dist/bundle.js*
 /lib
 
 # misc
+.vscode
 .DS_Store
 .env.local
 .env.development.local
