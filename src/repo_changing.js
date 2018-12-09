@@ -24,13 +24,11 @@ import { actionShowSnackbar } from "./redux/data_selection"
 import {
     TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT,
 } from "./common"
-import {
-    DATA_API_BASE_URL
-} from "./config"
+import {API_BASE_URL, DATA_API_BASE_URL} from "./config"
 
 import CommonStyles from "./common_styles"
 
-import { CurrencyTypeProvider, RepoChangingTypeProvider } from "./common_components"
+import { CurrencyTypeProvider, RepoChangingTypeProvider, RepoChangingStatusProvider } from "./common_components"
 import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
 
 import DataTableBase from "./data_table_base"
@@ -51,6 +49,8 @@ const COLUMNS_OUT = [
     { name: "department", title: "部门" },
     { name: "createDate", title: "创建日期", getCellValue: row => row.createDate.split('T')[0] },
     { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
+    { name: "status", title: "状态" },
+    { name: "totalQuantity", title: "总数量" },
 ]
 
 const COLUMNS_IN = [
@@ -67,7 +67,9 @@ const COLUMNS_IN_OUT = [
     { name: "department", title: "部门" },
     { name: "applyingDate", title: "申请日期", getCellValue: row => row.applyingDate ? row.applyingDate.split('T')[0] : null },
     { name: "reason", title: "原因", getCellValue: row => row.reason ? row.reason.reason : null },
+    { name: "status", title: "状态" },
     { name: "amount", title: "总额", getCellValue: row => row.type === REPO_CHANGING_TYPE_IN ? row.amount : "" },
+    { name: "totalQuantity", title: "总数量" },
 ]
 
 
@@ -108,35 +110,45 @@ class RepoChangingPage extends React.PureComponent {
         // if (!user)
         //     user = { id: -1 }
 
+        //
+        let url = `${API_BASE_URL}/stock-changing`
+        let columns = COLUMNS_IN_OUT
+
         switch (type) {
             case TYPE_STOCK_IN:
                 if (user)
-                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=${REPO_CHANGING_TYPE_IN}&status=0&user=../../../users/${user.id}`;
+                    // this.state.dataFilter = `/search/findByTypeAndApplicant?type=${REPO_CHANGING_TYPE_IN}&user=../../../users/${user.id}`;
+                    url = `${API_BASE_URL}/stock-in`
                 else
-                    this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_IN}&status=-1`;
-                this.state.columns = COLUMNS_IN;
+                    // this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_IN}&status=-1`;
+                    url = `${API_BASE_URL}/stock-in/rejected`
+                columns = COLUMNS_IN;
                 break;
+
             case TYPE_STOCK_OUT:
                 if (user)
-                    this.state.dataFilter = `/search/findByTypeAndStatusAndApplicant?type=${REPO_CHANGING_TYPE_OUT}&status=0&user=../../../users/${user.id}`;
+                    // this.state.dataFilter = `/stockOuts`;
+                    url = `${API_BASE_URL}/stock-out`
                 else
-                    this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_OUT}&status=-1`;
-                this.state.columns = COLUMNS_OUT;
+                    // this.state.dataFilter = `/search/findByTypeAndStatus?type=${REPO_CHANGING_TYPE_OUT}&status=-1`;
+                    url = `${API_BASE_URL}/stock-out/rejected`
+                columns = COLUMNS_OUT;
                 break;
-            case TYPE_STOCK_IN_OUT:
-                this.state.dataFilter = "/search/findStockInOutByStatus?status=1";
-                this.state.columns = COLUMNS_IN_OUT;
-                break;
+            // case TYPE_STOCK_IN_OUT:
+            //     this.state.columns = COLUMNS_IN_OUT;
+            //     break;
 
             default:
                 break
         }
-        this.setState({ dataRepoApiUrl: `${DATA_API_BASE_URL}/${DATA_REPO}` + this.state.dataFilter, ready4UI: true });
+
+        //
+        this.setState({ dataRepoApiUrl: url, columns, ready4UI: true });
     }
 
     doLoad = () => {
         return axios.get(this.state.dataRepoApiUrl)//,
-            .then(resp => resp.data._embedded[DATA_REPO])
+            .then(resp => resp.data)
     }
 
     doAdd = (r) => {
@@ -184,6 +196,7 @@ class RepoChangingPage extends React.PureComponent {
                     providers={[
                         <RepoChangingTypeProvider for={['type']} />,
                         <CurrencyTypeProvider for={['amount']} />,
+                        <RepoChangingStatusProvider for={['status']} />,
                     ]}
                 />
             </div>

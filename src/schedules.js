@@ -95,7 +95,7 @@ class SchedulesPage extends React.PureComponent {
 
     onRowDoubleClicked = (row) => {
         if (row)
-            this.props.history.push(`/order/${row.id.order}`);
+            this.props.history.push(`/schedule_details/${row.id.order}_${row.id.product}`);
     }
 
     doLoad = () => {

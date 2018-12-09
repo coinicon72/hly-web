@@ -98,10 +98,10 @@ const actionSelectOrder = (order) => {
     }
 }
 
-const actionSelectFormula = (product, formula, bomId) => {
+const actionSelectFormula = (productId, formulaId) => {
     return {
         type: SELECT_FORMULA,
-        ...{ product, formula, bomId },
+        ...{ productId, formulaId },
     }
 }
 
@@ -121,7 +121,7 @@ const actionValidData = (errors) => {
 
 const initState = {
     order: null, // order.id
-    boms: [], // { product.id, formula.id, [{ material.id, quantity }] }
+    boms: [], // {id: {order: 1, product: 1}, formula: 2, materials: []} { product.id, formula.id, [{ material.id, quantity }] }
     errors: null // {} errors object
 }
 
@@ -134,12 +134,12 @@ function bomReducer(state = initState, action) {
             break;
 
         case SELECT_FORMULA: {
-            let { product, formula, bomId } = action
+            let { productId, formulaId } = action
 
-            newState.boms = newState.boms.filter(i => i.product !== product)
+            newState.boms = newState.boms.filter(i => i.product !== productId)
             // let bi = newState.bomItems.find(i => i.product == product && i.formula == formula)
             // if (!bi) 
-            newState.boms.push({ id: bomId, product, formula, materials: [] })
+            newState.boms.push({ product: productId, formula: formulaId, materials: [] })
             break;
         }
 
@@ -395,17 +395,15 @@ class SchedulePage extends React.PureComponent {
                     "formula": {
                         "id": bi.formula,
                     },
-                    "orderItem": {
-                        "id": {
-                            "order": order.id,
-                            "product": bi.product
-                        },
-                        "order": {
-                            "id": order.id
-                        },
-                        "product": {
-                            "id": bi.product
-                        }
+                    "id": {
+                        "order": order.id,
+                        "product": bi.product
+                    },
+                    "order": {
+                        "id": order.id
+                    },
+                    "product": {
+                        "id": bi.product
                     }
                 }
 
@@ -416,12 +414,12 @@ class SchedulePage extends React.PureComponent {
                         action = new Promise((resolve, reject) => resolve(bi.id))
                     else
                         // formula changed
-                        action = axios.delete(`${DATA_API_BASE_URL}/boms/${bi.id}`)
+                        action = axios.delete(`${DATA_API_BASE_URL}/boms/${bi.id.order}_${bi.id.product}`)
                             .then(_ =>
                                 axios.post(`${DATA_API_BASE_URL}/boms`, bom)
                                     .then(resp => resp.data)
                                     .then(j => {
-                                        bom.id = j.id
+                                        // bom.id = j.id
                                         return j.id
                                     })
                             )
@@ -429,7 +427,7 @@ class SchedulePage extends React.PureComponent {
                     action = axios.post(`${DATA_API_BASE_URL}/boms`, bom)
                         .then(resp => resp.data)
                         .then(j => {
-                            bom.id = j.id
+                            // bom.id = j.id
                             return j.id
                         })
 
@@ -438,8 +436,9 @@ class SchedulePage extends React.PureComponent {
                     materials.forEach(m => {
 
                         let bi = {
-                            "id": { "bom": bid, "material": m.material },
-                            "bom": { "id": bid },
+                            "id": { "order": bid.order, 'product': bid.product, "material": m.material },
+                            "order": { "id": bid.order },
+                            'product': { 'id': bid.product },
                             "material": { "id": m.material },
                             "quantity": m.quantity,
                             "calcQuantity": m.calc_quantity
@@ -477,19 +476,23 @@ class SchedulePage extends React.PureComponent {
         if (id) {
             // const oid = Number.parseInt(id.split('_')[0])
             // const pid = Number.parseInt(id.split('_')[1])
-            axios.get(`${DATA_API_BASE_URL}/orderItems/${id}`)
-                .then(resp => resp.data)
-                .then(j => {
-                    this.setState({ orderItem: j })
-                })
-                .then(_ => axios.get(`${DATA_API_BASE_URL}/orderItems/${id}/order`))
+            // axios.get(`${DATA_API_BASE_URL}/orderItems/${id}`)
+            //     .then(resp => resp.data)
+            //     .then(j => {
+            //         this.setState({ orderItem: j })
+            //     })
+            // .then(_ => 
+            axios.get(`${DATA_API_BASE_URL}/orderItems/${id}/order`)
+                // )
                 .then(resp => resp.data)
                 .then(order => {
                     this.setState({ order })
                 })
                 .catch(e => this.props.showSnackbar(e.message))
 
-                .then(_ => axios.get(`${DATA_API_BASE_URL}/producingSchedules/${id}`))
+                .then(_ =>
+                    axios.get(`${DATA_API_BASE_URL}/producingSchedules/${id}`)
+                )
                 .then(resp => resp.data)
                 .then(schedule => {
                     // "id": {"order":2, "product": 2}, "order": {"id": 2}, "product": {"id": 2}, 
@@ -498,10 +501,17 @@ class SchedulePage extends React.PureComponent {
                     // schedule.order = {id: oid}
                     // schedule.product = {id: pid}
 
-                    this.setState({ schedule, mode: MODE_EDIT })
+                    this.setState({
+                        schedule, mode: MODE_EDIT,
+                        // order: schedule._embedded.orderItem.order, 
+                        orderItem: schedule._embedded.orderItem,
+                        bom: schedule._embedded.bom,
+                        formula: schedule._embedded.bom ? schedule._embedded.bom.formula : null,
+                    })
                 })
+
                 .catch(e => {
-                    if (e.response.status === 404)
+                    if (e.response && e.response.status === 404)
                         this.setState({ mode: MODE_ADD })
                     else
                         this.props.showSnackbar(e.message)
@@ -529,7 +539,7 @@ class SchedulePage extends React.PureComponent {
     render() {
         const { classes, } = this.props
         const orderId = this.props.match.params.id;
-        const { mode, order, orderItem, schedule } = this.state;
+        const { mode, order, orderItem, schedule, formula, bom } = this.state;
         const { showSelectOrder, columns, selection } = this.state;
         const { errors } = this.state;
 
@@ -688,7 +698,13 @@ class SchedulePage extends React.PureComponent {
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <Typography variant="title" className={classes.subTitle} style={{ flex: 1 }}>产品</Typography>
 
-                                {orderItem && <BomSheet key={orderItem.id.product} orderItem={orderItem} mode={MODE_EDIT} />}
+                                {orderItem && <BomSheet key={orderItem.id.product}
+                                    mode={MODE_EDIT}
+                                    orderItem={orderItem}
+                                    product={orderItem.product}
+                                    formula={formula}
+                                    bom={bom}
+                                />}
 
                             </div>
                         </React.Fragment>
@@ -852,38 +868,41 @@ class BomSheet extends React.PureComponent {
     }
 
     componentDidMount() {
-        const { orderItem } = this.props
+        const { orderItem, formula, bom, product } = this.props
+        this.setState({ formula, product})
 
         this.state.reduxSubscribe = store.subscribe(this.onRedux)
 
-        axios.get(`${DATA_API_BASE_URL}/products/${orderItem.id.product}`)
-            .then(resp => resp.data)
-            .then(j => {
-                this.setState({ product: j });
-                return j._links.formulas.href;
-            })
-            .then(url => axios.get(url))
+        // axios.get(`${DATA_API_BASE_URL}/products/${orderItem.id.product}`)
+        //     .then(resp => resp.data)
+        //     .then(j => {
+        //         this.setState({ product: j });
+        //         return j._links.formulas.href;
+        //     })
+        //     .then(url => axios.get(url))
+        axios.get(`${DATA_API_BASE_URL}/products/${product.id}/formulas`)
             .then(resp => resp.data._embedded.formulas)
             .then(fs => {
-                fs.forEach(i => i.createDate = i.createDate.split('.')[0].replace("T", " "))
+                fs.forEach(i => i.createDate = toDateString(i.createDate)); //i.createDate.split('.')[0].replace("T", " "))
                 this.setState({ formulas: fs })
-                return orderItem
+
+                return bom //orderItem
             })
-            .then(oi => axios.get(`${DATA_API_BASE_URL}/orderItems/${oi.id.order}_${oi.id.product}`))
-            .then(resp => resp.data._embedded ? resp.data._embedded.bom : null)
+            // .then(oi => axios.get(`${DATA_API_BASE_URL}/orderItems/${oi.id.order}_${oi.id.product}`))
+            // .then(resp => resp.data._embedded ? resp.data._embedded.bom : null)
             .then(bom => {
                 if (!bom) return
 
-                bom.formula.createDate = bom.formula.createDate.split('.')[0].replace("T", " ")
-                this.state.formula = bom.formula
-                store.dispatch(actionSelectFormula(bom.orderItem.id.product, bom.formula.id, bom.id))
+                bom.formula.createDate = toDateString(bom.formula.createDate) //bom.formula.createDate.split('.')[0].replace("T", " ")
+                // this.state.formula = bom.formula
+                store.dispatch(actionSelectFormula(bom.id.product, bom.formula.id))
 
                 axios.get(`${DATA_API_BASE_URL}/formulas/${bom.formula.id}/items`)
                     .then(resp => resp.data._embedded.formulaItems)
                     .then(formulaItems => {
                         this.state.formulaItems = formulaItems
 
-                        return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id}/items`)
+                        return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id.order}_${bom.id.product}/items`)
                     })
                     .then(resp => resp.data._embedded.bomItems)
                     .then(bomItems => {

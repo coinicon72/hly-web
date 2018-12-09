@@ -290,7 +290,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
 
             let o = {
                 ...this.state.deliverySheet,
-                // value: ,
+                id: 0,
                 order: { id: order.id },
                 createdBy: { id: this.props.user.id },
             }

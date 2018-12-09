@@ -97,7 +97,7 @@ class SaleDetailsPage extends React.PureComponent {
                         order.deliverySheets.forEach(deliverySheet => {
                             // if (deliverySheet.items.length > 0) {
                             deliverySheet.items.forEach(p => {
-                                const item = order.items.find(i => i.id.product === p.orderItem.product);
+                                const item = order.items.find(i => i.id.product === p.orderItem.id.product);
                                 const product = this.products[p.orderItem.product];
                                 this.details.push({ order, deliverySheet, item, product, deliveryItem: p });
                             })

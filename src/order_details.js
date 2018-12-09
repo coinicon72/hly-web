@@ -287,7 +287,7 @@ class OrderDetailsPage extends React.PureComponent {
 
             let o = {
                 ...this.state.order,
-                // value: ,
+                id: 0,
                 client: { id: client.id }
             }
 

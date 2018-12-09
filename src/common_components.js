@@ -259,23 +259,50 @@ export const RepoChangingTypeEditor = ({ value, onValueChange }) => (
     </Select>
 );
 
-// const BooleanTypeProvider = props => (
-// export const ReasonTypeProvider = props => (
-//     <DataTypeProvider
-//         formatterComponent={
-//             ({ row, value }) =>
-//                 value === REPO_CHANGING_TYPE_IN ? '入库' : '出库'
-//         }
-//         editorComponent={ReasonTypeEditor}
-//         {...props}
-//     />
-// );
-
 export const RepoChangingTypeProvider = props => (
     <DataTypeProvider
         formatterComponent={({ row, value }) =>
             <Typography key={value} style={value === REPO_CHANGING_TYPE_IN ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value === REPO_CHANGING_TYPE_IN ? '入库' : '出库'}</Typography>}
-            editorComponent={RepoChangingTypeEditor}
-            {...props}
+        editorComponent={RepoChangingTypeEditor}
+        {...props}
+    />
+);
+
+
+// 0 = init; 1 = submitted; 2 = executed; -1 = rejected
+export const RepoChangingStatusEditor = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)
+        }
+        }
+        style={{ width: '100%' }}
+    >
+        <option key="o" value=""></option>
+        <option key="o0" value={0}>创建</option>
+        <option key="o1" value={1}>已提交</option>
+        <option key="o2" value={2}>已完成</option>
+        <option key="o-1" value={-1}>被拒绝</option>
+    </Select>
+);
+
+export const RepoChangingStatusProvider = props => (
+    <DataTypeProvider
+        formatterComponent={({ row, value }) =>
+        // <Typography key={value} style={value === REPO_CHANGING_TYPE_IN ? { color: COLOR_STOCK_IN } : { color: COLOR_STOCK_OUT }}>{value === REPO_CHANGING_TYPE_IN ? '入库' : '出库'}</Typography>}
+        {
+            switch (value) {
+                case 0: return "创建";
+                case 1: return "已提交";
+                case 2: return "已完成";
+                case -1: return "被拒绝";
+                default: return "";
+            }
+        }}
+        editorComponent={RepoChangingStatusEditor}
+        {...props}
     />
 );

@@ -287,6 +287,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
             //     // value: ,
             //     signer: { id: user.id }
             // }
+            order.id = 0
             order.supplier = { id: client.id }
             order.date += ' 00:00:00'
 

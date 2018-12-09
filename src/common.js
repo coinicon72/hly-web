@@ -1,5 +1,5 @@
 export const REPO_CHANGING_TYPE_IN = 1;
-export const REPO_CHANGING_TYPE_OUT = -2;
+export const REPO_CHANGING_TYPE_OUT = -1;
 
 export const ORDER_STATUS_PRODUCING = 1;
 export const ORDER_STATUS_DELIVERED = 2;

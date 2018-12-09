@@ -1,7 +1,18 @@
-- [ ] enter to log in
-- [x] production schedule: create bom from order, may only include part of order
-- [ ] confirm order status
-- [ ] under which condition, we can't create delivery sheet? order status = ORDER_STATUS_PRODUCING / ORDER_STATUS_DELIVERED ?
-- [x] price of product in delivery sheet comes from order?
++ [ ] enter to log in
 
-- [ ] create stock-in sheet from purching sheet
++ [x] [入库单] /stock-in/edit/1 无显示（index.html配置js/css为相对路径，导致再次刷新时加载失败。已改为绝对路径）
++ [x] [采购明细] /purchasing_details 无显示
++ [x] [入库明细] 增加`数据总额`字段
++ [x] [出库单列表] 增加总数量
++ [x] [入库、出库] 显示已受理单据（增加状态字段）
++ [x] [入库、出库受理] 显示已受理单据（增加受理状态字段）
++ [x] [出库单] 新增无法保存（数据库中reason为-2，为什么？忘记原因了）
++ [x] [排产明细] 列表后面对每个排产增加一个生成bom （在生成排产计划的时候就确定了BOM）
++ [ ] [出库单] 销售出库时，选择订单 改为 选择发货单
++ [ ] [出库单] 材料领用时，选择订单 改为 选择BOM单
++ [ ] [入库明细表] 新增
++ [ ] [出库明细表] 新增
++ [ ] [库存汇总表] 新增
++ [ ] [生产统计] 新增
++ [ ] [盘点表] 新增，一人录入，一人审核
++ [ ] [所有报表] 支持打印

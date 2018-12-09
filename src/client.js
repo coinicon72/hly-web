@@ -140,6 +140,7 @@ class ClientPage extends React.PureComponent {
         let v = this.state.availableValues['type'].find(v => v.name === r.type)
         if (v) r.type = v;
 
+        r.id = 0
         return axios.post(this.dataRepoApiUrl, r)
             .then(resp => resp.data)
             .then(j => ({ ...j, type: r.type }))

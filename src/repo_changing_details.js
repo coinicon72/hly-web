@@ -147,7 +147,6 @@ class RepoChangingDetailsPage extends React.PureComponent {
             dirty: false, // is data dirty?
 
 
-
             form: {},  // {applicant, application, department}
             changingItems: [], // [{ material: { }, quantity: 0 }]
 
@@ -197,6 +196,21 @@ class RepoChangingDetailsPage extends React.PureComponent {
             order: null, //
 
             orderSelection: [],
+
+            //
+            showSelectDeliverySheet: false,
+            deliverySheetColumns: [
+                { name: 'id', title: '序号' },
+                { name: 'no', title: '发货单编号' },
+                { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
+                { name: 'committedDate', title: '提交时间', getCellValue: row => toDateString(row.deliveryDate) },
+                { name: 'orderNo', title: '订单编号', getCellValue: row => row.order ? row.order.no : null },
+                { name: 'clientId', title: '客户', getCellValue: row => row.order && row.order.client ? row.order.client.name : null },
+            ],
+            deliverySheets: [], //
+            deliverySheet: null, //
+
+            deliverySheetSelection: [],
 
             //
             showSavingDiag: false,
@@ -400,6 +414,44 @@ class RepoChangingDetailsPage extends React.PureComponent {
             this.setState({ showSelectOrder: false })
         }
 
+        // 发货单选择
+        //
+        this.selectDeliverySheet = e => {
+            this.setState({ showSelectDeliverySheet: true })
+
+            axios.get(`${DATA_API_BASE_URL}/deliverySheets/search/findByStatus?status=1`)
+                .then(resp => resp.data._embedded.deliverySheets)
+                .then(j => {
+                    this.state.errors['form.order'] = null;
+                    this.setState({ deliverySheets: j });
+                })
+                .catch(e => this.props.showSnackbar(e.message));
+
+        }
+
+        this.cancelSelectDeliverySheet = _ => this.setState({ showSelectDeliverySheet: false })
+
+        this.changeDeliverySheetSelection = selection => {
+            let keys = Object.keys(selection)
+            if (keys.length > 1) {
+                let lastNo = selection[keys[keys.length - 1]]
+                selection = [lastNo]
+            }
+
+            this.setState({ deliverySheetSelection: selection });
+        }
+
+        this.onSelectedDeliverySheet = () => {
+            const { deliverySheets, deliverySheetSelection } = this.state;
+            if (deliverySheetSelection.length === 0) return;
+
+            //
+            const deliverySheet = deliverySheets[deliverySheetSelection[0]]
+            this.state.form.deliverySheet = deliverySheet
+            this.setState({ showSelectDeliverySheet: false })
+        }
+
+
         // saving
         this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
 
@@ -475,6 +527,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
             // let value = 0;
             // changingItems.forEach(i => value += i.quantity * i.price)
+            if (!form.id)
+                form.id = 0
+
             if (doSubmit) {
                 form.status = 1
                 form.applyingDate = getTodayDateTimeString()
@@ -490,9 +545,9 @@ class RepoChangingDetailsPage extends React.PureComponent {
                         this.props.showSnackbar(e.message)
                     })
 
-                    if (cancel) return;
+                if (cancel) return;
 
-                    this.setState({ activeStep: this.state.activeStep + 1 })
+                this.setState({ activeStep: this.state.activeStep + 1 })
             } else {
                 await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
                     .then(resp => resp.data)
@@ -871,18 +926,18 @@ class RepoChangingDetailsPage extends React.PureComponent {
         const actions = type === TYPE_STOCK_IN_OUT ?
             <React.Fragment>
                 <Tooltip title="受理此表单并开始处理">
-                    <Button onClick={() => this.processForm()} color='primary' style={{ fontSize: 18 }} >处理<ClipboardCheckOutline /></Button></Tooltip>
+                    <Button disabled={form.status === 2} onClick={() => this.processForm()} color='primary' style={{ fontSize: 18 }} >处理<ClipboardCheckOutline /></Button></Tooltip>
                 <Tooltip title="拒绝受理此表单">
-                    <Button onClick={() => this.rejectForm()} color='secondary' style={{ fontSize: 18 }} >拒绝<CloseOctagonOutline /></Button></Tooltip>
+                    <Button disabled={form.status === 2} onClick={() => this.rejectForm()} color='secondary' style={{ fontSize: 18 }} >拒绝<CloseOctagonOutline /></Button></Tooltip>
             </React.Fragment>
             :
             <React.Fragment>
                 {mode === MODE_DELIVERY ? null :
                     <Tooltip title="保存表单">
-                        <Button onClick={() => this.saveForm(false)} disabled={!dirty} color='primary' style={{ fontSize: 18 }} >保存<ContentSave /></Button></Tooltip>
+                        <Button onClick={() => this.saveForm(false)} disabled={!dirty || form.status === 2} color='primary' style={{ fontSize: 18 }} >保存<ContentSave /></Button></Tooltip>
                 }
                 <Tooltip title="保存表单，然后提交给仓库管理员">
-                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={(!dirty && mode !== MODE_EDIT) || mode === MODE_VIEW} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
+                    <Button onClick={() => this.saveForm(true)} color='secondary' disabled={(!dirty && mode !== MODE_EDIT) || mode === MODE_VIEW || form.status === 2} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
             </React.Fragment>
 
         return this.state.repoes && this.state.materials && this.state.repoChangingReasons ? (
@@ -1002,6 +1057,8 @@ class RepoChangingDetailsPage extends React.PureComponent {
 
                             {form && form.type === REPO_CHANGING_TYPE_OUT && form.reason && form.reason.orderRelated === 1 ?
                                 <MuGrid >
+                                    {/* <Button onClick={this.selectDeliverySheet} disabled={disableEdit || orderSpecified}>
+                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '发货单' : '选择发货单'} */}
                                     <Button onClick={this.selectOrder} disabled={disableEdit || orderSpecified}>
                                         <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '订单' : '选择订单'}
                                     </Button>
@@ -1269,6 +1326,49 @@ class RepoChangingDetailsPage extends React.PureComponent {
                     <DialogActions>
                         <Button onClick={this.cancelSelectOrder} color="primary">取消</Button>
                         <Button onClick={this.onSelectedOrder} disabled={this.state.orderSelection.length <= 0} color="secondary">添加</Button>
+                    </DialogActions>
+                </Dialog>
+
+
+                {/* dialog for select delivery sheet */}
+                <Dialog
+                    open={this.state.showSelectDeliverySheet}
+                    onClose={this.cancelSelectDeliverySheet}
+                    // className={classes.dialog}
+                    classes={{ paper: classes.dialog }}
+                >
+                    <DialogTitle>选择发货单</DialogTitle>
+                    <DialogContent>
+                        <Paper>
+                            <Grid
+                                rows={this.state.deliverySheets}
+                                columns={this.state.deliverySheetColumns}
+                            >
+                                <SelectionState
+                                    selection={this.state.deliverySheetSelection}
+                                    onSelectionChange={this.changeDeliverySheetSelection}
+                                />
+                                <IntegratedSelection />
+
+                                <SortingState
+                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
+                                />
+                                <IntegratedSorting />
+
+                                <FilteringState defaultFilters={[]} />
+                                <IntegratedFiltering />
+
+                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
+
+                                <TableHeaderRow showSortingControls />
+                                <TableFilterRow />
+                                <TableSelection selectByRowClick={true} />
+                            </Grid>
+                        </Paper>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.cancelSelectDeliverySheet} color="primary">取消</Button>
+                        <Button onClick={this.onSelectedDeliverySheet} disabled={this.state.deliverySheetSelection.length <= 0} color="secondary">选择</Button>
                     </DialogActions>
                 </Dialog>
 
