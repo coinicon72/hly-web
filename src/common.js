@@ -21,3 +21,7 @@ export const TYPE_STOCK_IN_OUT = "repo-changing";
 export const ROUTER_STOCK_IN = `/${TYPE_STOCK_IN}`
 export const ROUTER_STOCK_IN_OUT = `/${TYPE_STOCK_IN_OUT}`
 export const ROUTER_STOCK_OUT = `/${TYPE_STOCK_OUT}`
+
+export const ROUTER_STOCK_IN_LIST = `/${TYPE_STOCK_IN}-list`
+export const ROUTER_STOCK_IN_OUT_LIST = `/${TYPE_STOCK_IN_OUT}-list`
+export const ROUTER_STOCK_OUT_LIST = `/${TYPE_STOCK_OUT}-list`

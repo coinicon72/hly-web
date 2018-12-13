@@ -63,7 +63,7 @@ import BomsPage from "./boms"
 import PurchasingOrderPage from "./purchasing_order"
 import PurchasingOrderDetailsPage from "./purchasing_order_details"
 import StockChangingPage from './repo_changing'
-import StockChangingDetailsPage from './repo_changing_details'
+import StockChangingSheetPage from './repo_changing_sheet'
 import RepoPage from './repo'
 import RepoDetailsPage from './repo_details'
 import InventoryPage from './inventory'
@@ -86,11 +86,13 @@ import CommittedDeliverySheetPage from './committed_delivery_sheet'
 import SalesDetailsPage from './sales_details'
 import SchedulesPage from './schedules'
 import PurchasingDetailsPage from './purchasing_details'
+import StockChangingListPage from './repo_changing_list'
 
 
 // import DAC from "./dimension_aware_component"
 import {
   ROUTER_STOCK_IN, ROUTER_STOCK_OUT, ROUTER_STOCK_IN_OUT,
+  ROUTER_STOCK_IN_LIST, ROUTER_STOCK_OUT_LIST, ROUTER_STOCK_IN_OUT_LIST,
   TYPE_STOCK_IN, TYPE_STOCK_OUT, TYPE_STOCK_IN_OUT,
 } from "./common"
 
@@ -706,6 +708,34 @@ class App extends React.PureComponent<{ classes: any }, any> {
         // </Tooltip>
       )
 
+      if (this.hasPrivilege('repo:stock-in'))
+      l.push(
+        // <Tooltip key="key_stock_in" title="非库房人员申请">
+        <Link key={ROUTER_STOCK_IN_LIST} to={ROUTER_STOCK_IN_LIST}>
+          <ListItem button>
+            <ListItemIcon>
+              <DatabasePlus />
+            </ListItemIcon>
+            <ListItemText primary="入库单明细" />
+          </ListItem>
+        </Link>
+        // </Tooltip>
+      )
+
+    if (this.hasPrivilege('repo:stock-out'))
+      l.push(
+        // <Tooltip key="key_stock_out" title="非库房人员申请">
+        <Link key={ROUTER_STOCK_OUT_LIST} to={ROUTER_STOCK_OUT_LIST}>
+          <ListItem button>
+            <ListItemIcon>
+              <DatabaseMinus />
+            </ListItemIcon>
+            <ListItemText primary="出库单明细" />
+          </ListItem>
+        </Link>
+        // </Tooltip>
+      )
+
     if (this.hasPrivilege('repo:inventory'))
       l.push(<Link key="/repo_details" to="/repo_details">
         <ListItem button>
@@ -763,6 +793,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path={ROUTER_STOCK_IN} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单</Typography>} />
         <Route path={ROUTER_STOCK_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单</Typography>} />
         <Route path={ROUTER_STOCK_IN_OUT} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出/入库单受理</Typography>} />
+        <Route path={ROUTER_STOCK_IN_LIST} component={({ type }) => <Typography variant="title" className={classes.appTitle}>入库单明细</Typography>} />
+        <Route path={ROUTER_STOCK_OUT_LIST} component={({ type }) => <Typography variant="title" className={classes.appTitle}>出库单明细</Typography>} />
         <Route path="/committed-delivery-sheet" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单受理</Typography>} />
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
@@ -855,11 +887,13 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
         <Route path="/bom/:mode/:id?" component={BomDetailsPage} />
         <Route path="/boms" component={BomsPage} />
-        <Route path={`${ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
+        <Route path={`${ROUTER_STOCK_IN}/:mode/:id?`} render={(props) => <StockChangingSheetPage {...props} type={TYPE_STOCK_IN} user={this.state.user} key="stock-in-detail" />} />
         <Route path={ROUTER_STOCK_IN} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_IN} type={TYPE_STOCK_IN} user={this.state.user} />} />
-        <Route path={`${ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockChangingDetailsPage {...props} type={TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
+        <Route path={`${ROUTER_STOCK_OUT}/:mode/:id?`} render={(props) => <StockChangingSheetPage {...props} type={TYPE_STOCK_OUT} user={this.state.user} key="stock-out-detail" />} />
         <Route path={ROUTER_STOCK_OUT} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_OUT} type={TYPE_STOCK_OUT} user={this.state.user} />} />
-        <Route path={`${ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockChangingDetailsPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
+        <Route path={ROUTER_STOCK_IN_LIST} render={(props) => <StockChangingListPage {...props} key={ROUTER_STOCK_IN_LIST} type={TYPE_STOCK_IN} />} />
+        <Route path={ROUTER_STOCK_OUT_LIST} render={(props) => <StockChangingListPage {...props} key={ROUTER_STOCK_OUT_LIST} type={TYPE_STOCK_OUT} />} />
+        <Route path={`${ROUTER_STOCK_IN_OUT}/:id`} render={(props) => <StockChangingSheetPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
         <Route path={ROUTER_STOCK_IN_OUT} render={(props) => <StockChangingPage {...props} key={ROUTER_STOCK_IN_OUT} type={TYPE_STOCK_IN_OUT} user={this.state.user} />} />
         <Route path="/committed-delivery-sheet" component={CommittedDeliverySheetPage} />
         <Route path="/repo_details" component={RepoDetailsPage} />

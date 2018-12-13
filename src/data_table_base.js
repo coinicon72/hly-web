@@ -401,7 +401,9 @@ class DataTableBase extends React.PureComponent {
 
         //
         this.doLoad && this.doLoad()
-            .then(j => this.setState({ rows: j }))
+            .then(j => 
+                this.setState({ rows: j })
+                )
             .catch(e => this.showSnackbar(e.message));
     }
 

@@ -139,7 +139,7 @@ const FulfilledTypeProvider = props => (
 );
 
 // =============================================
-class RepoChangingDetailsPage extends React.PureComponent {
+class RepoChangingSheetPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -1502,6 +1502,6 @@ const mapDispatchToProps = dispatch => ({
 const ConnectedComponent = connect(
     mapStateToProps,
     mapDispatchToProps
-)(RepoChangingDetailsPage)
+)(RepoChangingSheetPage)
 
 export default withStyles(styles)(ConnectedComponent);
