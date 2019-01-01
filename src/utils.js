@@ -41,6 +41,26 @@ export function toDateString(date) {
 
 /**
  * return date string, format: yyyy-MM-dd
+ * @param {string|Date} d 
+ */
+export function toMonthString(date) {
+    if (date instanceof Date) {
+        let m = date.getMonth() + 1;
+        if (m < 10)
+            m = '0' + m;
+    
+        return `${date.getFullYear()}-${m}`
+    } else if (typeof(date)  === 'string') {
+        // let ds = date.split(/-/)
+        // return ds[0] + "-" + ds[1]
+        return toMonthString(new Date(date))
+    }
+
+    return date
+}
+
+/**
+ * return date string, format: yyyy-MM-dd
  * @param {Date} d 
  */
 export function toDateTimeString(date) {

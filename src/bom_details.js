@@ -228,7 +228,7 @@ class BomDetailsPage extends React.PureComponent {
         // 显示 订单选择对话框
         this.selectOrder = (async () => {
             if (this.state.orders.length === 0) {
-                await axios.get(`${DATA_API_BASE_URL}/orders/search/findByStatusEquals?status=0`)
+                await axios.get(`${DATA_API_BASE_URL}/orders/search/findByStatusIn?status=0,1`)
                     .then(resp => resp.data._embedded.orders)
                     .then(j => {
                         this.setState({ orders: j });
@@ -338,10 +338,9 @@ class BomDetailsPage extends React.PureComponent {
 
                 store.dispatch(actionValidData(errors))
 
-                this.setState({
-                    showSavingBom: false, errors: errors, snackbarOpen: true,
-                    snackbarContent: "发现错误，请检查数据输入"
-                })
+                this.setState({ showSavingBom: false, errors: errors })
+
+                this.props.showSnackbar("发现错误，请检查数据输入")
                 return;
             }
 
@@ -393,10 +392,8 @@ class BomDetailsPage extends React.PureComponent {
                     })
                     .catch(e => {
                         cancel = true;
-                        this.setState({
-                            showSavingBom: false, snackbarOpen: true,
-                            snackbarContent: e.message
-                        })
+                        this.setState({ showSavingBom: false });
+                        this.props.showSnackbar(e.message)
                     })
             })
 
@@ -799,14 +796,14 @@ class BomSheet extends React.PureComponent {
 
                 bom.formula.createDate = bom.formula.createDate.split('.')[0].replace("T", " ")
                 this.setState({formula: bom.formula})
-                store.dispatch(actionSelectFormula(bom.orderItem.id.product, bom.formula.id))
+                store.dispatch(actionSelectFormula(bom.id.product, bom.formula.id))
 
                 axios.get(`${DATA_API_BASE_URL}/formulas/${bom.formula.id}/items`)
                     .then(resp => resp.data._embedded.formulaItems)
                     .then(formulaItems => {
                         this.setState({ formulaItems })
 
-                        return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id}/items`)
+                        return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id.order}_${bom.id.product}/items`)
                     })
                     .then(resp => resp.data._embedded.bomItems)
                     .then(bomItems => {
@@ -836,7 +833,7 @@ class BomSheet extends React.PureComponent {
         const { orderItem, mode } = this.props
         const { product, formula, formulas, formulaItems } = this.state
         const { showSelectFormula, selection } = this.state
-        const { errors, snackbarOpen, snackbarContent } = this.state;
+        const { errors } = this.state;
 
         return (
             <React.Fragment>

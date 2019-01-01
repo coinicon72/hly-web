@@ -27,6 +27,7 @@ import {
 import {API_BASE_URL, DATA_API_BASE_URL} from "./config"
 
 import CommonStyles from "./common_styles"
+import { toFixedMoney } from './utils';
 
 import { CurrencyTypeProvider, RepoChangingTypeProvider, RepoChangingStatusProvider } from "./common_components"
 import { REPO_CHANGING_TYPE_IN, REPO_CHANGING_TYPE_OUT } from "./common"
@@ -55,7 +56,7 @@ const COLUMNS_OUT = [
 
 const COLUMNS_IN = [
     ...COLUMNS_OUT,
-    { name: "amount", title: "总额" },
+    { name: "totalValue", title: "总额", getCellValue: row => row.totalValue ? toFixedMoney(row.totalValue) : null },
 ]
 
 const COLUMNS_IN_OUT = [
@@ -195,7 +196,7 @@ class RepoChangingPage extends React.PureComponent {
                     clickHandler={this.onRowDoubleClicked}
                     providers={[
                         <RepoChangingTypeProvider for={['type']} />,
-                        <CurrencyTypeProvider for={['amount']} />,
+                        <CurrencyTypeProvider for={['totalValue']} />,
                         <RepoChangingStatusProvider for={['status']} />,
                     ]}
                 />

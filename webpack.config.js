@@ -40,8 +40,8 @@ module.exports = {
       'process.env': {
         'NODE_ENV': JSON.stringify('production'),
         // 'NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        // 'REACT_APP_SERVER_URL': JSON.stringify('http://175.6.57.235:8081'),
-        'REACT_APP_SERVER_URL': JSON.stringify('http://localhost:8081'),
+        'REACT_APP_SERVER_URL': JSON.stringify('http://175.6.57.235:8081'),
+        // 'REACT_APP_SERVER_URL': JSON.stringify('http://localhost:8081'),
       }
     }),
     

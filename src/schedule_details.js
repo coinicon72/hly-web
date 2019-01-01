@@ -476,14 +476,21 @@ class SchedulePage extends React.PureComponent {
         if (id) {
             // const oid = Number.parseInt(id.split('_')[0])
             // const pid = Number.parseInt(id.split('_')[1])
-            // axios.get(`${DATA_API_BASE_URL}/orderItems/${id}`)
-            //     .then(resp => resp.data)
-            //     .then(j => {
-            //         this.setState({ orderItem: j })
-            //     })
-            // .then(_ => 
-            axios.get(`${DATA_API_BASE_URL}/orderItems/${id}/order`)
-                // )
+            axios.get(`${DATA_API_BASE_URL}/orderItems/${id}`)
+                .then(resp => resp.data)
+                .then(orderItem => {
+                    // this.setState({ orderItem })
+                    this.state.orderItem = orderItem
+                })
+
+                .then(_ => axios.get(`${DATA_API_BASE_URL}/orderItems/${id}/product`))
+                .then(resp => resp.data)
+                .then(product => {
+                    this.setState({ orderItem: { ...this.state.orderItem, product } })
+                })
+                // .catch(e => this.props.showSnackbar(e.message))
+
+                .then(_ => axios.get(`${DATA_API_BASE_URL}/orderItems/${id}/order`))
                 .then(resp => resp.data)
                 .then(order => {
                     this.setState({ order })
@@ -495,16 +502,10 @@ class SchedulePage extends React.PureComponent {
                 )
                 .then(resp => resp.data)
                 .then(schedule => {
-                    // "id": {"order":2, "product": 2}, "order": {"id": 2}, "product": {"id": 2}, 
-                    // schedule.id.order = oid
-                    // schedule.id.product = pid
-                    // schedule.order = {id: oid}
-                    // schedule.product = {id: pid}
-
                     this.setState({
                         schedule, mode: MODE_EDIT,
                         // order: schedule._embedded.orderItem.order, 
-                        orderItem: schedule._embedded.orderItem,
+                        // orderItem: schedule._embedded.orderItem,
                         bom: schedule._embedded.bom,
                         formula: schedule._embedded.bom ? schedule._embedded.bom.formula : null,
                     })
@@ -869,7 +870,7 @@ class BomSheet extends React.PureComponent {
 
     componentDidMount() {
         const { orderItem, formula, bom, product } = this.props
-        this.setState({ formula, product})
+        this.setState({ formula, product })
 
         this.state.reduxSubscribe = store.subscribe(this.onRedux)
 
@@ -893,33 +894,43 @@ class BomSheet extends React.PureComponent {
             .then(bom => {
                 if (!bom) return
 
-                bom.formula.createDate = toDateString(bom.formula.createDate) //bom.formula.createDate.split('.')[0].replace("T", " ")
-                // this.state.formula = bom.formula
-                store.dispatch(actionSelectFormula(bom.id.product, bom.formula.id))
-
-                axios.get(`${DATA_API_BASE_URL}/formulas/${bom.formula.id}/items`)
-                    .then(resp => resp.data._embedded.formulaItems)
-                    .then(formulaItems => {
-                        this.state.formulaItems = formulaItems
-
-                        return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id.order}_${bom.id.product}/items`)
-                    })
-                    .then(resp => resp.data._embedded.bomItems)
-                    .then(bomItems => {
-                        bomItems.forEach(bi => {
-                            let fi = this.state.formulaItems.find(fi => fi.id.material === bi.id.material)
-                            if (fi) {
-                                fi.calc_quantity = bi.calcQuantity
-                                // fi.custom_quantity = bi.quantity
-
-                                this.updateMaterialQuantity(bi.id.material, bi.quantity, bi.calcQuantity)
-                            }
-                        })
-
-                        this.forceUpdate()
-                    })
+                this.loadBom(bom);
             })
             .catch(e => this.props.showSnackbar(e.message));
+    }
+
+    loadBom(bom) {
+        bom.formula.createDate = toDateString(bom.formula.createDate); //bom.formula.createDate.split('.')[0].replace("T", " ")
+        // this.state.formula = bom.formula
+        store.dispatch(actionSelectFormula(bom.id.product, bom.formula.id));
+        
+        axios.get(`${DATA_API_BASE_URL}/formulas/${bom.formula.id}/items`)
+            .then(resp => resp.data._embedded.formulaItems)
+            .then(formulaItems => {
+                this.state.formulaItems = formulaItems;
+                return axios.get(`${DATA_API_BASE_URL}/boms/${bom.id.order}_${bom.id.product}/items`);
+            })
+            .then(resp => resp.data._embedded.bomItems)
+            .then(bomItems => {
+                bomItems.forEach(bi => {
+                    let fi = this.state.formulaItems.find(fi => fi.id.material === bi.id.material);
+                    if (fi) {
+                        fi.calc_quantity = bi.calcQuantity;
+                        // fi.custom_quantity = bi.quantity
+                        this.updateMaterialQuantity(bi.id.material, bi.quantity, bi.calcQuantity);
+                    }
+                });
+                this.forceUpdate();
+            });
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const { formula, bom } = this.props
+        if (formula)
+            this.setState({ formula })
+
+        if (!prevProps.bom && bom)
+            this.loadBom(bom)
     }
 
     componentWillUnmount() {
