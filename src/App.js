@@ -88,6 +88,7 @@ import SchedulesPage from './schedules'
 import PurchasingDetailsPage from './purchasing_details'
 import StockChangingListPage from './repo_changing_list'
 import RepoStatPage from './repo_stat'
+import RepoInitPage from './repo_init'
 
 
 // import DAC from "./dimension_aware_component"
@@ -767,6 +768,16 @@ class App extends React.PureComponent<{ classes: any }, any> {
         </ListItem>
       </Link>)
 
+    if (this.hasPrivilege('repo:inventory'))
+      l.push(<Link key="/repo_init" to="/repo_init">
+        <ListItem button>
+          <ListItemIcon>
+            <DatabaseSearch />
+          </ListItemIcon>
+          <ListItemText primary="库存初始化" />
+        </ListItem>
+      </Link>)
+
     return l.length > 0 ?
       <React.Fragment>
         <Divider />
@@ -830,6 +841,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/schedules" component={({ type }) => <Typography variant="title" className={classes.appTitle}>排产明细</Typography>} />
         <Route path="/purchasing_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购明细</Typography>} />
         <Route path="/repo_stat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存汇总</Typography>} />
+        <Route path="/repo_init" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存初始化</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅{process.env.NODE_ENV === 'development' ? ' - development' : null}</Typography>} />
       </Switch>
 
@@ -946,6 +958,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/purchasing_details" component={PurchasingDetailsPage} />
 
         <Route path="/repo_stat" component={RepoStatPage} />
+        <Route path="/repo_init" component={RepoInitPage} />
 
         <Route component={HomePage} />
       </Switch>
