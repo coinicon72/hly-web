@@ -4,184 +4,136 @@ import React from 'react';
 // import classNames from 'classnames';
 // import PropTypes from 'prop-types';
 
-import CommonStyles from "./common_styles";
+// import Loadable from 'react-loadable';
+// import Loading from './loading-component';
+
+import { withStyles, 
+    // Typography, Select, Input 
+} from '@material-ui/core';
+// import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 import axios from 'axios'
 
-import {
-    // AppBar, 
-    Toolbar, 
-    // Button, IconButton, Snackbar, 
-    withStyles, 
-    // Typography,
-    Select, 
-    // Input, 
-    InputLabel, FormControl,
-} from '@material-ui/core';
+//
+import { connect } from 'react-redux'
 
-// import {} from 'mdi-material-ui';
-
-// import { DataTypeProvider } from '@devexpress/dx-react-grid';
+import { actionShowSnackbar } from "./redux/data_selection"
 
 //
-import DataTableBase from "./data_table_base"
+import {API_BASE_URL, DATA_API_BASE_URL} from "./config"
 
-import {DATA_API_BASE_URL} from "./config"
-import { toFixedMoney } from './utils';
-import { CurrencyTypeProvider } from "./common_components"
+import CommonStyles from "./common_styles"
+
+// import { CurrencyTypeProvider } from "./common_components"
+
+import DataTableBase from "./data_table_base"
+import { toDateString } from './utils'
+import { inventoriestatusProvider, TaxTypeProvider } from './common_components'
 
 
 // =============================================
-// const DATA_REPO = "repoes";
-// const DATA_FILTER = "";
+const DATA_REPO = "inventories";
+
+const ADD_INVENTORY_PAGE_URL = "/add_inventory";
+const DETAIL_PAGE_URL = "/inventory_details";
 
 const COLUMNS = [
-    // { name: 'id', title: '序号' },
-    { name: 'code', title: '编号', getCellValue: row => row._embedded.material.code },
-    { name: "name", title: "名称", getCellValue: row => row._embedded.material.name },
-    { name: "type", title: "类型", getCellValue: row => row._embedded.material.type ? row._embedded.material.type.name : null },
-    { name: "spec", title: "规格", getCellValue: row => row._embedded.material.spec },
-    // { name: "safeQuantity", title: "安全库存", getCellValue: row => row._embedded.material.safeQuantity },
-    { name: "quantity", title: "库存" },
-    { name: "price", title: "单价" },
-    { name: "subtotal", title: "小计", getCellValue: row => toFixedMoney(row.quantity * row.price) },
+    { name: 'id', title: '序号' },
+    { name: 'repo', title: '仓库' },
+    { name: 'date', title: '日期' },
+    { name: "reportBy", title: "录入", getCellValue: row => row.auditBy ? "" : null },
+    { name: "auditBy", title: "审核", getCellValue: row => row.auditBy ? "" : null },
+    { name: "comment", title: "备注" },
 ]
 
-// const SafeQuantityTypeProvider = props => (
-//     <DataTypeProvider
-//         formatterComponent={({ value }) => <Typography style={{ opacity: .7 }} >{value}</Typography>}
-//         {...props}
-//     />
-// );
-
-// const QuantityTypeProvider = props => (
-//     <DataTypeProvider
-//         formatterComponent={({ row, value }) =>
-//             <Typography style={value >= row._embedded.material.safeQuantity ? {} : { fontWeight: 'bold', color: 'red' }} >{value}</Typography>
-//         }
-//         {...props}
-//     />
-// );
 
 // =============================================
-class RepoPage extends React.PureComponent {
+class InventoryPage extends React.PureComponent {
     constructor(props) {
         super(props);
 
         this.state = {
-            repoes: [], // all repoes
-            currentRepo: null,
+            // dataFilter: "",
+            // dataRepoApiUrl: "",
+            columns: [],
 
-            changes: [],
-
-
-
-            //
-            snackbarOpen: false,
-            snackbarContent: "",
+            dataRepoApiUrl: `${API_BASE_URL}/${DATA_REPO}`,
+            // ready4UI: false,
         }
 
-        // this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${DATA_REPO}` + DATA_FILTER;
 
-        this.editingColumnExtensions = [
-            { columnName: 'id', editingEnabled: false },
-            { columnName: 'code', editingEnabled: false },
-            { columnName: 'name', editingEnabled: false },
-            { columnName: 'type', editingEnabled: false },
-            { columnName: 'spec', editingEnabled: false },
-            { columnName: 'safeQuantity', editingEnabled: false },
-            { columnName: 'subtotal', editingEnabled: false },
-        ];
+        // this.editingColumnExtensions = EDITING_COLUMN_EXTENSIONS;
+
+        // this.changeAddedRowsCallback = (row => {
+        //     return Object.keys(row).length ? row : NEW_ROW_TEMPLATE
+        // });
 
         this.doLoad = this.doLoad.bind(this)
+        this.doAdd = this.doAdd.bind(this)
+        this.doUpdate = this.doUpdate.bind(this)
+        this.doDelete = this.doDelete.bind(this)
 
-        this.onChangedRepo = (e => {
-            const rid = parseInt(e.target.value, 10)
-            const r = this.state.repoes.find(r => r.id === rid)
-            this.state.currentRepo = r
-            this.forceUpdate()
-        })
-    }
-
-    showSnackbar(msg: String) {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
+        this.addRowHandler = () => this.props.history.push(DETAIL_PAGE_URL);
     }
 
     componentDidMount() {
-        return axios.get(`${DATA_API_BASE_URL}/repoes`)//,
-            .then(resp => resp.data._embedded['repoes'])
-            .then(repoes => {
-                this.setState({ repoes, currentRepo: repoes[0] })
-            })
+        // this.updateDataFilter();
     }
 
+    // componentDidUpdate(prevProps, prevState, snapshot) {
+    //     if (!prevProps.user && this.props.user) {
+    //         this.updateDataFilter();
+    //     }
+    // }
+
     doLoad = () => {
-        return axios.get(`${DATA_API_BASE_URL}/repoItems/search/findByRepo?repo=../../../repoes/${this.state.currentRepo.id}`)//,
-            .then(resp => resp.data._embedded['repoItems'])
-        // .then(resp => {
-        //     this.state.data = resp.data._embedded[DATA_REPO]
-        //     return this.state.data
-        // })
+        return axios.get(`${DATA_API_BASE_URL}/inventories`)//,
+            .then(resp => resp.data._embedded[DATA_REPO])
+    }
+
+    doAdd = (r) => {
+        return axios.post(this.state.dataRepoApiUrl, r)
+            .then(resp => resp.data)
+    }
+
+    doUpdate = (r, c) => {
+        return axios.patch(this.state.dataRepoApiUrl + "/" + r['id'], c)
+            .then(resp => resp.data)
+    }
+
+    doDelete = (r) => {
+        return axios.delete(this.state.dataRepoApiUrl + "/" + r['id'])
+    }
+
+    onRowDoubleClicked = (row) => {
+        if (row) {
+                this.props.history.push(`${DETAIL_PAGE_URL}/${row.id}`);
+        }
     }
 
     render() {
         const { classes, } = this.props
-        const { repoes, currentRepo, } = this.state;
 
-        return currentRepo ? (
+        return (
             <div className={classes.contentRoot}>
-                <Toolbar className={classes.toolbar}>
-                    {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton> */}
-                    {/* <Typography variant="title" className={classes.toolbarTitle}></Typography> */}
-                    <FormControl className={classes.formControl}>
-                        <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
-                        <Select
-                            native
-                            value={currentRepo ? currentRepo.id : null}
-                            onChange={this.onChangedRepo}
-                            inputProps={{
-                                name: 'repo',
-                                id: 'repo',
-                            }}
-                        >
-                            {repoes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                        </Select>
-                    </FormControl>
-
-                    {/* <Button onClick={this.saveInventory} color='primary' disabled={!this.state.changes || this.state.changes.length <= 0} style={{ fontSize: 18 }} ><ContentSave />保存</Button> */}
-                    {/* <Button onClick={() => this.export()} color='primary' style={{ fontSize: 18 }} ><Printer />打印</Button> */}
-                </Toolbar>
-
                 <DataTableBase columns={COLUMNS}
-                    key={`repo${currentRepo.id}`}
-                    disableEdit={true}
+                    editCell={this.editCell}
+                    changeAddedRowsCallback={this.changeAddedRowsCallback}
                     editingColumnExtensions={this.editingColumnExtensions}
                     doLoad={this.doLoad}
+                    doAdd={this.doAdd}
                     doUpdate={this.doUpdate}
-                    showAddCommand={false}
-                    showDeleteCommand={false}
+                    doDelete={this.doDelete}
+                    addHandler={this.addRowHandler}
+                    showEditCommand={false}
+                    clickHandler={this.onRowDoubleClicked}
                     providers={[
-                        // <SafeQuantityTypeProvider key='sqtp' for={["safeQuantity"]} />,
-                        // <QuantityTypeProvider key='qtp' for={["quantity"]} />,
-                        <CurrencyTypeProvider key='ctp' for={["price", "subtotal"]} />,
+                        // <inventoriestatusProvider key='inventoriestatusProvider' for={['status']} />,
+                        // <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
                     ]}
                 />
-
-                {/* <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                /> */}
             </div>
-        ) : null
+        )
     }
 }
 
@@ -192,5 +144,21 @@ const styles = theme => ({
     },
 })
 
+// const mapStateToProps = state => ({
+//     token: state.main.token,
+//     user: state.main.user,
+// })
 
-export default withStyles(styles)(RepoPage);
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    // mapStateToProps,
+    null,
+    mapDispatchToProps
+)(InventoryPage)
+
+
+export default withStyles(styles)(ConnectedComponent);

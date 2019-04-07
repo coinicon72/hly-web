@@ -89,6 +89,8 @@ import PurchasingDetailsPage from './purchasing_details'
 import StockChangingListPage from './repo_changing_list'
 import RepoStatPage from './repo_stat'
 import RepoInitPage from './repo_init'
+import AddInventoryPage from './add_inventory'
+import InventoryDetailsPage from './inventory_details'
 
 
 // import DAC from "./dimension_aware_component"
@@ -820,7 +822,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/committed-delivery-sheet" component={({ type }) => <Typography variant="title" className={classes.appTitle}>发货单受理</Typography>} />
         <Route path="/repo" component={({ type }) => <Typography variant="title" className={classes.appTitle}>仓库</Typography>} />
         <Route path="/repo_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存明细</Typography>} />
-        <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存</Typography>} />
+        <Route path="/inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
         <Route path="/purchasingOrder" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划</Typography>} />
         <Route path="/purchasingOrderDetails" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购计划明细</Typography>} />
         <Route path="/organizaion" component={({ type }) => <Typography variant="title" className={classes.appTitle}>组织结构</Typography>} />
@@ -842,6 +844,8 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/purchasing_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>采购明细</Typography>} />
         <Route path="/repo_stat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存汇总</Typography>} />
         <Route path="/repo_init" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存初始化</Typography>} />
+        <Route path="/add_inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>盘点</Typography>} />
+        <Route path="/inventory_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>新增盘点</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅{process.env.NODE_ENV === 'development' ? ' - development' : null}</Typography>} />
       </Switch>
 
@@ -959,6 +963,9 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
         <Route path="/repo_stat" component={RepoStatPage} />
         <Route path="/repo_init" component={RepoInitPage} />
+
+        <Route path="/add_inventory" component={AddInventoryPage} />
+        <Route path="/inventory_details/:id?" component={InventoryDetailsPage} />
 
         <Route component={HomePage} />
       </Switch>
