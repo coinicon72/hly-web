@@ -179,7 +179,26 @@ const store = createStore(bomReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && win
 const savingSteps = ['检查数据', '保存BOM', "完成"]
 
 // =============================================
-class BomDetailsPage extends React.PureComponent {
+class BomDetailsPage extends React.PureComponent<{}, {
+    mode: MODE_ADD | MODE_EDIT | MODE_VIEW,
+
+    order: Object,
+    orderItems: Object[], // { id: { product: p.id, order: this.state.order.id }, quantity: 0, price: 0 }
+    // client: null,
+
+    orders: Object[],
+
+    //
+    showSelectOrder: boolean,
+    selection: Object[],
+
+    //
+    showSavingBom: boolean,
+    activeStep: number,
+
+    // errors
+    errors: Object,
+}> {
     constructor(props) {
         super(props);
 

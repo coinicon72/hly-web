@@ -5,6 +5,7 @@ import React from 'react';
 // import classNames from 'classnames';
 // import PropTypes from 'prop-types';
 // import compose from 'recompose/compose';
+// import produce from 'immer';
 
 // styles
 import { withStyles } from '@material-ui/core';
@@ -16,7 +17,7 @@ import CommonStyles from "./common_styles";
 
 // router
 // import { withRouter } from 'react-router'
-// import { Link } from 'react-router-dom'
+// import { match } from 'react-router-dom'
 
 // icons
 import { ClipboardCheckOutline, CloseOctagonOutline, ContentSave, ArrowLeft, ClipboardText, PlusCircleOutline, } from 'mdi-material-ui';
@@ -45,12 +46,12 @@ import {
 } from '@material-ui/core';
 
 import {
-    SelectionState,
-    IntegratedSelection,
+    // SelectionState,
+    // IntegratedSelection,
     SortingState,
     IntegratedSorting,
-    FilteringState,
-    IntegratedFiltering,
+    // FilteringState,
+    // IntegratedFiltering,
     // EditingState,
     // PagingState,
     // IntegratedPaging,
@@ -62,14 +63,19 @@ import {
     // Table as dxTable,
     VirtualTable,
     TableHeaderRow,
-    TableSelection,
+    // TableSelection,
     // PagingPanel,
     // Toolbar,
     // TableEditRow,
     // TableEditColumn,
     // TableColumnResizing,
-    TableFilterRow,
+    // TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
+
+import DialogSelectMaterials from "./components/dialog_select_materials"
+import DialogSelectPurchasingOrder from "./components/dialog_select_purchasing_order"
+import DialogSelectDeliverySheet from "./components/dialog_select_delivery_sheet"
+import DialogSelectBom from "./components/dialog_select_bom"
 
 //
 import axios from 'axios'
@@ -138,8 +144,78 @@ const FulfilledTypeProvider = props => (
     />
 );
 
+
+type RouterMatch = {
+    params: {},         // (object) Key/value pairs parsed from the URL corresponding to the dynamic segments of the path
+    isExact: boolean,   // true if the entire URL was matched (no trailing characters)
+    path: string,       // The path pattern used to match. Useful for building nested <Route>s
+    url: string,        // The matched portion of the URL. Useful for building nested <Link>s
+}
+
 // =============================================
-class RepoChangingSheetPage extends React.PureComponent {
+class RepoChangingSheetPage extends React.PureComponent<{
+    match: RouterMatch,
+    classes: {},
+    showSnackbar: (m: string) => void,
+
+}, {
+    dirty: boolean, // is data dirty?
+
+
+    form: {},  // {applicant, application, department}
+    changingItems: {}[], // [{ material: { }, quantity: 0 }]
+
+    //
+    selectMaterial: boolean,
+    materials: {}[],
+    selection: number[],
+
+    //
+    repoes: {}[], // all repositories
+    // repo: null, // id of repository
+
+    repoChangingReasons: {}[],
+    // reason: null, // id of reason
+
+    //
+    orderSpecified: boolean,
+
+    showSelectPurchasingOrder: boolean,
+    purchasingOrders: {}[], //
+
+    //
+    showSelectOrder: boolean,
+    orders: {}[], //
+    order: ?{}, //
+
+    orderSelection: number[],
+
+    //
+    showSelectDeliverySheet: boolean,
+    deliverySheets: {}[], //
+    deliverySheet: ?{}, //
+
+    deliverySheetSelection: number[],
+
+    //
+    showSavingDiag: boolean,
+    activeStep: number,
+
+    // errors
+    errors: {},
+
+    // preview changing
+    showPreviewDiag: boolean,
+    applyChangingCountdown: number,
+    countdownTimer?: {},
+    previewData: {}[],
+    previewColumns: {}[],
+    canApplyChanging: boolean,
+
+    // confirm reject
+    showConfirmDiag: boolean,
+    confirmMessage: string,
+}> {
     constructor(props) {
         super(props);
 
@@ -152,16 +228,8 @@ class RepoChangingSheetPage extends React.PureComponent {
 
             //
             selectMaterial: false,
-            columns: [
-                { name: 'id', title: '序号' },
-                { name: 'code', title: '编号' },
-                { name: "name", title: "名称" },
-                { name: "type", title: "类型", getCellValue: row => row.type ? row.type.name : undefined },
-                { name: "spec", title: "规格" },
-                { name: "comment", title: "备注" },
-            ],
             materials: [],
-            selection: [],
+            // selection: [],
 
             //
             repoes: [], // all repositories
@@ -174,43 +242,25 @@ class RepoChangingSheetPage extends React.PureComponent {
             orderSpecified: false,
 
             showSelectPurchasingOrder: false,
-            purchasingOrderColumns: [
-                { name: 'id', title: '序号' },
-                { name: 'no', title: '订单号码' },
-                { name: "tax", title: "含税", getCellValue: row => row.tax ? '含税' : null },
-                { name: "date", title: "签订日期", getCellValue: row => row.date ? toDateString(row.date) : null },
-                { name: "supplier", title: "供应商", getCellValue: row => row._embedded && row._embedded.supplier ? row._embedded.supplier.name : null },
-            ],
             purchasingOrders: [], //
 
             //
-            showSelectOrder: false,
-            orderColumns: [
-                { name: 'id', title: '序号' },
-                { name: 'no', title: '订单编号' },
-                { name: 'clientId', title: '客户', getCellValue: row => (row._embedded && row._embedded.client) ? row._embedded.client.name : null },
-                { name: 'orderDate', title: '下单时间', getCellValue: row => toDateString(row.orderDate) },
-                { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
-            ],
-            orders: [], //
-            order: null, //
+            // showSelectOrder: false,
+            // orders: [], //
+            // order: null, //
 
-            orderSelection: [],
+            // orderSelection: [],
+
+            //
+            showSelectBom: false,
+            boms: [],
 
             //
             showSelectDeliverySheet: false,
-            deliverySheetColumns: [
-                { name: 'id', title: '序号' },
-                { name: 'no', title: '发货单编号' },
-                { name: 'deliveryDate', title: '发货时间', getCellValue: row => toDateString(row.deliveryDate) },
-                { name: 'committedDate', title: '提交时间', getCellValue: row => toDateString(row.deliveryDate) },
-                { name: 'orderNo', title: '订单编号', getCellValue: row => row.order ? row.order.no : null },
-                { name: 'clientId', title: '客户', getCellValue: row => row.order && row.order.client ? row.order.client.name : null },
-            ],
             deliverySheets: [], //
             deliverySheet: null, //
 
-            deliverySheetSelection: [],
+            // deliverySheetSelection: [],
 
             //
             showSavingDiag: false,
@@ -222,7 +272,7 @@ class RepoChangingSheetPage extends React.PureComponent {
             // preview changing
             showPreviewDiag: false,
             applyChangingCountdown: APPLY_CHANGING_COUNTDOWN,
-            countdownTimer: null,
+            // countdownTimer: null,
             previewData: [],
             previewColumns: [],
             canApplyChanging: false,
@@ -235,444 +285,514 @@ class RepoChangingSheetPage extends React.PureComponent {
             // snackbarOpen: false,
             // snackbarContent: "",
         }
+    }
+    // this.onDetails = ((id) => {
+    //     alert(`details ${id}`)
+    // })
 
-        // this.onDetails = ((id) => {
-        //     alert(`details ${id}`)
-        // })
-
-        // this.onEdit = ((id) => {
-        //     alert(`edit ${id}`)
-        // })
-
-
-        // basic info changed
-        this.handleInput = e => {
-            this.state.form[e.target.id] = e.target.value
-            this.state.dirty = true
-            this.forceUpdate()
-        }
-
-        this.onChangedRepo = e => {
-            const repoId = parseInt(e.target.value, 10)
-            this.state.form.repo = this.state.repoes.find(r => r.id === repoId)
-            this.state.dirty = true
-            this.forceUpdate()
-        }
+    // this.onEdit = ((id) => {
+    //     alert(`edit ${id}`)
+    // })
 
 
-        // select materials
-        this.addMaterials = () => {
-            const { form, changingItems, materials, selection } = this.state;
+    // basic info changed
+    handleInput = e => {
+        this.state.form[e.target.id] = e.target.value
+        this.state.dirty = true
+        this.forceUpdate()
+    }
 
-            const filteredMaterials = materials.filter(m => form.repo && form.repo.type === m.category)
+    onChangedRepo = e => {
+        const repoId = parseInt(e.target.value, 10)
+        this.state.form.repo = this.state.repoes.find(r => r.id === repoId)
+        this.state.dirty = true
+        this.forceUpdate()
+    }
 
-            Object.keys(selection).forEach(idx => {
-                let no = selection[idx];
-                let material = filteredMaterials[no];
 
-                if (!changingItems.find(v => v.material.id === material.id))
-                    changingItems.push({ material })
+    // select materials
+    addMaterials = (selection: number[]) => {
+        const { form, changingItems, materials, } = this.state;
+
+        const filteredMaterials = materials.filter(m => form.repo && form.repo.type === m.category)
+
+        selection.sort().forEach(idx => {
+            let material = filteredMaterials[idx];
+
+            if (!changingItems.find(v => v.material.id === material.id))
+                changingItems.push({ material })
+        })
+
+        //
+        this.setState({ dirty: true, changingItems: changingItems, selectMaterial: false, selection: [] })
+    }
+
+
+    // changeSelection = selection => this.setState({ selection });
+
+    cancelSelect = () => this.setState({ selectMaterial: false })
+
+
+    // delete a item
+    onDelete = (id, no) => {
+        const { changingItems } = this.state;
+        // let idx = changingItems.findIndex(v => v.id === id)
+        // if (idx >= 0) {
+        changingItems.splice(no, 1);
+
+        this.state.dirty = true
+        this.forceUpdate();
+        // }
+    }
+
+
+    // item changed
+    handleQuantityChange = (e, mid, no) => {
+        // let id = e.target.id.split("_")[1]
+        let item = this.state.changingItems[no]
+        item.quantity = Number.parseFloat(e.target.value)
+
+        this.updateFormValue()
+
+        // this.forceUpdate();
+    }
+
+
+    handlePriceChange = (e, mid, no) => {
+        // let id = e.target.id.split("_")[1]
+        let item = this.state.changingItems[no]
+        item.price = Number.parseFloat(e.target.value)
+
+        this.updateFormValue()
+
+        // this.forceUpdate();
+    }
+
+
+    updateFormValue = e => {
+        let value = 0
+        this.state.changingItems.forEach(i => {
+            value += i.quantity * i.price
+        })
+
+        this.state.dirty = true
+        this.state.form.value = toFixedMoney(value);
+        this.forceUpdate()
+    }
+
+
+    //
+    changedReason = e => {
+        const rid = parseInt(e.target.value, 10)
+
+        const r = this.state.repoChangingReasons.find(i => i.id === rid)
+        if (r) {
+            this.setState({
+                dirty: true,
+                orderRelated: r.orderRelated,
+                form: {
+                    ...this.state.form,
+                    reason: { id: r.id, orderRelated: r.orderRelated }
+                }
             })
-
-            //
-            this.setState({ dirty: true, changingItems: changingItems, selectMaterial: false, selection: [] })
         }
+    }
 
+    // 采购订单选择
+    //
+    selectPurchasingOrder = e => {
+        this.setState({ showSelectPurchasingOrder: true })
 
-        this.changeSelection = selection => this.setState({ selection });
-
-        this.cancelSelect = () => this.setState({ selectMaterial: false })
-
-
-        // delete a item
-        this.onDelete = (id, no) => {
-            const { changingItems } = this.state;
-            // let idx = changingItems.findIndex(v => v.id === id)
-            // if (idx >= 0) {
-            changingItems.splice(no, 1);
-
-            this.state.dirty = true
-            this.forceUpdate();
-            // }
-        }
-
-
-        // item changed
-        this.handleQuantityChange = (e, mid, no) => {
-            // let id = e.target.id.split("_")[1]
-            let item = this.state.changingItems[no]
-            item.quantity = Number.parseFloat(e.target.value)
-
-            this.updateFormValue()
-
-            // this.forceUpdate();
-        }
-
-
-        this.handlePriceChange = (e, mid, no) => {
-            // let id = e.target.id.split("_")[1]
-            let item = this.state.changingItems[no]
-            item.price = Number.parseFloat(e.target.value)
-
-            this.updateFormValue()
-
-            // this.forceUpdate();
-        }
-
-
-        this.updateFormValue = e => {
-            let value = 0
-            this.state.changingItems.forEach(i => {
-                value += i.quantity * i.price
+        axios.get(`${DATA_API_BASE_URL}/purchasingOrders/search/findByStatusIn?status=0,1`)
+            .then(resp => resp.data._embedded.purchasingOrders)
+            .then(purchasingOrders => {
+                this.state.errors['form.order'] = null;
+                this.setState({ purchasingOrders });
             })
+            .catch(e => this.props.showSnackbar(e.message));
 
-            this.state.dirty = true
-            this.state.form.value = toFixedMoney(value);
-            this.forceUpdate()
-        }
+    }
 
-
-        //
-        this.changedReason = e => {
-            const rid = parseInt(e.target.value, 10)
-
-            const r = this.state.repoChangingReasons.find(i => i.id === rid)
-            if (r) {
-                this.setState({
-                    dirty: true,
-                    orderRelated: r.orderRelated,
-                    form: {
-                        ...this.state.form,
-                        reason: { id: r.id, orderRelated: r.orderRelated }
-                    }
-                })
-            }
-        }
-
-        // 采购订单选择
-        //
-        this.selectPurchasingOrder = e => {
-            this.setState({ showSelectPurchasingOrder: true })
-
-            axios.get(`${DATA_API_BASE_URL}/purchasingOrders/search/findByStatusIn?status=0,1`)
-                .then(resp => resp.data._embedded.purchasingOrders)
-                .then(purchasingOrders => {
-                    this.state.errors['form.order'] = null;
-                    this.setState({ purchasingOrders });
-                })
-                .catch(e => this.props.showSnackbar(e.message));
-
-        }
-
-        this.onSelectedPurchasingOrder = () => {
-            const { purchasingOrders, orderSelection } = this.state;
-            if (orderSelection.length === 0) return;
-
-            //
-            const order = purchasingOrders[orderSelection[0]]
-            this.state.form.purchasingOrder = order
-            this.setState({ showSelectPurchasingOrders: false })
-        }
-
-        this.cancelSelectPurchasingOrder = _ => this.setState({ showSelectPurchasingOrder: false })
-
-        // 订单选择
-        //
-        this.selectOrder = e => {
-            this.setState({ showSelectOrder: true })
-
-            axios.get(`${DATA_API_BASE_URL}/orders`)
-                .then(resp => resp.data._embedded.orders)
-                .then(j => {
-                    this.state.errors['form.order'] = null;
-                    this.setState({ orders: j });
-                })
-                .catch(e => this.props.showSnackbar(e.message));
-
-        }
-
-        this.cancelSelectOrder = _ => this.setState({ showSelectOrder: false })
-
-        this.changeOrderSelection = selection => {
-            let keys = Object.keys(selection)
-            if (keys.length > 1) {
-                let lastNo = selection[keys[keys.length - 1]]
-                selection = [lastNo]
-            }
-
-            this.setState({ orderSelection: selection });
-        }
-
-
-        this.onSelectedOrder = () => {
-            const { orders, orderSelection } = this.state;
-            if (orderSelection.length === 0) return;
-
-            //
-            const order = orders[orderSelection[0]]
-            this.state.form.order = order
-            this.setState({ showSelectOrder: false })
-        }
-
-        // 发货单选择
-        //
-        this.selectDeliverySheet = e => {
-            this.setState({ showSelectDeliverySheet: true })
-
-            axios.get(`${DATA_API_BASE_URL}/deliverySheets/search/findByStatus?status=1`)
-                .then(resp => resp.data._embedded.deliverySheets)
-                .then(j => {
-                    this.state.errors['form.order'] = null;
-                    this.setState({ deliverySheets: j });
-                })
-                .catch(e => this.props.showSnackbar(e.message));
-
-        }
-
-        this.cancelSelectDeliverySheet = _ => this.setState({ showSelectDeliverySheet: false })
-
-        this.changeDeliverySheetSelection = selection => {
-            let keys = Object.keys(selection)
-            if (keys.length > 1) {
-                let lastNo = selection[keys[keys.length - 1]]
-                selection = [lastNo]
-            }
-
-            this.setState({ deliverySheetSelection: selection });
-        }
-
-        this.onSelectedDeliverySheet = () => {
-            const { deliverySheets, deliverySheetSelection } = this.state;
-            if (deliverySheetSelection.length === 0) return;
-
-            //
-            const deliverySheet = deliverySheets[deliverySheetSelection[0]]
-            this.state.form.deliverySheet = deliverySheet
-            this.setState({ showSelectDeliverySheet: false })
-        }
-
-
-        // saving
-        this.cancelSave = () => this.setState({ showSavingDiag: false, activeStep: 0 })
-
-        this.onSaveSuccess = () => {
-            this.setState({ showSavingDiag: false, activeStep: 0 })
-            this.props.history.goBack();
-        }
-
+    onSelectedPurchasingOrder = (selection: number[]) => {
+        const { purchasingOrders } = this.state;
+        if (selection.length === 0) return;
 
         //
-        this.saveForm = async (doSubmit) => {
-            //
-            this.setState({ showSavingDiag: true, activeStep: 0 })
-            this.forceUpdate()
+        const order = purchasingOrders[selection[0]]
+        this.state.form.purchasingOrder = order
+        this.setState({ showSelectPurchasingOrder: false })
+    }
 
-            //
-            let cancel = false;
-            let errors = {};
+    cancelSelectPurchasingOrder = _ => this.setState({ showSelectPurchasingOrder: false })
 
-            //
-            // if (!this.state.form.repo)
-            //     this.state.form.repo = this.state.repoes[0]
+    // // 订单选择
+    // //
+    // selectOrder = e => {
+    //     this.setState({ showSelectOrder: true })
 
-            // if (!this.state.form.reason)
-            //     this.state.form.reason = this.state.repoChangingReasons[0]
+    //     axios.get(`${DATA_API_BASE_URL}/orders`)
+    //         .then(resp => resp.data._embedded.orders)
+    //         .then(j => {
+    //             this.state.errors['form.order'] = null;
+    //             this.setState({ orders: j });
+    //         })
+    //         .catch(e => this.props.showSnackbar(e.message));
 
-            // step 1
-            this.setState({ activeStep: 0 })
+    // }
 
-            const { user } = this.props
-            let { form, changingItems, mode, delivery_sheet_id } = this.state
-            let { type } = this.props
+    // cancelSelectOrder = _ => this.setState({ showSelectOrder: false })
 
-            form.applicant = user
-            // if (!form.applicant || form.applicant == "")
-            //     errors['form.applicant'] = "无效的制单人"
+    // changeOrderSelection = selection => {
+    //     let keys = Object.keys(selection)
+    //     if (keys.length > 1) {
+    //         let lastNo = selection[keys[keys.length - 1]]
+    //         selection = [lastNo]
+    //     }
 
-            if (!form.no || form.no === "")
-                errors['form.no'] = "无效的单号"
-
-            if (form.reason.orderRelated === 1 && (!form.order || !form.order.id))
-                errors['form.order'] = "未选择订单"
-
-            if (changingItems.length <= 0) {
-                errors['changingItems'] = "没有材料"
-            } else {
-                changingItems.forEach(item => {
-                    if (!item.quantity || item.quantity <= 0) {
-                        errors[`quantity_${item.material.id}`] = "无效的数量"
-                    }
-
-                    if (type !== TYPE_STOCK_OUT) {
-                        if (item.material.category === 0 && (!item.price || item.price <= 0)) {
-                            errors[`price_${item.material.id}`] = "无效的价格"
-                        }
-                    }
-                })
-            }
-
-            if (Object.keys(errors).length > 0) {
-                // this.setState({
-                //     showSavingDiag: false, errors: errors, snackbarOpen: true,
-                //     snackbarContent: "发现错误，请检查数据输入"
-                // })
-                this.setState({ showSavingDiag: false, errors: errors })
-                this.props.showSnackbar("发现错误，请检查数据输入")
-                return
-            }
+    //     this.setState({ orderSelection: selection });
+    // }
 
 
-            // step 3
-            this.setState({ activeStep: this.state.activeStep + 1 })
+    // onSelectedOrder = () => {
+    //     const { orders, orderSelection } = this.state;
+    //     if (orderSelection.length === 0) return;
 
-            // let value = 0;
-            // changingItems.forEach(i => value += i.quantity * i.price)
-            if (!form.id)
-                form.id = 0
+    //     //
+    //     const order = orders[orderSelection[0]]
+    //     this.state.form.order = order
+    //     this.setState({ showSelectOrder: false })
+    // }
 
-            if (doSubmit) {
-                form.status = 1
-                form.applyingDate = getTodayDateTimeString()
-            }
 
-            if (mode === MODE_DELIVERY) {
-                await axios.post(`${API_BASE_URL}/deliverySheet/${delivery_sheet_id}/repoChangingSheet`, form)
-                    // .then(resp => resp.data)
-                    // .then(j => form.id = j.id)
-                    .catch(e => {
-                        cancel = true
-                        this.setState({ showSavingDiag: false })
-                        this.props.showSnackbar(e.message)
+    //#region select bom
+    doSelectBom = e => {
+        this.setState({ showSelectBom: true })
+
+        axios.get(`${DATA_API_BASE_URL}/boms/search/findByOrderStatus?status=0,1`)
+            .then(resp => resp.data._embedded.boms)
+            .then(boms => {
+                this.state.errors['form.order'] = null;
+                // this.setState({ boms });
+                this.state.boms = boms;
+
+                Promise.all(
+                    boms.map(b => {
+                        return axios.get(`${DATA_API_BASE_URL}/orderItems/${b.id.order}_${b.id.product}`)
+                            .then(resp => resp.data)
+                            .then(bi => {
+                                b.orderItem = bi
+                                return bi.id.order
+                            })
+
+                            .then(oid => axios.get(`${DATA_API_BASE_URL}/products/${b.orderItem.id.product}`))
+                            .then(resp => resp.data)
+                            .then(p => {
+                                b.orderItem.product = p
+                                return 1
+                            })
+
+                            .then(oid => axios.get(`${DATA_API_BASE_URL}/orders/${b.orderItem.id.order}`))
+                            .then(resp => resp.data)
+                            .then(o => {
+                                b.orderItem.order = o
+                                b.client = o._embedded.client
+
+                                // this.setState({ boms: {...boms} })
+                            })
+                    }))
+                    .then(_ => {
+                        this.forceUpdate()
+                        // this.setState({ showSelectBom: true })
                     })
+            })
+            .catch(e => this.props.showSnackbar(e.message));
+    }
 
-                if (cancel) return;
+    cancelSelectBom = _ => this.setState({ showSelectBom: false })
 
-                this.setState({ activeStep: this.state.activeStep + 1 })
-            } else {
-                await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
-                    .then(resp => resp.data)
-                    .then(j => form.id = j.id)
-                    .catch(e => {
-                        cancel = true
-                        this.setState({ showSavingDiag: false })
-                        this.props.showSnackbar(e.message)
-                    })
+    // onBomSelectionChanged = selection => {
+    //     let keys = Object.keys(selection)
+    //     if (keys.length > 1) {
+    //         let lastNo = selection[keys[keys.length - 1]]
+    //         selection = [lastNo]
+    //     }
 
-                if (cancel) return;
+    //     this.setState({ orderSelection: selection });
+    // }
 
 
-                // step 4
-                this.setState({ activeStep: this.state.activeStep + 1 })
+    onSelectedBom = (selection: number[]) => {
+        if (selection.length <= 0) return;
 
-                // {"id": {"repoChanging": 0, "material": 0}, "repoChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
-                changingItems.forEach(p => {
-                    let fi = {
-                        id: { repoChanging: form.id, material: p.material.id },
-                        repoChanging: { id: form.id },
-                        material: { id: p.material.id },
-                        quantity: p.quantity,
-                        price: p.price,
+        //
+        const { boms } = this.state;
+
+        const bom = boms[selection[0]]
+        this.state.form.bom = bom
+        this.setState({ showSelectBom: false })
+    }
+    //#endregion
+
+
+    //#region 发货单选择
+    selectDeliverySheet = e => {
+        this.setState({ showSelectDeliverySheet: true })
+
+        axios.get(`${DATA_API_BASE_URL}/deliverySheets/search/findByStatus?status=1`)
+            .then(resp => resp.data._embedded.deliverySheets)
+            .then(j => {
+                this.state.errors['form.order'] = null;
+                this.setState({ deliverySheets: j });
+            })
+            .catch(e => this.props.showSnackbar(e.message));
+
+    }
+
+    cancelSelectDeliverySheet = _ => this.setState({ showSelectDeliverySheet: false })
+
+    // changeDeliverySheetSelection = selection => {
+    //     let keys = Object.keys(selection)
+    //     if (keys.length > 1) {
+    //         let lastNo = selection[keys[keys.length - 1]]
+    //         selection = [lastNo]
+    //     }
+
+    //     this.setState({ deliverySheetSelection: selection });
+    // }
+
+    onSelectedDeliverySheet = (selection: number[]) => {
+        const { deliverySheets } = this.state;
+        if (selection.length === 0) return;
+
+        //
+        const deliverySheet = deliverySheets[selection[0]]
+        this.state.form.deliverySheet = deliverySheet
+        this.setState({ showSelectDeliverySheet: false })
+    }
+    //#endregion
+
+
+    // saving
+    cancelSave = _ => this.setState({ showSavingDiag: false, activeStep: 0 })
+
+    onSaveSuccess = _ => {
+        this.setState({ showSavingDiag: false, activeStep: 0 })
+        this.props.history.goBack();
+    }
+
+
+    //
+    saveForm = async (doSubmit) => {
+        //
+        this.setState({ showSavingDiag: true, activeStep: 0 })
+        this.forceUpdate()
+
+        //
+        let cancel = false;
+        let errors = {};
+
+        //
+        // if (!this.state.form.repo)
+        //     this.state.form.repo = this.state.repoes[0]
+
+        // if (!this.state.form.reason)
+        //     this.state.form.reason = this.state.repoChangingReasons[0]
+
+        // step 1
+        this.setState({ activeStep: 0 })
+
+        const { user } = this.props
+        let { form, changingItems, mode, delivery_sheet_id } = this.state
+        let { type } = this.props
+
+        form.applicant = user
+        // if (!form.applicant || form.applicant == "")
+        //     errors['form.applicant'] = "无效的制单人"
+
+        if (!form.no || form.no === "")
+            errors['form.no'] = "无效的单号"
+
+        if (form.reason.orderRelated === 1 && (!form.order || !form.order.id))
+            errors['form.order'] = "未选择订单"
+
+        if (changingItems.length <= 0) {
+            errors['changingItems'] = "没有材料"
+        } else {
+            changingItems.forEach(item => {
+                if (!item.quantity || item.quantity <= 0) {
+                    errors[`quantity_${item.material.id}`] = "无效的数量"
+                }
+
+                if (type !== TYPE_STOCK_OUT) {
+                    if (item.material.category === 0 && (!item.price || item.price <= 0)) {
+                        errors[`price_${item.material.id}`] = "无效的价格"
                     }
+                }
+            })
+        }
 
-                    axios.post(`${DATA_API_BASE_URL}/repoChangingItems`, fi)
-                        .catch(e => {
-                            cancel = true;
-                            this.setState({ showSavingDiag: false })
-                            this.props.showSnackbar(e.message)
-                        })
+        if (Object.keys(errors).length > 0) {
+            // this.setState({
+            //     showSavingDiag: false, errors: errors, snackbarOpen: true,
+            //     snackbarContent: "发现错误，请检查数据输入"
+            // })
+            this.setState({ showSavingDiag: false, errors: errors })
+            this.props.showSnackbar("发现错误，请检查数据输入")
+            return
+        }
+
+
+        // step 3
+        this.setState({ activeStep: this.state.activeStep + 1 })
+
+        // let value = 0;
+        // changingItems.forEach(i => value += i.quantity * i.price)
+        if (!form.id)
+            form.id = 0
+
+        if (doSubmit) {
+            form.status = 1
+            form.applyingDate = getTodayDateTimeString()
+        }
+
+        if (mode === MODE_DELIVERY) {
+            await axios.post(`${API_BASE_URL}/deliverySheet/${delivery_sheet_id}/repoChangingSheet`, form)
+                // .then(resp => resp.data)
+                // .then(j => form.id = j.id)
+                .catch(e => {
+                    cancel = true
+                    this.setState({ showSavingDiag: false })
+                    this.props.showSnackbar(e.message)
                 })
-            }
 
             if (cancel) return;
 
-            // step 5, done
+            this.setState({ activeStep: this.state.activeStep + 1 })
+        } else {
+            await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
+                .then(resp => resp.data)
+                .then(j => form.id = j.id)
+                .catch(e => {
+                    cancel = true
+                    this.setState({ showSavingDiag: false })
+                    this.props.showSnackbar(e.message)
+                })
+
+            if (cancel) return;
+
+
+            // step 4
             this.setState({ activeStep: this.state.activeStep + 1 })
 
-            //
-            this.props.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
+            // {"id": {"repoChanging": 0, "material": 0}, "repoChanging": {"id":1}, "material": {"id":6}, "quantity": -1.3, "price": 4.4}
+            changingItems.forEach(p => {
+                let fi = {
+                    id: { repoChanging: form.id, material: p.material.id },
+                    repoChanging: { id: form.id },
+                    material: { id: p.material.id },
+                    quantity: p.quantity,
+                    price: p.price,
+                }
 
-        }
-
-
-        this.processForm = () => {
-            const { form } = this.state
-            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/previewStockIn/${form.id}` : `${API_BASE_URL}/previewStockOut/${form.id}`
-
-            axios.get(url)
-                .then(resp => resp.data)
-                .then(p => {
-                    const { repoes, changingItems } = this.state
-                    return p.map(pi => {
-                        let ci = changingItems.find(ci => ci.material.id === pi.materialId)
-                        pi.material = ci.material
-
-                        let repo = repoes.find(r => r.id === pi.repoId)
-                        pi.repo = repo
-
-                        return pi
+                axios.post(`${DATA_API_BASE_URL}/repoChangingItems`, fi)
+                    .catch(e => {
+                        cancel = true;
+                        this.setState({ showSavingDiag: false })
+                        this.props.showSnackbar(e.message)
                     })
-                })
-                .then(p => {
-                    this.setState({
-                        previewData: p,
-                        previewColumns: form.type === REPO_CHANGING_TYPE_IN ? PREVIEW_STOCK_IN_COLUMNS : PREVIEW_STOCK_OUT_COLUMNS,
-                        showPreviewDiag: true,
-                        applyChangingCountdown: APPLY_CHANGING_COUNTDOWN,
-                        canApplyChanging: form.type === REPO_CHANGING_TYPE_IN || p.every(pi => pi.fulfilled)
-                    })
-
-                    this.state.countdownTimer = window.setInterval(() => {
-                        this.state.applyChangingCountdown >= 0 ?
-                            this.state.applyChangingCountdown -= 1 : window.clearInterval(this.state.countdownTimer)
-                        this.forceUpdate()
-                    }, 1000)
-                })
-                .catch(e => {
-                    this.props.showSnackbar(e.message)
-                })
+            })
         }
 
+        if (cancel) return;
 
-        this.cancelPreview = () => this.setState({ showPreviewDiag: false })
-
-        this.onApplyChanging = () => {
-            const { form } = this.state
-            const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/applyStockIn/${form.id}` : `${API_BASE_URL}/applyStockOut/${form.id}`
-
-            axios.post(url, { comment: '' })
-                .then(r => {
-                    this.props.showSnackbar("成功")
-                    this.setState({ showPreviewDiag: false })
-                    this.props.history.goBack();
-                })
-                .catch(e => {
-                    this.props.showSnackbar(e.message)
-                })
-        }
-
+        // step 5, done
+        this.setState({ activeStep: this.state.activeStep + 1 })
 
         //
-        this.rejectForm = (() => this.setState({ showConfirmDiag: true, confirmMessage: "确定拒绝此申请吗？" }))
+        this.props.showSnackbar(doSubmit ? "已保存并提交" : "已保存")
+
+    };
 
 
-        // confirm
-        this.cancelConfirm = () => this.setState({ showConfirmDiag: false })
+    processForm = () => {
+        const { form } = this.state
+        const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/previewStockIn/${form.id}` : `${API_BASE_URL}/previewStockOut/${form.id}`
 
-        this.onConfirm = () => {
-            this.setState({ showConfirmDiag: false })
+        axios.get(url)
+            .then(resp => resp.data)
+            .then(p => {
+                const { repoes, changingItems } = this.state
+                return p.map(pi => {
+                    let ci = changingItems.find(ci => ci.material.id === pi.materialId)
+                    pi.material = ci.material
 
-            let { form } = this.state
-            axios.patch(`${DATA_API_BASE_URL}/repoChangings/${form.id}`, { status: -1 })
-                .then(() => this.props.history.goBack())
-                .catch(e => {
-                    this.props.showSnackbar(e.message)
+                    let repo = repoes.find(r => r.id === pi.repoId)
+                    pi.repo = repo
+
+                    return pi
                 })
-        }
-    }
+            })
+            .then(p => {
+                this.setState({
+                    previewData: p,
+                    previewColumns: form.type === REPO_CHANGING_TYPE_IN ? PREVIEW_STOCK_IN_COLUMNS : PREVIEW_STOCK_OUT_COLUMNS,
+                    showPreviewDiag: true,
+                    applyChangingCountdown: APPLY_CHANGING_COUNTDOWN,
+                    canApplyChanging: form.type === REPO_CHANGING_TYPE_IN || p.every(pi => pi.fulfilled)
+                })
 
-    showSnackbar(msg: String) {
+                this.state.countdownTimer = window.setInterval(() => {
+                    this.state.applyChangingCountdown >= 0 ?
+                        this.state.applyChangingCountdown -= 1 : window.clearInterval(this.state.countdownTimer)
+                    this.forceUpdate()
+                }, 1000)
+            })
+            .catch(e => {
+                this.props.showSnackbar(e.message)
+            })
+    };
+
+
+    cancelPreview = () => this.setState({ showPreviewDiag: false });
+
+    onApplyChanging = () => {
+        const { form } = this.state
+        const url = form.type === REPO_CHANGING_TYPE_IN ? `${API_BASE_URL}/applyStockIn/${form.id}` : `${API_BASE_URL}/applyStockOut/${form.id}`
+
+        axios.post(url, { comment: '' })
+            .then(r => {
+                this.props.showSnackbar("成功")
+                this.setState({ showPreviewDiag: false })
+                this.props.history.goBack();
+            })
+            .catch(e => {
+                this.props.showSnackbar(e.message)
+            })
+    };
+
+
+    //
+    rejectForm = () => this.setState({ showConfirmDiag: true, confirmMessage: "确定拒绝此申请吗？" });
+
+
+    // confirm
+    cancelConfirm = () => this.setState({ showConfirmDiag: false });
+
+    onConfirm = () => {
+        this.setState({ showConfirmDiag: false })
+
+        let { form } = this.state
+        axios.patch(`${DATA_API_BASE_URL}/repoChangings/${form.id}`, { status: -1 })
+            .then(() => this.props.history.goBack())
+            .catch(e => {
+                this.props.showSnackbar(e.message)
+            })
+    };
+    // }
+
+    showSnackbar = (msg: String) => {
         this.setState({ snackbarOpen: true, snackbarContent: msg });
-    }
+    };
 
     componentDidMount() {
         let { mode, id } = this.props.match.params;
@@ -743,7 +863,8 @@ class RepoChangingSheetPage extends React.PureComponent {
                 .then(resp => resp.data)
                 .then(order => {
                     this.setState({
-                        orderSpecified: true, form: {
+                        orderSpecified: true,
+                        form: {
                             ...this.state.form,
                             status: 1,
                             type: REPO_CHANGING_TYPE_OUT,
@@ -761,25 +882,26 @@ class RepoChangingSheetPage extends React.PureComponent {
             this.state.mode = mode //MODE_EDIT
             // this.state.dirty = false
 
-            axios.get(`${DATA_API_BASE_URL}/repoChangings/${id}`)
+            // axios.get(`${DATA_API_BASE_URL}/repoChangings/${id}`)
+            axios.get(`${API_BASE_URL}/stock-changing/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
                     this.state.form = j
-                    return j._links.repo.href
-                })
-                .then(url => axios.get(url))
-                .then(resp => {
-                    this.state.form.repo = resp.data
-                    return this.state.form._links.reason.href
-                })
-                .then(url => axios.get(url))
-                .then(resp => {
-                    this.state.form.reason = resp.data
-                    return this.state.form._links.applicant.href
-                })
-                .then(url => axios.get(url))
-                .then(resp => {
-                    this.state.form.applicant = resp.data
+                    // return j._links.repo.href
+                    // })
+                    // .then(url => axios.get(url))
+                    // .then(resp => {
+                    //     this.state.form.repo = resp.data
+                    //     return this.state.form._links.reason.href
+                    // })
+                    // .then(url => axios.get(url))
+                    // .then(resp => {
+                    //     this.state.form.reason = resp.data
+                    //     return this.state.form._links.applicant.href
+                    // })
+                    // .then(url => axios.get(url))
+                    // .then(resp => {
+                    //     this.state.form.applicant = resp.data
                     return `${DATA_API_BASE_URL}/repoChangings/${id}/items`
                 })
                 .then(url => axios.get(url))
@@ -793,18 +915,18 @@ class RepoChangingSheetPage extends React.PureComponent {
                     this.forceUpdate()
 
                     //
-                    return this.state.form._links.order.href
+                    // return this.state.form._links.order.href
                 })
                 .catch(e => this.props.showSnackbar(e.message))
 
-                .then(url => axios.get(url))
-                .then(resp => resp.data)
-                .then(order => this.setState({ form: { ...this.state.form, order } }))
-                .catch(e => `${DATA_API_BASE_URL}/repoChangings/${id}/purchasingOrder`)
+            // .then(url => axios.get(url))
+            // .then(resp => resp.data)
+            // .then(order => this.setState({ form: { ...this.state.form, order } }))
+            // .catch(e => `${DATA_API_BASE_URL}/repoChangings/${id}/purchasingOrder`)
 
-                .then(url => axios.get(url))
-                .then(resp => resp.data)
-                .then(purchasingOrder => this.setState({ form: { ...this.state.form, purchasingOrder } }))
+            // .then(url => axios.get(url))
+            // .then(resp => resp.data)
+            // .then(purchasingOrder => this.setState({ form: { ...this.state.form, purchasingOrder } }))
             // .catch(e => this.props.showSnackbar(e.message))
         }
 
@@ -842,7 +964,7 @@ class RepoChangingSheetPage extends React.PureComponent {
                 this.setState({ repoChangingReasons: j });
             })
             .catch(e => this.props.showSnackbar(e.message));
-    }
+    };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.mode === MODE_ADD && !prevProps.user && this.props.user) {
@@ -855,7 +977,7 @@ class RepoChangingSheetPage extends React.PureComponent {
         const { type, classes, } = this.props
         // const { id } = this.props.match.params;
         const { mode, form, changingItems, materials } = this.state;
-        const { dirty, orderSpecified, selectMaterial, columns, selection } = this.state;
+        const { dirty, orderSpecified, selectMaterial, } = this.state;
         const { errors, } = this.state;
 
         let shrinkLabel = mode === MODE_ADD ? undefined : true;
@@ -864,7 +986,7 @@ class RepoChangingSheetPage extends React.PureComponent {
 
         let filteredMaterials = materials.filter(m => form.repo && form.repo.type === m.category)
 
-        // title
+        //#region title
         let title = "";
         switch (type) {
 
@@ -918,11 +1040,12 @@ class RepoChangingSheetPage extends React.PureComponent {
             default:
                 break
         }
+        //#endregion
 
         // enable edit
         const disableEdit = type === TYPE_STOCK_IN_OUT || mode === MODE_VIEW
 
-        // actions
+        //#region actions
         const actions = type === TYPE_STOCK_IN_OUT ?
             <React.Fragment>
                 <Tooltip title="受理此表单并开始处理">
@@ -939,7 +1062,39 @@ class RepoChangingSheetPage extends React.PureComponent {
                 <Tooltip title="保存表单，然后提交给仓库管理员">
                     <Button onClick={() => this.saveForm(true)} color='secondary' disabled={(!dirty && mode !== MODE_EDIT) || mode === MODE_VIEW || form.status === 2} style={{ fontSize: 18 }} >{dirty ? "保存并提交" : "提交"}<ContentSave /></Button></Tooltip>
             </React.Fragment>
+        //#endregion
 
+        //#region order info
+        let orderInfo = null;
+
+        if (form && form.reason && form.reason.orderRelated) {
+            let oi = { error: errors['form.order'] };
+
+            if (form.type === REPO_CHANGING_TYPE_OUT && form.reason.orderRelated === 1) {
+                oi.onClick = this.selectDeliverySheet;
+                oi.disabled = disableEdit;// || form.deliverySheet;
+                oi.title = form.deliverySheet ? '发货单' : '选择发货单';
+                oi.no = form.deliverySheet ? form.deliverySheet.no : null;
+                oi.name = form.order && form.order.client ? form.order.client.name : null;
+            } else if (form.type === REPO_CHANGING_TYPE_OUT && form.reason.orderRelated === 3) {
+                oi.onClick = this.doSelectBom;
+                oi.disabled = disableEdit;// || form.bom;
+                oi.title = form.bom ? 'BOM单' : '选择BOM单';
+                oi.no = form.bom && form.bom.orderItem && form.bom.orderItem.order ? form.bom.orderItem.order.no : null;
+                oi.name = form.bom && form.bom.orderItem && form.bom.orderItem.product ? form.bom.orderItem.product.code : null;
+            } else if (form.type === REPO_CHANGING_TYPE_IN && form.reason.orderRelated === 2) {
+                oi.onClick = this.selectPurchasingOrder;
+                oi.disabled = disableEdit;// || form.purchasingOrder;
+                oi.title = form.purchasingOrder ? '采购计划' : '选择采购计划';
+                oi.no = form.purchasingOrder ? form.purchasingOrder.no : null;
+                oi.name = form.purchasingOrder && form.purchasingOrder._embedded && form.purchasingOrder._embedded.supplier ? form.purchasingOrder._embedded.supplier.name : null;
+            }
+
+            orderInfo = oi.onClick ? <OrderInfo {...oi} /> : null;
+        }
+        //#endregion
+
+        //
         return this.state.repoes && this.state.materials && this.state.repoChangingReasons ? (
             // <Provider store={store}>
             <React.Fragment>
@@ -1055,31 +1210,41 @@ class RepoChangingSheetPage extends React.PureComponent {
                                 />
                             </MuGrid>
 
-                            {form && form.type === REPO_CHANGING_TYPE_OUT && form.reason && form.reason.orderRelated === 1 ?
+                            {/* {form && form.type === REPO_CHANGING_TYPE_OUT && form.reason && form.reason.orderRelated === 1 ?
                                 <MuGrid >
-                                    {/* <Button onClick={this.selectDeliverySheet} disabled={disableEdit || orderSpecified}>
-                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '发货单' : '选择发货单'} */}
-                                    <Button onClick={this.selectOrder} disabled={disableEdit || orderSpecified}>
-                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '订单' : '选择订单'}
+                                    <Button onClick={this.selectDeliverySheet} disabled={disableEdit || form.deliverySheet}>
+                                        <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || form.deliverySheet ? '发货单' : '选择发货单'}
                                     </Button>
-                                    {form.order ? <React.Fragment>
-                                        <Chip label={form.order.no} style={{ marginLeft: 16 }} />
-                                        <Chip label={form.order._embedded.client.name} style={{ marginLeft: 8 }} />
+                                    {form.deliverySheet ? <React.Fragment>
+                                        <Chip label={form.deliverySheet.no} style={{ marginLeft: 16 }} />
+                                        <Chip label={form.order.client.name} style={{ marginLeft: 8 }} />
                                     </React.Fragment> :
                                         (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
                                 </MuGrid>
                                 : form.type === REPO_CHANGING_TYPE_IN && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated === 2 ?
                                     <MuGrid >
-                                        <Button onClick={this.selectPurchasingOrder} disabled={disableEdit || orderSpecified}>
-                                            <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? '采购计划' : '选择采购计划'}
+                                        <Button onClick={this.selectPurchasingOrder} disabled={disableEdit || form.purchasingOrder}>
+                                            <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || purchasingOrder ? '采购计划' : '选择采购计划'}
                                         </Button>
                                         {form.purchasingOrder ? <React.Fragment>
                                             <Chip label={form.purchasingOrder.no} style={{ marginLeft: 16 }} />
-                                            <Chip label={form.purchasingOrder._embedded.supplier.name} style={{ marginLeft: 8 }} />
+                                            <Chip label={form.purchasingOrder.supplier.name} style={{ marginLeft: 8 }} />
                                         </React.Fragment> :
                                             (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
                                     </MuGrid>
-                                    : null}
+                                    : form.type === REPO_CHANGING_TYPE_OUT && this.state.form && this.state.form.reason && this.state.form.reason.orderRelated === 3 ?
+                                        <MuGrid >
+                                            <Button onClick={this.selectPurchasingOrder} disabled={disableEdit || orderSpecified}>
+                                                <ClipboardText color="primary" />{type === TYPE_STOCK_IN_OUT || orderSpecified ? 'BOM单' : '选择BOM单'}
+                                            </Button>
+                                            {form.purchasingOrder ? <React.Fragment>
+                                                <Chip label={form.purchasingOrder.no} style={{ marginLeft: 16 }} />
+                                                <Chip label={form.purchasingOrder.supplier.name} style={{ marginLeft: 8 }} />
+                                            </React.Fragment> :
+                                                (!!errors['form.order'] ? <Typography className={classes.error} style={{ marginLeft: '1em' }}>{errors['form.order']}</Typography> : null)}
+                                        </MuGrid>
+                                        : null} */}
+                            {orderInfo}
                         </MuGrid>
                     </Paper>
 
@@ -1124,13 +1289,9 @@ class RepoChangingSheetPage extends React.PureComponent {
                                     return (
                                         <TableRow key={m.id}>
                                             <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.code}</TableCell>
-
                                             <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
-
                                             <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
-
                                             <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
-
                                             <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`quantity_${m.id}`}
                                                     value={n.quantity}
@@ -1150,7 +1311,7 @@ class RepoChangingSheetPage extends React.PureComponent {
                                                 <React.Fragment>
                                                     <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                         <TextField type="number" required id={`price_${m.id}`}
-                                                            value={toFixedMoney(n.price)}
+                                                            value={n.price ? toFixedMoney(n.price) : null}
                                                             disabled={disableEdit || m.category === 1 || orderSpecified}
                                                             fullWidth
                                                             error={!!errors[`price_${m.id}`]}
@@ -1185,192 +1346,41 @@ class RepoChangingSheetPage extends React.PureComponent {
 
                 </div>
 
-                {/* <Snackbar
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    autoHideDuration={3000}
-                    open={snackbarOpen}
-                    onClose={() => this.setState({ snackbarOpen: false })}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{snackbarContent}</span>}
-                /> */}
-
 
                 {/* dialog for add materials */}
-                <Dialog
-                    open={selectMaterial}
-                    onClose={this.cancelSelect}
-                    // className={classes.dialog}
-                    classes={{ paper: classes.dialog }}
-                >
-                    <DialogTitle>添加材料/产品</DialogTitle>
-                    <DialogContent>
-                        {/* <DialogContentText>请选择材料</DialogContentText> */}
-                        <Paper>
-                            <Grid
-                                rows={filteredMaterials}
-                                columns={columns}
-                            >
-                                <SelectionState
-                                    selection={selection}
-                                    onSelectionChange={this.changeSelection}
-                                />
-                                <IntegratedSelection />
-
-                                <SortingState
-                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
-                                />
-                                <IntegratedSorting />
-
-                                <FilteringState defaultFilters={[]} />
-                                <IntegratedFiltering />
-
-                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
-
-                                <TableHeaderRow showSortingControls />
-                                <TableFilterRow />
-                                <TableSelection showSelectAll selectByRowClick={true} />
-                            </Grid>
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelSelect} color="primary">取消</Button>
-                        <Button onClick={this.addMaterials} disabled={selection.length <= 0} color="secondary">添加</Button>
-                    </DialogActions>
-                </Dialog>
+                <DialogSelectMaterials
+                    show={selectMaterial}
+                    title='添加材料/产品'
+                    data={filteredMaterials}
+                    onSelected={this.addMaterials}
+                    onCancel={this.cancelSelect} />
 
 
                 {/* dialog for select purchasing order */}
-                <Dialog
-                    open={this.state.showSelectPurchasingOrder}
-                    onClose={this.cancelSelectPurchasingOrder}
-                    // className={classes.dialog}
-                    classes={{ paper: classes.dialog }}
-                >
-                    <DialogTitle>选择采购订单</DialogTitle>
-                    <DialogContent>
-                        <Paper>
-                            <Grid
-                                rows={this.state.purchasingOrders}
-                                columns={this.state.purchasingOrderColumns}
-                            >
-                                <SelectionState
-                                    selection={this.state.orderSelection}
-                                    onSelectionChange={this.changeOrderSelection}
-                                />
-                                <IntegratedSelection />
-
-                                <SortingState
-                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
-                                />
-                                <IntegratedSorting />
-
-                                <FilteringState defaultFilters={[]} />
-                                <IntegratedFiltering />
-
-                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
-
-                                <TableHeaderRow showSortingControls />
-                                <TableFilterRow />
-                                <TableSelection selectByRowClick={true} />
-                            </Grid>
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelSelectPurchasingOrder} color="primary">取消</Button>
-                        <Button onClick={this.onSelectedPurchasingOrder} disabled={this.state.orderSelection.length <= 0} color="secondary">添加</Button>
-                    </DialogActions>
-                </Dialog>
+                <DialogSelectPurchasingOrder
+                    show={this.state.showSelectPurchasingOrder}
+                    title='选择采购订单'
+                    data={this.state.purchasingOrders}
+                    onSelected={this.onSelectedPurchasingOrder}
+                    onCancel={this.cancelSelectPurchasingOrder} />
 
 
-                {/* dialog for select order */}
-                <Dialog
-                    open={this.state.showSelectOrder}
-                    onClose={this.cancelSelectOrder}
-                    // className={classes.dialog}
-                    classes={{ paper: classes.dialog }}
-                >
-                    <DialogTitle>选择订单</DialogTitle>
-                    <DialogContent>
-                        <Paper>
-                            <Grid
-                                rows={this.state.orders}
-                                columns={this.state.orderColumns}
-                            >
-                                <SelectionState
-                                    selection={this.state.orderSelection}
-                                    onSelectionChange={this.changeOrderSelection}
-                                />
-                                <IntegratedSelection />
-
-                                <SortingState
-                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
-                                />
-                                <IntegratedSorting />
-
-                                <FilteringState defaultFilters={[]} />
-                                <IntegratedFiltering />
-
-                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
-
-                                <TableHeaderRow showSortingControls />
-                                <TableFilterRow />
-                                <TableSelection selectByRowClick={true} />
-                            </Grid>
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelSelectOrder} color="primary">取消</Button>
-                        <Button onClick={this.onSelectedOrder} disabled={this.state.orderSelection.length <= 0} color="secondary">添加</Button>
-                    </DialogActions>
-                </Dialog>
+                {/* dialog for select purchasing order */}
+                <DialogSelectBom
+                    show={this.state.showSelectBom}
+                    title='选择BOM单'
+                    data={this.state.boms}
+                    onSelected={this.onSelectedBom}
+                    onCancel={this.cancelSelectBom} />
 
 
                 {/* dialog for select delivery sheet */}
-                <Dialog
-                    open={this.state.showSelectDeliverySheet}
-                    onClose={this.cancelSelectDeliverySheet}
-                    // className={classes.dialog}
-                    classes={{ paper: classes.dialog }}
-                >
-                    <DialogTitle>选择发货单</DialogTitle>
-                    <DialogContent>
-                        <Paper>
-                            <Grid
-                                rows={this.state.deliverySheets}
-                                columns={this.state.deliverySheetColumns}
-                            >
-                                <SelectionState
-                                    selection={this.state.deliverySheetSelection}
-                                    onSelectionChange={this.changeDeliverySheetSelection}
-                                />
-                                <IntegratedSelection />
-
-                                <SortingState
-                                    defaultSorting={[{ columnName: 'id', direction: 'asc' }]}
-                                />
-                                <IntegratedSorting />
-
-                                <FilteringState defaultFilters={[]} />
-                                <IntegratedFiltering />
-
-                                <VirtualTable height={400} messages={{ noData: "没有数据" }} />
-
-                                <TableHeaderRow showSortingControls />
-                                <TableFilterRow />
-                                <TableSelection selectByRowClick={true} />
-                            </Grid>
-                        </Paper>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.cancelSelectDeliverySheet} color="primary">取消</Button>
-                        <Button onClick={this.onSelectedDeliverySheet} disabled={this.state.deliverySheetSelection.length <= 0} color="secondary">选择</Button>
-                    </DialogActions>
-                </Dialog>
+                <DialogSelectDeliverySheet
+                    show={this.state.showSelectDeliverySheet}
+                    title='选择发货单'
+                    data={this.state.deliverySheets}
+                    onSelected={this.onSelectedDeliverySheet}
+                    onCancel={this.cancelSelectDeliverySheet} />
 
 
                 {/* dialog for save formula */}
@@ -1454,6 +1464,21 @@ class RepoChangingSheetPage extends React.PureComponent {
         ) : null
     }
 }
+
+const OrderInfo = withStyles(styles)(function (props) {
+    return <MuGrid >
+        <Button onClick={props.onClick} disabled={props.disabled}>
+            <ClipboardText color="primary" />{props.title}
+        </Button>
+        {props.no ? <React.Fragment>
+            <Chip label={props.no} style={{ marginLeft: 16 }} />
+            <Chip label={props.name} style={{ marginLeft: 8 }} />
+        </React.Fragment> :
+            (props.error ? <Typography className={props.classes.error} style={{ marginLeft: '1em' }}>{props.error}</Typography> : null)}
+    </MuGrid>
+})
+
+// const  withStyles(styles)(OrderInfo)
 
 
 const styles = theme => ({

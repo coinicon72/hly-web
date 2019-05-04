@@ -68,7 +68,14 @@ const QuantityTypeProvider = props => (
 );
 
 // =============================================
-class AddInventoryPage extends React.PureComponent {
+class AddInventoryPage extends React.PureComponent<{
+    classes: Object,
+},{
+    form: Object,
+    repoes: Object[],
+    currentRepo: ?Object,
+    availableValues: Object,
+}> {
     constructor(props) {
         super(props);
 

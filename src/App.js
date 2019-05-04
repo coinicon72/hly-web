@@ -36,7 +36,7 @@ import axios from 'axios'
 
 // import { hashHistory } from 'react-router';
 import {
-  BrowserRouter, Switch, Route, Link,
+  BrowserRouter, Switch, Route, Link, match
   // Redirect
 } from 'react-router-dom';
 

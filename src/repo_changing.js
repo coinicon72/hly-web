@@ -195,9 +195,9 @@ class RepoChangingPage extends React.PureComponent {
                     disableEdit={type === TYPE_STOCK_IN_OUT}
                     clickHandler={this.onRowDoubleClicked}
                     providers={[
-                        <RepoChangingTypeProvider for={['type']} />,
-                        <CurrencyTypeProvider for={['totalValue']} />,
-                        <RepoChangingStatusProvider for={['status']} />,
+                        <RepoChangingTypeProvider key='RepoChangingTypeProvider' for={['type']} />,
+                        <CurrencyTypeProvider key='CurrencyTypeProvider' for={['totalValue']} />,
+                        <RepoChangingStatusProvider key='RepoChangingStatusProvider' for={['status']} />,
                     ]}
                 />
             </div>
