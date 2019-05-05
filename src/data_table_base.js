@@ -50,6 +50,12 @@ import {
     TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
 
+//
+import { connect } from 'react-redux'
+
+import { actionShowSnackbar } from "./redux/data_selection"
+
+
 // import axios from 'axios'
 
 import CommonStyles from "./common_styles";
@@ -236,8 +242,8 @@ class DataTableBase extends React.PureComponent {
             deletingRows: [],
 
             //
-            snackbarOpen: false,
-            snackbarContent: "",
+            // snackbarOpen: false,
+            // snackbarContent: "",
         };
 
         this.changeSelection = selection => this.setState({ selection });
@@ -307,9 +313,9 @@ class DataTableBase extends React.PureComponent {
         this.doDelete = props.doDelete
     }
 
-    showSnackbar(msg: String) {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
-    }
+    // showSnackbar(msg: String) {
+    //     this.setState({ snackbarOpen: true, snackbarContent: msg });
+    // }
 
     // doLoad = () => {
     //     return axios.get(this.dataRepoApiUrl)//,
@@ -342,7 +348,7 @@ class DataTableBase extends React.PureComponent {
                         rows = [...rows, r];
                         this.setState({ rows });
                     })
-                    .catch(e => this.showSnackbar(e.message));
+                    .catch(e => this.props.showSnackbar(e.message));
             });
         }
 
@@ -358,7 +364,7 @@ class DataTableBase extends React.PureComponent {
                             rows = rows.map((row, idx) => changed[idx] ? { ...row, ...j } : row);
                             this.setState({ rows });
                         })
-                        .catch(e => this.showSnackbar(e.message));
+                        .catch(e => this.props.showSnackbar(e.message));
                 }
             })
         }
@@ -404,7 +410,7 @@ class DataTableBase extends React.PureComponent {
             .then(j => 
                 this.setState({ rows: j })
                 )
-            .catch(e => this.showSnackbar(e.message));
+            .catch(e => this.props.showSnackbar(e.message));
     }
 
     /**
@@ -416,7 +422,7 @@ class DataTableBase extends React.PureComponent {
 
     render() {
         const { classes, columns, disableEdit, editCell, editingColumnExtensions, changeAddedRows, providers } = this.props;
-        const { rows, editingRowIds, rowChanges, addedRows, tableHeight, snackbarOpen, snackbarContent, deletingRows } = this.state;
+        const { rows, editingRowIds, rowChanges, addedRows, tableHeight, deletingRows } = this.state;
 
         const TableRow = tableRowWithClickHandler(this.props.clickHandler)
 
@@ -511,7 +517,7 @@ class DataTableBase extends React.PureComponent {
                 </Grid>
 
 
-                <Snackbar
+                {/* <Snackbar
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'center',
@@ -523,7 +529,7 @@ class DataTableBase extends React.PureComponent {
                         'aria-describedby': 'message-id',
                     }}
                     message={<span id="message-id">{snackbarContent}</span>}
-                />
+                /> */}
 
 
                 {/* deletion confirm */}
@@ -575,4 +581,14 @@ const styles = theme => ({
     },
 })
 
-export default withStyles(styles)(DataTableBase);
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    null,
+    mapDispatchToProps
+)(DataTableBase)
+
+export default withStyles(styles)(ConnectedComponent);

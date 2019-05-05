@@ -219,8 +219,9 @@ export const OrderRelatedTypeEditer = ({ value, onValueChange }) => (
         style={{ width: '100%' }}
     >
         <option key="o0" value=""></option>
-        <option key="o1" value={1}>订单相关</option>
+        <option key="o1" value={1}>发货相关</option>
         <option key="o2" value={2}>采购相关</option>
+        <option key="o3" value={3}>BOM相关</option>
     </Select>
 );
 
@@ -230,8 +231,9 @@ export const OrderRelatedTypeProvider = props => (
         formatterComponent={
             ({ row, value }) => {
                 switch (value) {
-                    case 1: return "订单相关";
+                    case 1: return "发货相关";
                     case 2: return "采购相关";
+                    case 3: return "BOM相关";
                     default: return "";
                 }
             }}

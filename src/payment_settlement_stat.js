@@ -7,28 +7,28 @@ import CommonStyles from "./common_styles";
 import axios from 'axios'
 
 import { withStyles } from '@material-ui/core';
-import { 
+import {
     // Toolbar, Typography, 
-    Grid, 
-    TextField, 
+    Grid,
+    TextField,
     // IconButton, 
-    Button 
+    Button
 } from '@material-ui/core';
 // import {
 //     TableEditRow,
 // } from '@devexpress/dx-react-grid-material-ui';
 
-import { 
+import {
     // ArrowLeft, 
-    Export 
+    Export
 } from 'mdi-material-ui';
 
 // import { LookupEditCell } from "./data_table_util";
 import DataTableBase from "./data_table_base";
 
-import { 
+import {
     // getTodayString, 
-    toDateString 
+    toDateString
 } from "./utils"
 
 import {
@@ -100,10 +100,13 @@ class PaymentSettlementStatPage extends React.PureComponent {
         this.doLoad = () => {
             const { from, to } = this.state
 
-            this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatusAndConfirmedDateBetween?status=2&from=${from}&to=${to}`;
+            if (from && to) {
+                this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatusAndConfirmedDateBetween?status=2&from=${from}&to=${to}`;
 
-            return axios.get(this.dataRepoApiUrl)//,
-                .then(resp => resp.data._embedded[this.dataRepo])
+                return axios.get(this.dataRepoApiUrl)//,
+                    .then(resp => resp.data._embedded[this.dataRepo]);
+            } else
+                return Promise.resolve([]);
         }
     }
 
@@ -126,7 +129,7 @@ class PaymentSettlementStatPage extends React.PureComponent {
                 <Button href={`${EXPORT_BASE_URL}/roles`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
             </Toolbar> */}
 
-            <Grid style={{ display:'flex', alignItems: 'center' }}>
+            <Grid style={{ display: 'flex', alignItems: 'center' }}>
                 <TextField type="date" required id="start"
                     label="起始日期"
                     value={from}
@@ -145,7 +148,7 @@ class PaymentSettlementStatPage extends React.PureComponent {
                         shrink: true,
                     }}
                 />
-                <span style={{flex:1}} />
+                <span style={{ flex: 1 }} />
                 <Button href={`${EXPORT_BASE_URL}/paymentSettlements?from=${from}&to=${to}`} color='primary' style={{ fontSize: 18 }} ><Export />导出</Button>
             </Grid>
 

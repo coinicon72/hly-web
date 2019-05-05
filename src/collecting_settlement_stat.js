@@ -100,10 +100,13 @@ class CollectingSettlementStatPage extends React.PureComponent {
         this.doLoad = () => {
             const { from, to } = this.state
 
-            this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatusAndConfirmedDateBetween?status=2&from=${from}&to=${to}`;
+            if (from && to) {
+                this.dataRepoApiUrl = `${DATA_API_BASE_URL}/${this.dataRepo}/search/findByStatusAndConfirmedDateBetween?status=2&from=${from}&to=${to}`;
 
-            return axios.get(this.dataRepoApiUrl)//,
-                .then(resp => resp.data._embedded[this.dataRepo])
+                return axios.get(this.dataRepoApiUrl)//,
+                    .then(resp => resp.data._embedded[this.dataRepo]);
+            } else
+                return Promise.resolve([]);
         }
     }
 
