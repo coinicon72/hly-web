@@ -407,7 +407,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
             .then(resp => resp.data._embedded.purchasingOrders)
             .then(purchasingOrders => {
                 this.state.errors['form.order'] = null;
-                this.setState({ purchasingOrders });
+                this.setState({ dirty: true, purchasingOrders });
             })
             .catch(e => this.props.showSnackbar(e.message));
 
@@ -529,7 +529,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
 
         const bom = boms[selection[0]]
         this.state.form.bom = bom
-        this.setState({ showSelectBom: false })
+        this.setState({ dirty: true, showSelectBom: false })
     }
     //#endregion
 
@@ -567,7 +567,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
         //
         const deliverySheet = deliverySheets[selection[0]]
         this.state.form.deliverySheet = deliverySheet
-        this.setState({ showSelectDeliverySheet: false })
+        this.setState({ dirty: true, showSelectDeliverySheet: false })
     }
     //#endregion
 
@@ -648,15 +648,37 @@ class RepoChangingSheetPage extends React.PureComponent<{
         // let value = 0;
         // changingItems.forEach(i => value += i.quantity * i.price)
         if (!form.id)
-            form.id = 0
+            form.id = 0;
+
+        // clean up
+        let fd = { ...form };
+
+        fd.applicant = { id: form.applicant.id }
+
+        delete fd.items;
+
+        if (form.order)
+            fd.order = { id: form.order.id };
+
+        if (form.bom)
+            fd.bom = { id: form.bom.id };
+
+        if (form.deliverySheet)
+            fd.deliverySheet = { id: form.deliverySheet.id }
+
+        if (form.reason)
+            fd.reason = { id: form.reason.id };
+
+        if (form.repo)
+            fd.repo = { id: form.repo.id };
 
         if (doSubmit) {
-            form.status = 1
-            form.applyingDate = getTodayDateTimeString()
+            fd.status = 1;
+            fd.applyingDate = getTodayDateTimeString();
         }
 
         if (mode === MODE_DELIVERY) {
-            await axios.post(`${API_BASE_URL}/deliverySheet/${delivery_sheet_id}/repoChangingSheet`, form)
+            await axios.post(`${API_BASE_URL}/deliverySheet/${delivery_sheet_id}/repoChangingSheet`, fd)
                 // .then(resp => resp.data)
                 // .then(j => form.id = j.id)
                 .catch(e => {
@@ -669,7 +691,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
 
             this.setState({ activeStep: this.state.activeStep + 1 })
         } else {
-            await axios.post(`${DATA_API_BASE_URL}/repoChangings`, form)
+            await axios.post(`${DATA_API_BASE_URL}/repoChangings`, fd)
                 .then(resp => resp.data)
                 .then(j => form.id = j.id)
                 .catch(e => {
@@ -790,10 +812,6 @@ class RepoChangingSheetPage extends React.PureComponent<{
     };
     // }
 
-    showSnackbar = (msg: String) => {
-        this.setState({ snackbarOpen: true, snackbarContent: msg });
-    };
-
     componentDidMount() {
         let { mode, id } = this.props.match.params;
         let { type, user } = this.props
@@ -886,6 +904,9 @@ class RepoChangingSheetPage extends React.PureComponent<{
             axios.get(`${API_BASE_URL}/stock-changing/${id}`)
                 .then(resp => resp.data)
                 .then(j => {
+                    if (!j.order && j.deliverySheet && j.deliverySheet.order)
+                        j.order = j.deliverySheet.order;
+
                     this.state.form = j
                     // return j._links.repo.href
                     // })
@@ -1080,7 +1101,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
                 oi.onClick = this.doSelectBom;
                 oi.disabled = disableEdit;// || form.bom;
                 oi.title = form.bom ? 'BOM单' : '选择BOM单';
-                oi.no = form.bom && form.bom.orderItem && form.bom.orderItem.order ? form.bom.orderItem.order.no : null;
+                oi.no = form.order ? form.order.no : null;
                 oi.name = form.bom && form.bom.orderItem && form.bom.orderItem.product ? form.bom.orderItem.product.code : null;
             } else if (form.type === REPO_CHANGING_TYPE_IN && form.reason.orderRelated === 2) {
                 oi.onClick = this.selectPurchasingOrder;

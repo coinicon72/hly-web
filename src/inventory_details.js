@@ -6,16 +6,39 @@ import React from 'react';
 
 import axios from 'axios'
 
+// icon
+import {
+    ContentSave,
+} from 'mdi-material-ui';
+
+// ui
+// ui
 import {
     withStyles, Typography,
     Toolbar, Button,
     Select,
     InputLabel, FormControl,
+    Grid as MuGrid,
+    Paper,
+    TextField, IconButton,
+    // MenuItem, Snackbar, 
+    // Select, Toolbar,
+    // Divider, 
+    // Tooltip, Chip,
+    // Input, 
+    // InputLabel,
+    // InputAdornment,
+    // FormGroup, FormControlLabel, 
+    // FormControl,
+    // FormHelperText,
+    // Stepper, Step, StepLabel,
+    // Switch,
+    // Table, TableBody, TableCell, TableHead, TableRow,
+    // Dialog, DialogActions, DialogContent,
+    // DialogContentText, 
+    // DialogTitle,
 } from '@material-ui/core';
 
-import {
-    ContentSave,
-} from 'mdi-material-ui';
 import { DataTypeProvider } from '@devexpress/dx-react-grid';
 
 import {
@@ -24,11 +47,17 @@ import {
 } from '@devexpress/dx-react-grid-material-ui';
 
 //
+import { connect } from 'react-redux'
+import { actionShowSnackbar } from "./redux/data_selection"
+
+//
+import { toFixedMoney, getTodayDateTimeString, toDateString } from "./utils"
+
+//
 import { DATA_API_BASE_URL } from "./config"
 import { LookupEditCell } from "./data_table_util";
 
 import CommonStyles from "./common_styles";
-import { toFixedMoney } from './utils';
 import { CurrencyTypeProvider } from "./common_components"
 import { MODE_ADD, MODE_EDIT, MODE_VIEW } from "./common"
 
@@ -174,13 +203,17 @@ class InventoryPage extends React.PureComponent {
 
     componentDidMount() {
         const { id } = this.props;
+        const { form } = this.state;
 
-        if (id) { 
+        if (id) {
             this.setState({ mode: MODE_EDIT });
 
             axios.get(`${DATA_API_BASE_URL}/inventories/${id}`)
-            .then(r => r.data)
-            .then(form => this.setState({ form }))
+                .then(r => r.data)
+                .then(form => this.setState({ form }))
+        } else {
+            form.createDate = new Date();
+            form.reportBy = this.props.user;
         }
 
         axios.get(`${DATA_API_BASE_URL}/materials`)
@@ -194,16 +227,22 @@ class InventoryPage extends React.PureComponent {
             })
     }
 
+    componentDidUpdate() {
+        const { form } = this.state;
+        if (!form.reportBy) form.reportBy = this.props.user;
+    }
+
     render() {
         const { classes } = this.props
-        const { repoes, currentRepo, } = this.state;
+        const { repoes, currentRepo, form } = this.state;
 
         return currentRepo ? (
             <div className={classes.contentRoot}>
                 <Toolbar className={classes.toolbar}>
                     {/* <IconButton style={{ marginRight: 16 }} onClick={this.props.history.goBack} ><ArrowLeft /></IconButton> */}
                     {/* <Typography variant="title" className={classes.toolbarTitle}></Typography> */}
-                    <FormControl className={classes.formControl}>
+
+                    <FormControl className={classes.formControl} style={{ marginBottom: 16 }}>
                         <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
                         <Select
                             native
@@ -223,6 +262,68 @@ class InventoryPage extends React.PureComponent {
                     <Button onClick={this.saveInventory} color='primary' disabled={false} style={{ fontSize: 18 }} ><ContentSave />保存</Button>
                     <Button onClick={this.commitInventory} color='secondary' style={{ fontSize: 18 }} ><ContentSave />提交</Button>
                 </Toolbar>
+
+                <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
+
+                <Paper className={classes.paper}>
+                    <MuGrid container direction='column' alignItems="stretch">
+
+                        {/* <FormControl className={classes.formControl} style={{ marginBottom: 16 }}>
+                            <InputLabel htmlFor="repo" shrink>仓库</InputLabel>
+                            <Select
+                                native
+                                value={currentRepo ? currentRepo.id : null}
+                                onChange={this.onChangedRepo}
+                                inputProps={{
+                                    name: 'repo',
+                                    id: 'repo',
+                                }}
+                            >
+                                {repoes.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                            </Select>
+                        </FormControl> */}
+
+                        <MuGrid style={{ marginBottom: 16 }}>
+                            <TextField
+                                id="applicant"
+                                // required
+                                disabled//={disableEdit}
+                                // select
+                                // error={!!errors['form.applicant']}
+                                label="制单人"
+                                style={{ width: 200 }}
+                                value={form.reportBy ? form.reportBy.name : ""}
+                                // onChange={e => this.handleInput(e)}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                        </MuGrid>
+
+                        <MuGrid style={{ marginBottom: 16 }}>
+                            <TextField type="date" disabled={true} required id="createDate"
+                                label="制单日期"
+                                value={form.createDate ? toDateString(form.createDate) : ""}
+                                margin="normal"
+                                // onChange={e => this.handleOrderInfoChange(e)}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+
+                            {form.reportDate ?
+                                <TextField type="date" disabled={true} required id="reportDate"
+                                    label="提交日期"
+                                    value={form.reportDate ? toDateString(form.reportDate) : ""}
+                                    margin="normal"
+                                    // onChange={e => this.handleOrderInfoChange(e)}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                /> : null}
+                        </MuGrid>
+                    </MuGrid>
+                </Paper>
 
                 <DataTableBase columns={COLUMNS}
                     // changeAddedRowsCallback={this.changeAddedRowsCallback}
@@ -255,4 +356,20 @@ const styles = theme => ({
 })
 
 
-export default withStyles(styles)(InventoryPage);
+
+const mapStateToProps = state => ({
+    token: state.main.token,
+    user: state.main.user,
+})
+
+const mapDispatchToProps = dispatch => ({
+    //
+    showSnackbar: msg => dispatch(actionShowSnackbar(msg)),
+})
+
+const ConnectedComponent = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(InventoryPage)
+
+export default withStyles(styles)(ConnectedComponent);
