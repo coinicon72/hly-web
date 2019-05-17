@@ -845,7 +845,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
         <Route path="/repo_stat" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存汇总</Typography>} />
         <Route path="/repo_init" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存初始化</Typography>} />
         <Route path="/add_inventory" component={({ type }) => <Typography variant="title" className={classes.appTitle}>盘点</Typography>} />
-        <Route path="/inventory_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>新增盘点</Typography>} />
+        <Route path="/inventory_details" component={({ type }) => <Typography variant="title" className={classes.appTitle}>库存盘点</Typography>} />
         <Route component={() => <Typography variant="title" className={classes.appTitle}>华丽雅{process.env.NODE_ENV === 'development' ? ' - development' : null}</Typography>} />
       </Switch>
 

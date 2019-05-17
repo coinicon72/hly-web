@@ -294,14 +294,14 @@ class DataTableBase extends React.PureComponent {
                 let r = rows[idx]
 
                 if (this.doDelete) {
-                    const result = this.doDelete(r) //axios.delete(this.dataRepoApiUrl + "/" + r['id'])
+                    const result = this.doDelete(r, idx) //axios.delete(this.dataRepoApiUrl + "/" + r['id'])
                     if (result)
                         result.then(r => {
                             rows.splice(idx, 1);
                             deletingRows.splice(0, 1);
                             this.setState({ rows, deletingRows });
                         })
-                            .catch(e => this.showSnackbar(e.message));
+                            .catch(e => this.props.showSnackbar(e.message));
                 }
             }
             // })
@@ -345,8 +345,10 @@ class DataTableBase extends React.PureComponent {
                 this.doAdd(r) //axios.post(this.dataRepoApiUrl, r)
                     // .then(r => r.data)
                     .then(r => {
-                        rows = [...rows, r];
-                        this.setState({ rows });
+                        if (r) {
+                            rows = [...rows, r];
+                            this.setState({ rows });
+                        }
                     })
                     .catch(e => this.props.showSnackbar(e.message));
             });
@@ -358,7 +360,7 @@ class DataTableBase extends React.PureComponent {
                 let r = rows[i]
 
                 if (r) {
-                    this.doUpdate(r, changed[i]) //axios.patch(this.dataRepoApiUrl + "/" + r['id'], changed[i])
+                    this.doUpdate(r, changed[i], i) //axios.patch(this.dataRepoApiUrl + "/" + r['id'], changed[i])
                         // .then(resp => resp.data)
                         .then(j => {
                             rows = rows.map((row, idx) => changed[idx] ? { ...row, ...j } : row);
@@ -406,11 +408,22 @@ class DataTableBase extends React.PureComponent {
         // console.debug("componentDidMount: " + this);
 
         //
-        this.doLoad && this.doLoad()
-            .then(j => 
-                this.setState({ rows: j })
+        if (this.props.rows && !this.doLoad)
+            this.setState({ rows: this.props.rows });
+        else if (this.doLoad) {
+            this.doLoad()
+                .then(j =>
+                    this.setState({ rows: j })
                 )
-            .catch(e => this.props.showSnackbar(e.message));
+                .catch(e => this.props.showSnackbar(e.message));
+        }
+    }
+
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.rows != this.props.rows) {
+            this.setState({ rows: this.props.rows });
+        }
     }
 
     /**
