@@ -271,6 +271,44 @@ export const RepoChangingTypeProvider = props => (
 );
 
 
+// 0 = created; 1 = submitted; 2 = audited; -1 = rejected
+export const InventoryStatusEditor = ({ value, onValueChange }) => (
+    <Select
+        native
+        input={<Input />}
+        value={value}
+        onChange={event => {
+            onValueChange(event.target.value)
+        }
+        }
+        style={{ width: '100%' }}
+    >
+        <option key="o" value=""></option>
+        <option key="o0" value={0}>草稿</option>
+        <option key="o1" value={1}>已提交</option>
+        <option key="o2" value={2}>已审核</option>
+        <option key="o-1" value={-1}>审核未通过</option>
+    </Select>
+);
+
+export const InventoryStatusProvider = props => (
+    <DataTypeProvider
+        formatterComponent={({ row, value }) =>
+        {
+            switch (value) {
+                case 0: return "草稿";
+                case 1: return "已提交";
+                case 2: return "已审核";
+                case -1: return "审核未通过";
+                default: return "";
+            }
+        }}
+        editorComponent={RepoChangingStatusEditor}
+        {...props}
+    />
+);
+
+
 // 0 = init; 1 = submitted; 2 = executed; -1 = rejected
 export const RepoChangingStatusEditor = ({ value, onValueChange }) => (
     <Select

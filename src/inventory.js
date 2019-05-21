@@ -7,7 +7,8 @@ import React from 'react';
 // import Loadable from 'react-loadable';
 // import Loading from './loading-component';
 
-import { withStyles, 
+import {
+    withStyles,
     // Typography, Select, Input 
 } from '@material-ui/core';
 // import { DataTypeProvider } from '@devexpress/dx-react-grid';
@@ -20,7 +21,7 @@ import { connect } from 'react-redux'
 import { actionShowSnackbar } from "./redux/data_selection"
 
 //
-import {API_BASE_URL, DATA_API_BASE_URL} from "./config"
+import { API_BASE_URL, DATA_API_BASE_URL } from "./config"
 
 import CommonStyles from "./common_styles"
 
@@ -28,7 +29,7 @@ import CommonStyles from "./common_styles"
 
 import DataTableBase from "./data_table_base"
 import { toDateString } from './utils'
-import { inventoriestatusProvider, TaxTypeProvider } from './common_components'
+import { InventoryStatusProvider, TaxTypeProvider } from './common_components'
 
 
 // =============================================
@@ -39,11 +40,11 @@ const DETAIL_PAGE_URL = "/inventory_details";
 
 const COLUMNS = [
     { name: 'id', title: '序号' },
-    { name: 'repo', title: '仓库' },
-    { name: 'date', title: '日期' },
-    { name: "reportBy", title: "录入", getCellValue: row => row.auditBy ? "" : null },
-    { name: "auditBy", title: "审核", getCellValue: row => row.auditBy ? "" : null },
-    { name: "comment", title: "备注" },
+    { name: 'repo', title: '仓库', getCellValue: row => row.repo ? row.repo.name : null },
+    { name: 'createDate', title: '日期' },
+    { name: "reportBy", title: "录入", getCellValue: row => row.reportBy ? row.reportBy.name : null },
+    { name: "auditBy", title: "审核", getCellValue: row => row.auditBy ? row.auditBy.name : null },
+    { name: "status", title: "状态" },
 ]
 
 
@@ -87,8 +88,29 @@ class InventoryPage extends React.PureComponent {
     // }
 
     doLoad = () => {
-        return axios.get(`${DATA_API_BASE_URL}/inventories`)//,
-            .then(resp => resp.data._embedded[DATA_REPO])
+        return axios.get(`${API_BASE_URL}/inventories`)//,
+            .then(resp => resp.data)
+            .then(d => {
+                let r = d.map(i => i.reportBy).filter(i => i && typeof (i) == 'object')
+                let a = d.map(i => i.auditBy).filter(i => i && typeof (i) == 'object')
+                let us = r.concat(a)
+
+                d.forEach(inv => {
+                    if (inv.reportBy && typeof (inv.reportBy) == 'number') {
+                        let u = us.find(i => i.id == inv.reportBy)
+                        if (u)
+                            inv.reportBy = u;
+                    }
+
+                    if (inv.auditBy && typeof (inv.auditBy) == 'number') {
+                        let u = us.find(i => i.id == inv.auditBy)
+                        if (u)
+                            inv.auditBy = u;
+                    }
+                })
+
+                return d;
+            })
     }
 
     doAdd = (r) => {
@@ -107,7 +129,7 @@ class InventoryPage extends React.PureComponent {
 
     onRowDoubleClicked = (row) => {
         if (row) {
-                this.props.history.push(`${DETAIL_PAGE_URL}/${row.id}`);
+            this.props.history.push(`${DETAIL_PAGE_URL}/${row.id}`);
         }
     }
 
@@ -128,7 +150,7 @@ class InventoryPage extends React.PureComponent {
                     showEditCommand={false}
                     clickHandler={this.onRowDoubleClicked}
                     providers={[
-                        // <inventoriestatusProvider key='inventoriestatusProvider' for={['status']} />,
+                        <InventoryStatusProvider key='inventoryStatusProvider' for={['status']} />,
                         // <TaxTypeProvider key='TaxTypeProvider' for={['tax']} />,
                     ]}
                 />

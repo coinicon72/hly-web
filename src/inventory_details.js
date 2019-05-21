@@ -382,14 +382,16 @@ class InventoryPage extends React.PureComponent {
                 <Toolbar className={classes.toolbar}>
                     <Typography variant="title" className={classes.subTitle}>基本信息</Typography>
                     <span style={{ flex: 1 }} />
+                    <Tooltip title={ this.state.basicInfoExpanded ? "隐藏基本信息" : "显示基本信息" }>
                     <IconButton onClick={this.toggleBasicInfoExpand}>{this.state.basicInfoExpanded ? <ChevronUp /> : <ChevronDown />}</IconButton>
+                    </Tooltip>
                 </Toolbar>
 
                 <Collapse in={this.state.basicInfoExpanded} timeout="auto" unmountOnExit>
                     <Paper className={classes.paper} style={{ marginBottom: 16 }}>
                         <MuGrid container direction='column' alignItems="stretch">
 
-                            <MuGrid style={{ marginBottom: 8 }}>
+                            <MuGrid item>
                                 <TextField
                                     id="applicant"
                                     // required
@@ -406,7 +408,7 @@ class InventoryPage extends React.PureComponent {
                                 />
                             </MuGrid>
 
-                            <MuGrid style={{ marginBottom: 8 }}>
+                            <MuGrid>
                                 <TextField type="date" disabled={true} required id="createDate"
                                     label="制单日期"
                                     value={form.createDate ? toDateString(form.createDate) : ""}
@@ -422,6 +424,7 @@ class InventoryPage extends React.PureComponent {
                                         label="提交日期"
                                         value={form.reportDate ? toDateString(form.reportDate) : ""}
                                         margin="normal"
+                                        style={{ marginLeft: 16 }}
                                         // onChange={e => this.handleOrderInfoChange(e)}
                                         InputLabelProps={{
                                             shrink: true,
@@ -444,6 +447,37 @@ class InventoryPage extends React.PureComponent {
                                     }}
                                 />
                             </MuGrid>
+
+                            {form.auditBy ?
+                                <MuGrid item>
+                                    <TextField
+                                        id="audit"
+                                        // required
+                                        disabled//={disableEdit}
+                                        // select
+                                        // error={!!errors['form.applicant']}
+                                        label="审核人"
+                                        style={{ width: 200, marginTop: 16 }}
+                                        value={form.auditBy ? form.auditBy.name : ""}
+                                        // onChange={e => this.handleInput(e)}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                </MuGrid> : null}
+
+                            {form.auditDate ?
+                                <MuGrid item>
+                                    <TextField type="date" disabled={true} required id="auditDate"
+                                        label="审核日期"
+                                        value={form.auditDate ? toDateString(form.auditDate) : ""}
+                                        margin="normal"
+                                        // onChange={e => this.handleOrderInfoChange(e)}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                </MuGrid> : null}
                         </MuGrid>
                     </Paper>
                 </Collapse>
@@ -482,7 +516,7 @@ class InventoryPage extends React.PureComponent {
                         <CurrencyTypeProvider key='ctp' for={["price", "subtotal"]} />,
                     ]}
                 />
-            </div>
+            </div >
         ) : null
     }
 }
