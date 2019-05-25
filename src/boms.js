@@ -16,14 +16,14 @@ import CommonStyles from "./common_styles";
 import { Link } from 'react-router-dom'
 
 // icons
-import {PlusCircleOutline, FileDocumentBox} from 'mdi-material-ui';
+import { PlusCircleOutline, FileDocumentBox } from 'mdi-material-ui';
 import { Edit } from '@material-ui/icons';
 
 // ui
 import {
-    Paper, 
+    Paper,
     // Typography, Grid, TextField, 
-    Button, IconButton, Snackbar, 
+    Button, IconButton, Snackbar,
     // Input, Select, Toolbar, Divider, 
     Tooltip,
     Table, TableBody, TableCell, TableHead, TableRow
@@ -38,7 +38,7 @@ import { actionShowSnackbar } from "./redux/data_selection"
 
 // import DataTableBase from "./data_table_base"
 
-import { DATA_API_BASE_URL } from "./config"
+import { API_BASE_URL, DATA_API_BASE_URL } from "./config"
 // import { toDateString } from "./utils"
 
 // =============================================
@@ -53,36 +53,31 @@ class BomPage extends React.PureComponent {
         }
 
         this.loadBoms = (async () => {
-            axios.get(`${DATA_API_BASE_URL}/boms`)
-                .then(resp => resp.data._embedded.boms)
+            axios.get(`${API_BASE_URL}/boms`)
+                .then(resp => resp.data)
                 .then(boms => {
-                    this.state.boms = boms;
+                    // this.state.boms = boms;
 
-                    boms.forEach(b => {
-                        axios.get(`${DATA_API_BASE_URL}/orderItems/${b.id.order}_${b.id.product}`)
-                            .then(resp => resp.data)
-                            .then(bi => {
-                                b.orderItem = bi
-                                return bi.id.order
-                            })
-                            
-                            .then(oid => axios.get(`${DATA_API_BASE_URL}/products/${b.orderItem.id.product}`))
-                            .then(resp => resp.data)
-                            .then(p => {
-                                b.orderItem.product = p
-                                return 1
-                            })
+                    const orders = boms.map(i => i.orderItem.order)
+                        .filter(i => typeof (i) == 'object');
 
-                            .then(oid => axios.get(`${DATA_API_BASE_URL}/orders/${b.orderItem.id.order}`))
-                            .then(resp => resp.data)
-                            .then(o => {
-                                b.orderItem.order = o
-                                b.client = o._embedded.client
-                                this.forceUpdate()
-                            })
-                        // .then(oid => axios.get(`${API_BASE_URL}/orders/${oid}`))
-                        // .then(o => b.order = o)
-                    })
+                    const clients = orders.map(i => i.client)
+                        .filter(i => typeof (i) == 'object');
+
+                    orders.filter(i => typeof (i.client) == 'number')
+                    .forEach(i => {
+                        let client = clients.find(c => c.id == i.client);
+                        i.client = client;
+                    });
+
+                    boms.map(i => i.orderItem)
+                        .filter(i => typeof (i.order) == 'number')
+                        .forEach(i => {
+                            let order = orders.find(o => o.id == i.order);
+                            i.order = order;
+                        })
+
+                    this.setState({ boms });
                 })
                 .catch(e => this.props.showSnackbar(e.message));
 
@@ -97,29 +92,6 @@ class BomPage extends React.PureComponent {
         if (row)
             this.props.history.push('/order/' + row.id);
     }
-
-    doLoad = () => {
-        return axios.get(this.dataRepoApiUrl)//,
-            .then(resp => resp.data._embedded[DATA_REPO])
-    }
-
-    doAdd = (r) => {
-        return axios.post(this.dataRepoApiUrl, r)
-            .then(resp => resp.data)
-    }
-
-    doUpdate = (r, c) => {
-        return axios.patch(this.dataRepoApiUrl + "/" + r['id'], c)
-            .then(resp => resp.data)
-    }
-
-    doDelete = (r) => {
-        return axios.delete(this.dataRepoApiUrl + "/" + r['id'])
-    }
-
-    // showSnackbar(msg: String) {
-    //     this.setState({ snackbarOpen: true, snackbarContent: msg });
-    // }
 
     render() {
         const { classes, } = this.props
@@ -150,7 +122,7 @@ class BomPage extends React.PureComponent {
                                     return (
                                         <TableRow key={bom.id}>
                                             {/* <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{bom.id}</TableCell> */}
-                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{client ? client.name : null}</TableCell>
+                                            <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.order && orderItem.order.client ? orderItem.order.client.name : null}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.order ? orderItem.order.no : null}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.product ? orderItem.product.code : null}</TableCell>
                                             <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`${orderItem.quantity} kg`}</TableCell>
