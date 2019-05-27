@@ -504,7 +504,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
     let l = []
 
     if (this.hasPrivilege('accounting:settlement'))
-      l.push(<ListItem button onClick={this.handleMenuToggle('paymentSettlement')}>
+      l.push(<ListItem key='paymentSettlement' button onClick={this.handleMenuToggle('paymentSettlement')}>
         <ListItemIcon>
           <FileExport />
         </ListItemIcon>
@@ -574,7 +574,7 @@ class App extends React.PureComponent<{ classes: any }, any> {
 
 
     if (this.hasPrivilege('accounting:settlement'))
-      l.push(<ListItem button onClick={this.handleMenuToggle('collectingSettlement')}>
+      l.push(<ListItem key='collectingSettlement' button onClick={this.handleMenuToggle('collectingSettlement')}>
         <ListItemIcon>
           <FileImport />
         </ListItemIcon>

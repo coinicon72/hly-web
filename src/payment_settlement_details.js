@@ -479,11 +479,11 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                     <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>订单编号</TableCell>
                                     <TableCell padding="dense" style={{ width: '25%', whiteSpace: 'nowrap' }}>时间</TableCell>
                                     <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>是否含税</TableCell>
-                                    <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>税率</TableCell>
-                                    <TableCell padding="dense" numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>总价</TableCell>
+                                    <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>税率</TableCell>
+                                    <TableCell padding="dense" align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>总价</TableCell>
                                     {mode === MODE_ADD ?
                                         <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                            {/* <Button variant="flat" disabled={!client} size="large" onClick={this.onAddOrders}>
+                                            {/* <Button variant="text" disabled={!client} size="large" onClick={this.onAddOrders}>
                                             <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button> */}
                                         </TableCell> : null
                                     }
@@ -497,8 +497,8 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.no}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{toDateString(n.date)}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap' }}>{n.tax ? '含税' : ''}</TableCell>
-                                            <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>{n.tax ? `${n.vat * 100}%` : null}</TableCell>
-                                            <TableCell padding="dense" numeric style={{ whiteSpace: 'nowrap' }}>¥ {n.value}</TableCell>
+                                            <TableCell padding="dense" align="right" style={{ whiteSpace: 'nowrap' }}>{n.tax ? `${n.vat * 100}%` : null}</TableCell>
+                                            <TableCell padding="dense" align="right" style={{ whiteSpace: 'nowrap' }}>¥ {n.value}</TableCell>
                                             {mode === MODE_ADD ?
                                                 <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                     <Tooltip title="删除">
@@ -514,7 +514,7 @@ class PaymentSettlementDetailsPage extends React.PureComponent {
                             </TableBody>
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
+                            <Button variant="text" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>

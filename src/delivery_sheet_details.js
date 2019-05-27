@@ -572,13 +572,13 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                     <TableRow>
                                         <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>产品编号</TableCell>
                                         <TableCell padding="dense" style={{ width: '10%', whiteSpace: 'nowrap' }}>产品颜色</TableCell>
-                                        <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>数量</TableCell>
-                                        <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>箱数</TableCell>
-                                        <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>单价</TableCell>
-                                        <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>小计</TableCell>
+                                        <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>数量</TableCell>
+                                        <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>箱数</TableCell>
+                                        <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>单价</TableCell>
+                                        <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                         <TableCell padding="dense" style={{ width: '10%', padding: 0, whiteSpace: 'nowrap' }}>
                                             {mode === MODE_VIEW || mode === MODE_AUDIT ? null :
-                                                <Button variant="flat" size="large" onClick={this.onAddProduct}>
+                                                <Button variant="text" size="large" onClick={this.onAddProduct}>
                                                     <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                             }
                                         </TableCell>
@@ -593,7 +593,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                             <TableRow key={pid}>
                                                 <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>{product.code}</TableCell>
                                                 <TableCell padding="dense" style={{ width: '10%', whiteSpace: 'nowrap' }}>{product.color}</TableCell>
-                                                <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                                <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>
                                                     <TextField type="number" style={{ width: 100 }} required disabled={mode === MODE_VIEW || mode === MODE_AUDIT} id={`quantity_${pid}`}
                                                         value={it.quantity}
                                                         fullWidth
@@ -606,7 +606,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                         onChange={e => this.handleQuantityChange(e)}
                                                     />
                                                 </TableCell>
-                                                <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                                <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>
                                                     <TextField type="number" style={{ width: 80 }} required disabled={mode === MODE_VIEW || mode === MODE_AUDIT} id={`boxes_${pid}`}
                                                         value={it.boxes}
                                                         fullWidth
@@ -616,7 +616,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                         onChange={e => this.handleBoxesChange(e)}
                                                     />
                                                 </TableCell>
-                                                <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                                <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>
                                                     <TextField type="number"
                                                         style={{ width: 100 }} required
                                                         disabled
@@ -633,8 +633,8 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                                         onChange={e => this.handlePriceChange(e)}
                                                     />
                                                 </TableCell>
-                                                <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(it.quantity * it.price)}`}</TableCell>
-                                                <TableCell padding="dense" numeric style={{ width: '10%', whiteSpace: 'nowrap', padding: 0 }}>
+                                                <TableCell padding="dense" align="right" style={{ width: '10%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(it.quantity * it.price)}`}</TableCell>
+                                                <TableCell padding="dense" align="right" style={{ width: '10%', whiteSpace: 'nowrap', padding: 0 }}>
                                                     {mode === MODE_VIEW || mode === MODE_AUDIT ? null :
                                                         <Tooltip title="删除">
                                                             <IconButton onClick={() => this.onDelete(it.id, no)}>
@@ -649,7 +649,7 @@ class DeliverySheetDetailsPage extends React.PureComponent {
                                 </TableBody>
                             </Table>
                             {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
+                            <Button variant="text" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                         </Paper>

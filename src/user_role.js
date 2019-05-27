@@ -152,7 +152,7 @@ class UserRolePage extends React.PureComponent {
                                             <TableCell>
                                                 <Checkbox checked={isSelected} />
                                             </TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{u.id}</TableCell>
+                                            <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>{u.id}</TableCell>
                                             <TableCell style={{ width: '35%', whiteSpace: 'nowrap' }}>{u.name}</TableCell>
                                             <TableCell style={{ width: '45%', whiteSpace: 'nowrap' }}>{u.phone}</TableCell>
                                         </TableRow>
@@ -183,7 +183,7 @@ class UserRolePage extends React.PureComponent {
                                             <TableCell>
                                                 <Checkbox checked={isSelected} />
                                             </TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{r.id}</TableCell>
+                                            <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>{r.id}</TableCell>
                                             <TableCell style={{ width: '35%', whiteSpace: 'nowrap' }}>{r.code}</TableCell>
                                             <TableCell style={{ width: '45%', whiteSpace: 'nowrap' }}>{r.name}</TableCell>
                                         </TableRow>

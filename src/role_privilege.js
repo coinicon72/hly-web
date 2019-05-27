@@ -197,7 +197,7 @@ class RolePrivilegePage extends React.PureComponent {
                                             <TableCell padding="checkbox">
                                                 <Checkbox checked={isSelected} />
                                             </TableCell>
-                                            <TableCell numeric style={{ width: '20%', }}>{r.id}</TableCell>
+                                            <TableCell align="right" style={{ width: '20%', }}>{r.id}</TableCell>
                                             <TableCell style={{ width: '35%', }}>{r.code}</TableCell>
                                             <TableCell style={{ width: '45%', }}>{r.name}</TableCell>
                                         </TableRow>
@@ -234,7 +234,7 @@ class RolePrivilegePage extends React.PureComponent {
                                                     checked={isSelected}
                                                     onChange={event => this.handlePrivilegeClick(event, p.id)} />
                                             </TableCell>
-                                            {/* <TableCell numeric style={{ width: '10%',  }}>{p.id}</TableCell> */}
+                                            {/* <TableCell align="right" style={{ width: '10%',  }}>{p.id}</TableCell> */}
                                             <TableCell padding="dense" style={{ width: '40%', }}>{code}</TableCell>
                                             <TableCell padding="dense" style={{ width: '40%', }}>{p.name}</TableCell>
                                             <TableCell padding="dense" style={{ width: '20%', }}>

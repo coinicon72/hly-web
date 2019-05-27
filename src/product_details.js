@@ -109,7 +109,7 @@ class ProductDetailsPage extends React.PureComponent {
         // if (!formulas.length) {
         //     noDataTip = (
         //         <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-        //             <Button variant="flat" size="large">
+        //             <Button variant="text" size="large">
         //                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />
         //                 新增配方
         //   </Button>
@@ -156,11 +156,11 @@ class ProductDetailsPage extends React.PureComponent {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell numeric style={{ whiteSpace: 'nowrap' }}>修订版本</TableCell>
+                                    <TableCell align="right" style={{ whiteSpace: 'nowrap' }}>修订版本</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>修订日期</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>修订日志</TableCell>
                                     <TableCell style={{ padding: 0 }}>
-                                        <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
+                                        <Button variant="text" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
                                             <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
                                     </TableCell>
                                 </TableRow>
@@ -169,7 +169,7 @@ class ProductDetailsPage extends React.PureComponent {
                                 {formulas.map((n, no) => {
                                     return (
                                         <TableRow key={n.id}>
-                                            <TableCell numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{n.revision}</TableCell>
+                                            <TableCell align="right" style={{ width: '10%', whiteSpace: 'nowrap' }}>{n.revision}</TableCell>
                                             <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>{n.createDate}</TableCell>
                                             <TableCell style={{ width: '75%', whiteSpace: 'nowrap' }}>{n.changeLog}</TableCell>
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
@@ -197,7 +197,7 @@ class ProductDetailsPage extends React.PureComponent {
                             </TableBody>
                         </Table>
                         <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
+                            <Button variant="text" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
                         </div>
                     </Paper>

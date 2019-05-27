@@ -457,13 +457,13 @@ class BomDetailsPage extends React.PureComponent<{}, {
             axios.get(`${DATA_API_BASE_URL}/orders/${id}`)
                 .then(resp => resp.data)
                 .then(order => {
-                    this.setState({ order })
-                    return `${order._links.self.href}/items`
-                })
-                .then(url => axios.get(url))
-                .then(resp => resp.data._embedded.orderItems)
-                .then(orderItems => {
-                    this.setState({ orderItems })
+                    this.setState({ order, orderItems: order._embedded.items })
+                //     return `${order._links.self.href}/items`
+                // })
+                // .then(url => axios.get(url))
+                // .then(resp => resp.data._embedded.orderItems)
+                // .then(orderItems => {
+                    // this.setState({ orderItems })
                 })
                 .catch(e => this.props.showSnackbar(e.message));
         }
@@ -912,12 +912,12 @@ class BomSheet extends React.PureComponent {
                                         <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.code}</TableCell>
                                         <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.name}</TableCell>
                                         <TableCell style={{ width: '15%', whiteSpace: 'nowrap' }}>{material.type.name}</TableCell>
-                                        <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{f.quantity}</TableCell>
-                                        <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{`${f.calc_quantity} kg`}</TableCell>
-                                        <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                        <TableCell align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>{f.quantity}</TableCell>
+                                        <TableCell align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>{`${f.calc_quantity} kg`}</TableCell>
+                                        <TableCell align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>
                                             <TextField type="number" required id={`quantity_${f.id.material}`}
                                                 disabled={mode === MODE_VIEW}
-                                                value={f.custom_quantity ? toFixedMass(f.custom_quantity) : null}
+                                                value={f.custom_quantity ? toFixedMass(f.custom_quantity) : ""}
                                                 fullWidth
                                                 error={errors && errors[`material_${f.id.material}`]}
                                                 InputProps={{

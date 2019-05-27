@@ -645,10 +645,10 @@ class AddFourmulaPage extends React.PureComponent {
                                     <TableCell className={classes.tableHead}>材料编号</TableCell>
                                     <TableCell className={classes.tableHead}>材料名称</TableCell>
                                     <TableCell className={classes.tableHead}>类型</TableCell>
-                                    <TableCell className={classes.tableHead} numeric>数量</TableCell>
+                                    <TableCell className={classes.tableHead} align="right">数量</TableCell>
                                     <TableCell style={{ padding: 0 }}>
                                         {this.state.mode === MODE_VIEW ? null : <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                                            <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                                            <Button variant="text" size="large" onClick={() => this.setState({ selectMaterial: true })}>
                                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
                                         </div>}
                                     </TableCell>
@@ -691,7 +691,7 @@ class AddFourmulaPage extends React.PureComponent {
                             </TableBody>
                         </Table>
                         {this.state.mode === MODE_VIEW ? null : <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                            <Button variant="text" size="large" onClick={() => this.setState({ selectMaterial: true })}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />添加材料</Button>
                         </div>}
                     </Paper>

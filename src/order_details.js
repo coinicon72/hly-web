@@ -560,10 +560,10 @@ class OrderDetailsPage extends React.PureComponent {
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>产品颜色</TableCell>
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>数量</TableCell>
                                     <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>单价</TableCell>
-                                    <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>小计</TableCell>
+                                    <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         {mode === MODE_VIEW ? null :
-                                            <Button variant="flat" size="large" onClick={this.onAddProduct}>
+                                            <Button variant="text" size="large" onClick={this.onAddProduct}>
                                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                         }
                                     </TableCell>
@@ -577,7 +577,7 @@ class OrderDetailsPage extends React.PureComponent {
                                         <TableRow key={rid}>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.code}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{product.color}</TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
+                                            <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required disabled={mode === MODE_VIEW} id={`quantity_${rid}`}
                                                     value={n.quantity}
                                                     fullWidth
@@ -589,7 +589,7 @@ class OrderDetailsPage extends React.PureComponent {
                                                     onChange={e => this.handleQuantityChange(e)}
                                                 />
                                             </TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>
+                                            <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required disabled={mode === MODE_VIEW} id={`price_${rid}`}
                                                     value={n.price}
                                                     fullWidth
@@ -604,7 +604,7 @@ class OrderDetailsPage extends React.PureComponent {
                                                     onChange={e => this.handlePriceChange(e)}
                                                 />
                                             </TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.price)}`}</TableCell>
+                                            <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.price)}`}</TableCell>
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 {mode === MODE_VIEW ? null :
                                                     <Tooltip title="删除">
@@ -625,7 +625,7 @@ class OrderDetailsPage extends React.PureComponent {
                             </TableBody>
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
+                            <Button variant="text" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>
@@ -636,12 +636,12 @@ class OrderDetailsPage extends React.PureComponent {
                             <Typography variant="title" className={classes.subTitle}>发货单</Typography>
 
                             <Paper className={classes.paper}>
-                                <Button variant="flat" disabled={order.status >= ORDER_STATUS_COLLECTED} size="large" component={Link} to={`/delivery_sheet_details/add/${order.id}`}>
+                                <Button variant="text" disabled={order.status >= ORDER_STATUS_COLLECTED} size="large" component={Link} to={`/delivery_sheet_details/add/${order.id}`}>
                                     <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成发货单</Button>
-                                <Button variant="flat" disabled={deliverySheets.length <= 0} size="large" component={Link} to={`/delivery_sheet/${order.id}`}>
+                                <Button variant="text" disabled={deliverySheets.length <= 0} size="large" component={Link} to={`/delivery_sheet/${order.id}`}>
                                     <FileMultiple style={{ opacity: .5 }} color="primary" />查看发货单 ({deliverySheets.length})</Button>
 
-                                {/* <Button variant="flat" size="large" component={Link} to={`/sales_details/${order.id}`}>
+                                {/* <Button variant="text" size="large" component={Link} to={`/sales_details/${order.id}`}>
                                     <FileMultiple style={{ opacity: .5 }} color="primary" />销售明细</Button> */}
                             </Paper>
                         </React.Fragment>

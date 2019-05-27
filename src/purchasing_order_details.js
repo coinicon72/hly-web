@@ -547,9 +547,9 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                     <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>规格</TableCell>
                                     <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>数量</TableCell>
                                     <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>单价</TableCell>
-                                    <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>小计</TableCell>
+                                    <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>小计</TableCell>
                                     <TableCell padding="dense" style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                        <Button variant="flat" size="large" onClick={this.onAddMaterial}>
+                                        <Button variant="text" size="large" onClick={this.onAddMaterial}>
                                             <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                                     </TableCell>
                                 </TableRow>
@@ -563,7 +563,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                             <TableCell padding="dense" style={{ width: '15%', whiteSpace: 'nowrap' }}>{material.code}</TableCell>
                                             <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.name}</TableCell>
                                             <TableCell padding="dense" style={{ width: '20%', whiteSpace: 'nowrap' }}>{material.spec}</TableCell>
-                                            <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                            <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`quantity_${rid}`}
                                                     value={n.quantity}
                                                     fullWidth
@@ -576,7 +576,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                                     onChange={e => this.handleQuantityChange(e)}
                                                 />
                                             </TableCell>
-                                            <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>
+                                            <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`vip_${rid}`}
                                                     value={n.vip}
                                                     fullWidth
@@ -591,7 +591,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                                     onChange={e => this.handlePriceChange(e)}
                                                 />
                                             </TableCell>
-                                            <TableCell padding="dense" numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.vip)}`}</TableCell>
+                                            <TableCell padding="dense" align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>{`¥ ${toFixedMoney(n.quantity * n.vip)}`}</TableCell>
                                             <TableCell padding="dense" style={{ whiteSpace: 'nowrap', padding: 0 }}>
                                                 <Tooltip title="删除">
                                                     <IconButton onClick={() => this.onDelete(n.id, no)}>
@@ -605,7 +605,7 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                             </TableBody>
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
+                            <Button variant="text" size="large" component={Link} to={`/formula/add/${material.id}/0`}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增条目</Button>
                         </div> */}
                     </Paper>
@@ -618,10 +618,10 @@ class PurchasingOrderDetailsPage extends React.PureComponent {
                                 {order._embedded && order._embedded.repoChanging ? (
                                     <React.Fragment>
                                         <Typography >入库单已生成</Typography>
-                                        <Button variant="flat" size="large" component={Link} to={`${ROUTER_STOCK_IN}/view/${order._embedded.repoChanging.id}`}>
+                                        <Button variant="text" size="large" component={Link} to={`${ROUTER_STOCK_IN}/view/${order._embedded.repoChanging.id}`}>
                                             <FileMultiple style={{ opacity: .5 }} color="primary" />查看入库单</Button>
                                     </React.Fragment>
-                                ) : <Button variant="flat" size="large" component={Link} to={`${ROUTER_STOCK_IN}/add/${order.id}`}>
+                                ) : <Button variant="text" size="large" component={Link} to={`${ROUTER_STOCK_IN}/add/${order.id}`}>
                                         <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />生成入库单</Button>}
                             </Paper>
                         </React.Fragment>

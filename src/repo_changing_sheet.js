@@ -1295,7 +1295,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
                                     )}
                                     <TableCell padding='dense' style={{ padding: 0, whiteSpace: 'nowrap' }}>
                                         {disableEdit || orderSpecified ? null :
-                                            <Button variant="flat" size="large" onClick={() => this.setState({ selectMaterial: true })}>
+                                            <Button variant="text" size="large" onClick={() => this.setState({ selectMaterial: true })}>
                                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增</Button>
                                         }
                                     </TableCell>
@@ -1313,7 +1313,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
                                             <TableCell padding='dense' style={{ width: '20%', whiteSpace: 'nowrap' }}>{m.name}</TableCell>
                                             <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.type.name}</TableCell>
                                             <TableCell padding='dense' style={{ width: '10%', whiteSpace: 'nowrap' }}>{m.spec}</TableCell>
-                                            <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                            <TableCell padding='dense' align="right" style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                 <TextField type="number" required id={`quantity_${m.id}`}
                                                     value={n.quantity}
                                                     fullWidth
@@ -1330,7 +1330,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
 
                                             {form.type === REPO_CHANGING_TYPE_OUT ? null : (
                                                 <React.Fragment>
-                                                    <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>
+                                                    <TableCell padding='dense' align="right" style={{ width: '10%', whiteSpace: 'nowrap' }}>
                                                         <TextField type="number" required id={`price_${m.id}`}
                                                             value={n.price ? toFixedMoney(n.price) : null}
                                                             disabled={disableEdit || m.category === 1 || orderSpecified}
@@ -1345,7 +1345,7 @@ class RepoChangingSheetPage extends React.PureComponent<{
                                                         />
                                                     </TableCell>
 
-                                                    <TableCell padding='dense' numeric style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
+                                                    <TableCell padding='dense' align="right" style={{ width: '10%', whiteSpace: 'nowrap' }}>{toFixedMoney(subtotal)}</TableCell>
                                                 </React.Fragment>
                                             )}
 

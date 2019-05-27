@@ -133,13 +133,13 @@ class BomPage extends React.PureComponent {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    {/* <TableCell numeric style={{ whiteSpace: 'nowrap' }}>BOM序号</TableCell> */}
+                                    {/* <TableCell align="right" style={{ whiteSpace: 'nowrap' }}>BOM序号</TableCell> */}
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>客户</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>订单编号</TableCell>
                                     <TableCell style={{ whiteSpace: 'nowrap' }}>产品编号</TableCell>
-                                    <TableCell numeric style={{ whiteSpace: 'nowrap' }}>数量</TableCell>
+                                    <TableCell align="right" style={{ whiteSpace: 'nowrap' }}>数量</TableCell>
                                     <TableCell style={{ padding: 0, whiteSpace: 'nowrap' }}>
-                                        <Button variant="flat" size="large" component={Link} to={`/bom/add`}>
+                                        <Button variant="text" size="large" component={Link} to={`/bom/add`}>
                                             <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增BOM</Button>
                                     </TableCell>
                                 </TableRow>
@@ -148,12 +148,12 @@ class BomPage extends React.PureComponent {
                                 {boms.map((bom, no) => {
                                     const { client, orderItem } = bom
                                     return (
-                                        <TableRow key={bom.id}>
-                                            {/* <TableCell numeric style={{ width: '15%', whiteSpace: 'nowrap' }}>{bom.id}</TableCell> */}
+                                        <TableRow key={`${bom.id.order}_${bom.id.product}`}>
+                                            {/* <TableCell align="right" style={{ width: '15%', whiteSpace: 'nowrap' }}>{bom.id}</TableCell> */}
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{client ? client.name : null}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.order ? orderItem.order.no : null}</TableCell>
                                             <TableCell style={{ width: '20%', whiteSpace: 'nowrap' }}>{orderItem && orderItem.product ? orderItem.product.code : null}</TableCell>
-                                            <TableCell numeric style={{ width: '20%', whiteSpace: 'nowrap' }}>{`${orderItem.quantity} kg`}</TableCell>
+                                            <TableCell align="right" style={{ width: '20%', whiteSpace: 'nowrap' }}>{`${orderItem.quantity} kg`}</TableCell>
                                             <TableCell style={{ whiteSpace: 'nowrap', padding: 0, textAlign: 'center' }}>
                                                 <Tooltip title="明细">
                                                     <IconButton component={Link} to={`/bom/view/${orderItem.id.order}`}>
@@ -177,7 +177,7 @@ class BomPage extends React.PureComponent {
                             </TableBody>
                         </Table>
                         {/* <div style={{ padding: 8, textAlign: 'center', width: '100%' }}>
-                            <Button variant="flat" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
+                            <Button variant="text" size="large" component={Link} to={`/formula/add/${product.id}/0`}>
                                 <PlusCircleOutline style={{ opacity: .5 }} color="secondary" />新增配方</Button>
                         </div> */}
                     </Paper>
